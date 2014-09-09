@@ -1,7 +1,9 @@
 package com.cahue.resources;
 
 import com.cahue.DataSource;
-import com.cahue.entities.Location;
+import com.cahue.api.Location;
+import com.cahue.api.ParkingQuery;
+import com.cahue.entities.ParkingLocation;
 import com.google.appengine.api.search.*;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -24,12 +26,21 @@ public class LocationsResource {
     @Inject
     DataSource dataSource;
 
+    /**
+     * Get
+     * @return
+     */
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String get() {
+    @Produces(MediaType.APPLICATION_JSON)
+    public String get(ParkingQuery parkingQuery) {
+        
+
         return ("Hey there");
     }
 
+    /**
+     * Store a new parking position
+     */
     @PUT
     @Consumes({MediaType.APPLICATION_JSON})
     @Path("/put")
@@ -41,17 +52,20 @@ public class LocationsResource {
         Double latitude = location.getLatitude();
         Double longitude = location.getLongitude();
 
+        ParkingLocation parkingLocation = new ParkingLocation();
+        parkingLocation.setLatitude(latitude);
+        parkingLocation.setLongitude(longitude);
+
         // Save in datastore
         EntityManager em = dataSource.createEntityManager();
         em.getTransaction().begin();
-        em.persist(location);
+        em.persist(parkingLocation);
         em.getTransaction().commit();
 
         // Save in Index
         GeoPoint geoPoint = new GeoPoint(latitude, longitude)  ;
-        String documentId = location.getId().toString();
         Document doc = Document.newBuilder()
-                .setId(documentId) // Setting the document identifer is optional. If omitted, the search service will create an identifier.
+                .setId(parkingLocation.getId().toString())
                 .addField(Field.newBuilder().setName("location").setGeoPoint(geoPoint))
                 .build();
 

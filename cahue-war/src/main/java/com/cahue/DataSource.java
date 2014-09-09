@@ -1,7 +1,5 @@
 package com.cahue;
 
-import com.cahue.entities.Location;
-
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

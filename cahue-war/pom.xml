@@ -227,7 +227,7 @@
 
                 <configuration>
                     <api>JPA</api>
-                    <mappingIncludes>**/entities/*.class</mappingIncludes>
+                    <persistenceUnitName>transactions-optional</persistenceUnitName>
                     <verbose>true</verbose>
                 </configuration>
 
