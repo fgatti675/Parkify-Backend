@@ -3,6 +3,9 @@ package com.cahue.resources;
 import com.cahue.DataSource;
 import com.cahue.entities.Location;
 import com.google.appengine.api.search.*;
+import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -31,6 +34,9 @@ public class LocationsResource {
     @Consumes({MediaType.APPLICATION_JSON})
     @Path("/put")
     public Response put(Location location) {
+
+        UserService userService = UserServiceFactory.getUserService();
+        User user = userService.getCurrentUser();
 
         Double latitude = location.getLatitude();
         Double longitude = location.getLongitude();
