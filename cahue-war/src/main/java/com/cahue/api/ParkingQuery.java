@@ -28,5 +28,11 @@ public class ParkingQuery {
         this.latitude = latitude;
     }
 
+    public Long getRange() {
+        return range;
+    }
 
+    public void setRange(Long range) {
+        this.range = range;
+    }
 }

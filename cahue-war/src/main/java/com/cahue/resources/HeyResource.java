@@ -2,7 +2,7 @@ package com.cahue.resources;
 
 import com.cahue.SecondTest;
 import com.cahue.TestClass;
-import com.cahue.entities.ParkingLocation;
+import com.cahue.api.ParkingLocation;
 import org.glassfish.jersey.server.mvc.Template;
 
 import javax.inject.Inject;
