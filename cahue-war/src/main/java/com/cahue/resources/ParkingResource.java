@@ -19,7 +19,7 @@ import java.util.List;
  * Created by Francesco on 07/09/2014.
  */
 @Path("/parking")
-public class ParkingsResource {
+public class ParkingResource {
 
     private final static String PARKING_INDEX = "parkings";
     private final static String LOCATION_FIELD = "location";
