@@ -36,7 +36,6 @@ public class ParkingResource {
      * @return
      */
     @GET
-    @Path("/get")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ParkingLocation> get(
             @QueryParam("lat") Double latitude,
@@ -49,7 +48,7 @@ public class ParkingResource {
         /**
          * Query index first
          */
-        String queryString = String.format("distance(%s, geopoint(%d, %d)) < %s",
+        String queryString = String.format("distance(%s, geopoint(%f, %f)) < %s",
                 LOCATION_FIELD,
                 latitude,
                 longitude,
@@ -67,21 +66,20 @@ public class ParkingResource {
         /**
          * Query datastore with the results from the Index
          */
-        List<Long> ids = new ArrayList<>();
+        EntityManager em = dataSource.createEntityManager();
+        List<ParkingLocation> locations = new ArrayList<>();
         for(ScoredDocument document:documents){
-            ids.add(Long.parseLong(document.getId()));
+            locations.add(em.find(ParkingLocation.class, Long.parseLong(document.getId())));
         }
 
-        EntityManager em = dataSource.createEntityManager();
         //noinspection JpaQlInspection
-        return em.createQuery("SELECT p FROM ParkingLocation p WHERE p.id IN :ids", ParkingLocation.class).getResultList();
+        return locations;
     }
 
     /**
      * Store a new parking position
      */
     @PUT
-    @Path("/put")
     @Consumes({MediaType.APPLICATION_JSON})
     public Response put(ParkingLocation parkingLocation) {
 

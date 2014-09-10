@@ -10,11 +10,11 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.query.timeout" value="5000"/>
-            <property name="datanucleus.appengine.datastoreReadConsistency" value="STRONG"/>
-            <property name="datanucleus.appengine.datastoreEnableXGTransactions" value="true"/>
+            <!--<property name="datanucleus.appengine.datastoreReadConsistency" value="STRONG"/>-->
+            <!--<property name="datanucleus.appengine.datastoreEnableXGTransactions" value="true"/>-->
             <property name="datanucleus.datastoreWriteTimeout" value="5000"/>
-            <property name="datanucleus.NontransactionalRead" value="false"/>
-            <property name="datanucleus.NontransactionalWrite" value="false"/>
+            <property name="datanucleus.NontransactionalRead" value="true"/>
+            <property name="datanucleus.NontransactionalWrite" value="true"/>
             <property name="datanucleus.ConnectionURL" value="appengine"/>
         </properties>
     </persistence-unit>
