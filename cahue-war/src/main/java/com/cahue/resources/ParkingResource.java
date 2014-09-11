@@ -1,6 +1,7 @@
 package com.cahue.resources;
 
 import com.cahue.DataSource;
+import com.cahue.api.Location;
 import com.cahue.api.ParkingLocation;
 import com.google.appengine.api.search.*;
 import com.google.appengine.api.users.User;
@@ -33,6 +34,7 @@ public class ParkingResource {
 
     /**
      * Get
+     *
      * @return
      */
     @GET
@@ -42,7 +44,7 @@ public class ParkingResource {
             @QueryParam("long") Double longitude,
             @QueryParam("range") Long range) {
 
-        if(latitude == null || longitude == null || range == null)
+        if (latitude == null || longitude == null || range == null)
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
 
         /**
@@ -68,27 +70,26 @@ public class ParkingResource {
          */
         EntityManager em = dataSource.createEntityManager();
         List<ParkingLocation> locations = new ArrayList<>();
-        for(ScoredDocument document:documents){
+        for (ScoredDocument document : documents) {
             locations.add(em.find(ParkingLocation.class, Long.parseLong(document.getId())));
         }
 
-        //noinspection JpaQlInspection
         return locations;
     }
 
     /**
      * Store a new parking position
      */
-    @PUT
+    @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public Response put(ParkingLocation parkingLocation) {
+    public Response put(Location location) {
 
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
 
-        Double latitude = parkingLocation.getLatitude();
-        Double longitude = parkingLocation.getLongitude();
-
+        ParkingLocation parkingLocation = new ParkingLocation();
+        parkingLocation.setLatitude(location.getLatitude());
+        parkingLocation.setLongitude(location.getLongitude());
 
         // Save in datastore
         EntityManager em = dataSource.createEntityManager();
@@ -97,7 +98,7 @@ public class ParkingResource {
         em.getTransaction().commit();
 
         // Save in Index
-        GeoPoint geoPoint = new GeoPoint(latitude, longitude)  ;
+        GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
         Document doc = Document.newBuilder()
                 .setId(parkingLocation.getId().toString())
                 .addField(Field.newBuilder().setName(LOCATION_FIELD).setGeoPoint(geoPoint))

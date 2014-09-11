@@ -1,16 +1,14 @@
 package com.cahue.api;
 
-public class ParkingQuery {
+/**
+ * Date: 11.09.14
+ *
+ * @author francesco
+ */
+public class Location {
 
     private Double longitude;
     private Double latitude;
-    /**
-     * Range in meters
-     */
-    private Long range;
-
-    public ParkingQuery() {
-    }
 
     public Double getLongitude() {
         return longitude;
@@ -26,13 +24,5 @@ public class ParkingQuery {
 
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
-    }
-
-    public Long getRange() {
-        return range;
-    }
-
-    public void setRange(Long range) {
-        this.range = range;
     }
 }
