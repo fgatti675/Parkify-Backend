@@ -24,6 +24,8 @@ public class JerseyConfiguration extends ResourceConfig {
         property("jersey.config.server.mvc.factory.freemarker", TemplateObjectFactory.class);
         register(FreemarkerMvcFeature.class);
 
+        register(CORSResponseFilter.class);
+
         GuiceBridge.getGuiceBridge().initializeGuiceBridge(serviceLocator);
         GuiceIntoHK2Bridge guiceBridge = serviceLocator.getService(GuiceIntoHK2Bridge.class);
         guiceBridge.bridgeGuiceInjector((Injector) servletContext.getAttribute(Injector.class.getName()));

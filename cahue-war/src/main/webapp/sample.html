@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Post demo</title>
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script>
+
+        $( document ).ready(function() {
+            $.ajax({
+                url:"http://glossy-radio.appspot.com/spots",
+                type:'POST',
+                dataType:'json',
+                contentType :'application/json',
+                crossDomain: true,
+                processData:false,
+                data: '{"latitude":"40.415226", "longitude":"-3.701300"}',
+                success:function (data) {
+                    alert(JSON.stringify(data));
+                },
+                error:function (e) {
+                    alert("Cannot get data");
+                }
+            });
+        });
+    </script>
+
+</head>
+<body>
+
+
+</body>
+</html>

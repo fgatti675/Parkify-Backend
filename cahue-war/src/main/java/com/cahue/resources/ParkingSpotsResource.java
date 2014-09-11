@@ -2,7 +2,7 @@ package com.cahue.resources;
 
 import com.cahue.DataSource;
 import com.cahue.api.Location;
-import com.cahue.api.ParkingLocation;
+import com.cahue.api.ParkingSpot;
 import com.google.appengine.api.search.*;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -19,8 +19,8 @@ import java.util.List;
 /**
  * Created by Francesco on 07/09/2014.
  */
-@Path("/parking")
-public class ParkingResource {
+@Path("/spots")
+public class ParkingSpotsResource {
 
     private final static String PARKING_INDEX = "parkings";
     private final static String LOCATION_FIELD = "location";
@@ -39,7 +39,7 @@ public class ParkingResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ParkingLocation> get(
+    public List<ParkingSpot> get(
             @QueryParam("lat") Double latitude,
             @QueryParam("long") Double longitude,
             @QueryParam("range") Long range) {
@@ -69,12 +69,12 @@ public class ParkingResource {
          * Query datastore with the results from the Index
          */
         EntityManager em = dataSource.createEntityManager();
-        List<ParkingLocation> locations = new ArrayList<>();
+        List<ParkingSpot> spots = new ArrayList<>();
         for (ScoredDocument document : documents) {
-            locations.add(em.find(ParkingLocation.class, Long.parseLong(document.getId())));
+            spots.add(em.find(ParkingSpot.class, Long.parseLong(document.getId())));
         }
 
-        return locations;
+        return spots;
     }
 
     /**
@@ -87,20 +87,20 @@ public class ParkingResource {
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
 
-        ParkingLocation parkingLocation = new ParkingLocation();
-        parkingLocation.setLatitude(location.getLatitude());
-        parkingLocation.setLongitude(location.getLongitude());
+        ParkingSpot parkingSpot = new ParkingSpot();
+        parkingSpot.setLatitude(location.getLatitude());
+        parkingSpot.setLongitude(location.getLongitude());
 
         // Save in datastore
         EntityManager em = dataSource.createEntityManager();
         em.getTransaction().begin();
-        em.persist(parkingLocation);
+        em.persist(parkingSpot);
         em.getTransaction().commit();
 
         // Save in Index
         GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
         Document doc = Document.newBuilder()
-                .setId(parkingLocation.getId().toString())
+                .setId(parkingSpot.getId().toString())
                 .addField(Field.newBuilder().setName(LOCATION_FIELD).setGeoPoint(geoPoint))
                 .build();
 
@@ -113,6 +113,6 @@ public class ParkingResource {
             }
         }
 
-        return Response.status(Response.Status.OK).build();
+        return Response.ok().build();
     }
 }

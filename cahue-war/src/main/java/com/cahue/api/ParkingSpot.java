@@ -8,7 +8,7 @@ import java.util.Date;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-public class ParkingLocation {
+public class ParkingSpot {
 
 	@Id
     @GeneratedValue(strategy = IDENTITY)
@@ -18,7 +18,7 @@ public class ParkingLocation {
     private Float accuracy;
     private Date time = new Date();
 
-    public ParkingLocation() {
+    public ParkingSpot() {
     }
 
 	public Long getId() {

@@ -6,7 +6,7 @@
 
     <persistence-unit name="transactions-optional">
         <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
-        <class>com.cahue.api.ParkingLocation</class>
+        <class>com.cahue.api.ParkingSpot</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.query.timeout" value="5000"/>

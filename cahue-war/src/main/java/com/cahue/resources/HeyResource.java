@@ -2,7 +2,7 @@ package com.cahue.resources;
 
 import com.cahue.SecondTest;
 import com.cahue.TestClass;
-import com.cahue.api.ParkingLocation;
+import com.cahue.api.ParkingSpot;
 import org.glassfish.jersey.server.mvc.Template;
 
 import javax.inject.Inject;
@@ -68,7 +68,7 @@ public class HeyResource {
 		Map<String, Object> map = new HashMap<>();
 		map.put("foo", name);
 		map.put("bar", message);
-		ParkingLocation ste = new ParkingLocation();
+		ParkingSpot ste = new ParkingSpot();
 
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("transactions-optional");
         EntityManager entityManager = factory.createEntityManager();
@@ -89,7 +89,7 @@ public class HeyResource {
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("transactions-optional");
         EntityManager entityManager = factory.createEntityManager();
         entityManager.getTransaction().begin();
-        Query q = entityManager.createQuery("select t from " + ParkingLocation.class.getSimpleName() + " t");
+        Query q = entityManager.createQuery("select t from " + ParkingSpot.class.getSimpleName() + " t");
         List<?> list = q.getResultList();
         map.put("foo", "Number of Entries");
         map.put("bar", "The number of database entries is: " + list.size());
