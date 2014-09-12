@@ -8,7 +8,7 @@
 
         $( document ).ready(function() {
             $.ajax({
-                url:"http://glossy-radio.appspot.com/spots",
+                url:"/spots",
                 type:'POST',
                 dataType:'json',
                 contentType :'application/json',
@@ -16,9 +16,11 @@
                 processData:false,
                 data: '{"latitude":"40.415226", "longitude":"-3.701300"}',
                 success:function (data) {
+                    console.log("Post sucessful");
                     alert(JSON.stringify(data));
                 },
                 error:function (e) {
+                    console.log("Post error");
                     alert("Cannot get data");
                 }
             });
@@ -27,7 +29,7 @@
 
 </head>
 <body>
-
+      <p>Test</p>
 
 </body>
 </html>

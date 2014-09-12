@@ -1,5 +1,9 @@
 package com.cahue;
 
+import com.google.appengine.api.search.Index;
+import com.google.appengine.api.search.IndexSpec;
+import com.google.appengine.api.search.SearchServiceFactory;
+
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -11,12 +15,14 @@ import javax.persistence.Persistence;
 @Singleton
 public class DataSource {
 
-    EntityManagerFactory factory = Persistence.createEntityManagerFactory("transactions-optional");
+
+    private EntityManagerFactory factory = Persistence.createEntityManagerFactory("transactions-optional");
 
     public EntityManager createEntityManager(){
         return factory.createEntityManager();
-
     }
+
+
 
 
 }

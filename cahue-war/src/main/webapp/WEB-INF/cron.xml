@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+    <cron>
+        <url>/index/cleanStale</url>
+        <description>Remove stale index positions</description>
+        <schedule>every 5 minutes</schedule>
+    </cron>
+</cronentries>
