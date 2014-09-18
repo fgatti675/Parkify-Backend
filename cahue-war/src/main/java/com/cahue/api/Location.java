@@ -9,6 +9,7 @@ public class Location {
 
     private Double longitude;
     private Double latitude;
+    private Float accuracy;
 
     public Double getLongitude() {
         return longitude;
@@ -24,5 +25,13 @@ public class Location {
 
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
+    }
+
+    public Float getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(Float accuracy) {
+        this.accuracy = accuracy;
     }
 }

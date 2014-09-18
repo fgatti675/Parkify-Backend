@@ -73,6 +73,7 @@ public class SpotsResource {
         ParkingSpot parkingSpot = new ParkingSpot();
         parkingSpot.setLatitude(location.getLatitude());
         parkingSpot.setLongitude(location.getLongitude());
+        parkingSpot.setAccuracy(location.getAccuracy());
 
         /**
          * Save in datastore
