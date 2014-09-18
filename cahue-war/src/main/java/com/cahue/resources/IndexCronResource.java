@@ -87,17 +87,19 @@ public class IndexCronResource {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        lastTimeout =  calendar.getTime();
+        Date now =  calendar.getTime();
 
-        int count = indexManager.deleteBefore(lastTimeout);
+        int count = indexManager.deleteBefore(now);
 
         String result = String.format("Cleared %d entries from index in initial run before %s",
                 count,
-                lastTimeout);
+                now);
+
+        lastTimeout = now;
 
         logger.info(result);
 
-        return Response.ok(result).build();
+        return cleanIndexFromLastTimeout();
     }
 
 

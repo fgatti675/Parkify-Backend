@@ -120,7 +120,7 @@ public class IndexManager {
 
         String queryString = String.format("%s < %s",
                 INDEX_TIME_FIELD,
-                new SimpleDateFormat("yyyy-mm-dd").format(date));
+                new SimpleDateFormat("yyyy-MM-dd").format(date));
 
         QueryOptions options = QueryOptions.newBuilder()
                 .setLimit(MAX_RESULTS)
