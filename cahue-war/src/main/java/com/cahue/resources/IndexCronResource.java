@@ -2,7 +2,7 @@ package com.cahue.resources;
 
 import com.cahue.DataSource;
 import com.cahue.api.ParkingSpot;
-import com.cahue.index.IndexManager;
+import com.cahue.index.Index;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -36,7 +36,7 @@ public class IndexCronResource {
     DataSource dataSource;
 
     @Inject
-    IndexManager indexManager;
+    Index index;
 
     @GET
     @Path("/cleanStale")
@@ -89,7 +89,7 @@ public class IndexCronResource {
 
         Date now =  calendar.getTime();
 
-        int count = indexManager.deleteBefore(now);
+        int count = index.deleteBefore(now);
 
         String result = String.format("Cleared %d entries from index in initial run before %s",
                 count,
@@ -115,7 +115,7 @@ public class IndexCronResource {
             docIds.add(spot.getId().toString());
         }
 
-        indexManager.delete(docIds);
+        index.delete(docIds);
 
     }
 
@@ -129,7 +129,7 @@ public class IndexCronResource {
     @Path("/reset")
     public Response reset() {
 
-        indexManager.reset();
+        index.reset();
 
         return Response.ok(String.format("Index has been reset")).build();
     }

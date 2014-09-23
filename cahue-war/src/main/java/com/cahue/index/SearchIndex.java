@@ -12,7 +12,7 @@ import java.util.*;
  * @author francesco
  */
 @Singleton
-public class IndexManager {
+public class SearchIndex implements Index {
 
     private final static String SPOTS_INDEX = "spots";
 
@@ -25,7 +25,7 @@ public class IndexManager {
     private IndexSpec indexSpec = IndexSpec.newBuilder().setName(SPOTS_INDEX).build();
 
 
-    private Index createSpotsIndex() {
+    private com.google.appengine.api.search.Index createSpotsIndex() {
         return SearchServiceFactory.getSearchService().getIndex(indexSpec);
     }
 
@@ -38,6 +38,7 @@ public class IndexManager {
      * @param range
      * @return
      */
+    @Override
     public Set<Long> query(Double latitude, Double longitude, Long range) {
         /**
          * Query index first
@@ -52,7 +53,7 @@ public class IndexManager {
 //                .setLimit(MAX_RESULTS)
                 .build();
 
-        Index index = createSpotsIndex();
+        com.google.appengine.api.search.Index index = createSpotsIndex();
 
         Query query = Query.newBuilder().setOptions(options).build(queryString);
         Results<ScoredDocument> documents = index.search(query);
@@ -72,6 +73,7 @@ public class IndexManager {
      * @param longitude
      * @param time
      */
+    @Override
     public void put(Long id, Double latitude, Double longitude, Date time) {
 
         // Save in Index
@@ -82,7 +84,7 @@ public class IndexManager {
                 .addField(Field.newBuilder().setName(INDEX_TIME_FIELD).setDate(time))
                 .build();
 
-        Index index = createSpotsIndex();
+        com.google.appengine.api.search.Index index = createSpotsIndex();
         try {
             index.put(doc);
         } catch (PutException e) {
@@ -97,8 +99,9 @@ public class IndexManager {
      *
      * @param docIds
      */
+    @Override
     public void delete(List<String> docIds) {
-        Index index = createSpotsIndex();
+        com.google.appengine.api.search.Index index = createSpotsIndex();
         while (docIds.size() > MAX_BATCH_DELETE) {
             List<String> idsSubList = docIds.subList(0, MAX_BATCH_DELETE);
             index.delete(idsSubList);
@@ -113,9 +116,10 @@ public class IndexManager {
      *
      * @param date
      */
+    @Override
     public int deleteBefore(Date date) {
 
-        Index index = createSpotsIndex();
+        com.google.appengine.api.search.Index index = createSpotsIndex();
         int deleteCount = 0;
 
         String queryString = String.format("%s < %s",
@@ -135,9 +139,10 @@ public class IndexManager {
           return  deleteCount;
     }
 
+    @Override
     public void reset() {
 
-        Index index = createSpotsIndex();
+        com.google.appengine.api.search.Index index = createSpotsIndex();
 
         // looping because getRange by default returns up to 100 documents at a time
         while (true) {
@@ -152,7 +157,7 @@ public class IndexManager {
 
     }
 
-    private void deleteIndexDocuments(Index index, Collection<Document> response) {
+    private void deleteIndexDocuments(com.google.appengine.api.search.Index index, Collection<Document> response) {
         List<String> docIds = new ArrayList<>();
         for (Document doc : response) {
             docIds.add(doc.getId());

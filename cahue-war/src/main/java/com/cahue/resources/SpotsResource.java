@@ -3,7 +3,7 @@ package com.cahue.resources;
 import com.cahue.DataSource;
 import com.cahue.api.Location;
 import com.cahue.api.ParkingSpot;
-import com.cahue.index.IndexManager;
+import com.cahue.index.Index;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -26,7 +26,7 @@ public class SpotsResource {
     DataSource dataSource;
 
     @Inject
-    IndexManager indexManager;
+    Index index;
 
     /**
      * Get
@@ -46,7 +46,7 @@ public class SpotsResource {
         /**
          * Query index
          */
-        Set<Long> ids = indexManager.query(latitude, longitude, range);
+        Set<Long> ids = index.query(latitude, longitude, range);
 
         /**
          * Query datastore with the results from the Index
@@ -86,7 +86,7 @@ public class SpotsResource {
         /**
          * Put in index
          */
-        indexManager.put(parkingSpot.getId(), location.getLatitude(), location.getLongitude(), parkingSpot.getTime());
+        index.put(parkingSpot.getId(), location.getLatitude(), location.getLongitude(), parkingSpot.getTime());
 
         return parkingSpot;
     }
