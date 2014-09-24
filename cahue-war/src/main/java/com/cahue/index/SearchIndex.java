@@ -74,12 +74,12 @@ public class SearchIndex implements Index {
      * @param time
      */
     @Override
-    public void put(Long id, Double latitude, Double longitude, Date time) {
+    public void put(String id, Double latitude, Double longitude, Date time) {
 
         // Save in Index
         GeoPoint geoPoint = new GeoPoint(latitude, longitude);
         Document doc = Document.newBuilder()
-                .setId(id.toString())
+                .setId(id)
                 .addField(Field.newBuilder().setName(INDEX_LOCATION_FIELD).setGeoPoint(geoPoint))
                 .addField(Field.newBuilder().setName(INDEX_TIME_FIELD).setDate(time))
                 .build();
@@ -97,18 +97,18 @@ public class SearchIndex implements Index {
     /**
      * Delete the entries with the following ids
      *
-     * @param docIds
+     * @param ids
      */
     @Override
-    public void delete(List<String> docIds) {
+    public void delete(List<String> ids) {
         com.google.appengine.api.search.Index index = createSpotsIndex();
-        while (docIds.size() > MAX_BATCH_DELETE) {
-            List<String> idsSubList = docIds.subList(0, MAX_BATCH_DELETE);
+        while (ids.size() > MAX_BATCH_DELETE) {
+            List<String> idsSubList = ids.subList(0, MAX_BATCH_DELETE);
             index.delete(idsSubList);
-            docIds = docIds.subList(MAX_BATCH_DELETE, docIds.size());
+            ids = ids.subList(MAX_BATCH_DELETE, ids.size());
         }
 
-        index.delete(docIds);
+        index.delete(ids);
     }
 
     /**

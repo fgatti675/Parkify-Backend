@@ -86,7 +86,12 @@ public class SpotsResource {
         /**
          * Put in index
          */
-        index.put(parkingSpot.getId(), location.getLatitude(), location.getLongitude(), parkingSpot.getTime());
+        index.put(
+                parkingSpot.getId().toString(),
+                location.getLatitude(),
+                location.getLongitude(),
+                parkingSpot.getTime()
+        );
 
         return parkingSpot;
     }

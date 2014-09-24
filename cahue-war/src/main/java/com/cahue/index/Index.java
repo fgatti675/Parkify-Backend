@@ -13,9 +13,9 @@ public interface Index {
 
     Set<Long> query(Double latitude, Double longitude, Long range);
 
-    void put(Long id, Double latitude, Double longitude, Date time);
+    void put(String id, Double latitude, Double longitude, Date time);
 
-    void delete(List<String> docIds);
+    void delete(List<String> ids);
 
     int deleteBefore(Date date);
 
