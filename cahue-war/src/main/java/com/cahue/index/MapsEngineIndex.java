@@ -35,7 +35,7 @@ public class MapsEngineIndex implements Index {
             MapsEngineRequestInitializer apiKeyInitializer =
                     new MapsEngineRequestInitializer(PUBLIC_SERVER_API_KEY);
 
-            Credential credential = Utils.authorizeService(transport, jsonFactory, MapsEngineScopes.all());
+            Credential credential = GoogleUtils.authorizeService(transport, jsonFactory, MapsEngineScopes.all());
             engine = new MapsEngine.Builder(transport, jsonFactory, credential)
                     .setApplicationName("Cahue Test")
                     .build();

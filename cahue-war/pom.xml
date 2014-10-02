@@ -146,6 +146,12 @@
 
         <dependency>
             <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-fusiontables</artifactId>
+            <version>v1-rev52-1.19.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-mapsengine</artifactId>
             <version>exp2-rev14-1.19.0</version>
         </dependency>

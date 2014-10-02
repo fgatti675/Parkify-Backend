@@ -29,7 +29,7 @@ import java.util.Collection;
 /**
  * Common OAuth code used across the Java examples.
  */
-public class Utils {
+public class GoogleUtils {
 
     private static final File CREDENTIAL_STORE = new File(System.getProperty("user.home"),
             ".credentials/mapsengine.json");
