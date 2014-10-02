@@ -83,31 +83,6 @@ public class MapsEngineIndex implements Index {
 
     }
 
-    public void readFeaturesFromTable() throws IOException {
-        // Query the table for offices in WA that are within 100km of Perth.
-        FeaturesListResponse featResp = engine.tables().features().list(SPOTS_TABLE_ID)
-                .setVersion("published")
-                .setWhere("State='WA' AND ST_DISTANCE(geometry,ST_POINT(115.8589,-31.9522)) < 100000")
-                .execute();
-
-        for (Feature feat : featResp.getFeatures()) {
-            System.out.println(
-                    "Properties: " + feat.getProperties().toString() + "\n\t" +
-                            "Name: " + feat.getProperties().get("Fcilty_nam") + "\n\t" +
-                            "Geometry Type: " + feat.getGeometry().getType());
-
-            if (feat.getGeometry() instanceof GeoJsonPoint) {
-                GeoJsonPoint point = (GeoJsonPoint) feat.getGeometry();
-                System.out.println("\t" +
-                        "Longitude: " + point.getCoordinates().get(0) + ", " +
-                        "Latitude: " + point.getCoordinates().get(1));
-            } else {
-                System.out.println("Only points are expected in this table!");
-                return;
-            }
-        }
-    }
-
     @Override
     public Set<Long> query(Double latitude, Double longitude, Long range) {
         return null;

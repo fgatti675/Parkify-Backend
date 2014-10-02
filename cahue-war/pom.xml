@@ -149,6 +149,11 @@
             <artifactId>google-api-services-fusiontables</artifactId>
             <version>v1-rev52-1.19.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-drive</artifactId>
+            <version>v2-rev145-1.19.0</version>
+        </dependency>
 
         <dependency>
             <groupId>com.google.apis</groupId>

@@ -6,16 +6,20 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.FileList;
+import com.google.api.services.drive.model.PermissionList;
 import com.google.api.services.fusiontables.Fusiontables;
 import com.google.api.services.fusiontables.FusiontablesScopes;
 import com.google.api.services.fusiontables.model.Column;
+import com.google.api.services.fusiontables.model.Sqlresponse;
 import com.google.api.services.fusiontables.model.Table;
+import com.google.api.services.fusiontables.model.TableList;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.nio.channels.FileLock;
+import java.util.*;
 
 /**
  * Date: 02.10.14
@@ -26,15 +30,24 @@ public class FusionIndex implements Index {
 
     private static final String APPLICATION_NAME = "Cahue";
     private static final String TABLE_NAME = "Spots";
-    private static final String SPOTS_TABLE_ID = "parking-spots";
+    private static final String TABLE_ID = "1KdObSc-BOSKNnH9zyei7WG--X1w4AyomUj-pB7Ii";
 
     private Fusiontables fusiontables;
+    private Drive drive;
 
     public static final void main(String[] args) throws Exception {
 
         FusionIndex fusionTablesIndex = new FusionIndex();
-        fusionTablesIndex.createTable();
 
+//        fusionTablesIndex.deleteTable(TABLE_ID);
+
+//        fusionTablesIndex.listTables();
+//        fusionTablesIndex.createTable();
+
+//        fusionTablesIndex.put("AAA", 0.1, 0.1, new Date());
+//        fusionTablesIndex.query(0.1, 0.1, 10000L);
+
+        fusionTablesIndex.permissions("");
     }
 
     public FusionIndex() {
@@ -43,9 +56,15 @@ public class FusionIndex implements Index {
             HttpTransport httpTransport = new NetHttpTransport();
             JsonFactory jsonFactory = new JacksonFactory();
 
+            List scopes = new ArrayList();
+            scopes.addAll(FusiontablesScopes.all());
+            scopes.addAll(DriveScopes.all());
 
-            Credential credential = GoogleUtils.authorizeService(httpTransport, jsonFactory, FusiontablesScopes.all());
-            fusiontables = new Fusiontables.Builder(
+            Credential credential = GoogleUtils.authorizeService(httpTransport, jsonFactory,scopes );
+            fusiontables = new Fusiontables.Builder(httpTransport, jsonFactory, credential)
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+            drive = new Drive.Builder(
                     httpTransport, jsonFactory, credential).setApplicationName(APPLICATION_NAME).build();
 
         } catch (IOException e) {
@@ -56,6 +75,28 @@ public class FusionIndex implements Index {
 
     @Override
     public Set<Long> query(Double latitude, Double longitude, Long range) {
+        try {
+            String sqlString = String.format(
+                    "SELECT * FROM %s ",
+                    TABLE_ID,
+                    latitude,
+                    longitude, range);
+
+            System.out.println(sqlString);
+
+            Fusiontables.Query.Sql sql = fusiontables.query().sql(sqlString);
+            Sqlresponse execute = sql.execute();
+
+            System.out.println(execute);
+        } catch (IllegalArgumentException e) {
+            // For google-api-services-fusiontables-v1-rev1-1.7.2-beta this exception will always
+            // been thrown.
+            // Please see issue 545: JSON response could not be deserialized to Sqlresponse.class
+            // http://code.google.com/p/google-api-java-client/issues/detail?id=545
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return null;
     }
 
@@ -64,10 +105,11 @@ public class FusionIndex implements Index {
 
         try {
 
-
-            String sqlString = String.format("INSERT INTO " + SPOTS_TABLE_ID +
-                    " (Id, Time, Location) "
-                    + "VALUES (" + "%s, " + "%s, " + "(%d, %d))",
+            String sqlString = String.format(
+                    Locale.ENGLISH,
+                    "INSERT INTO " + TABLE_ID +
+                            " (Id, Time, Location) "
+                            + "VALUES ('%s', '%s', " + "'LATLNG(%f, %f)' )",
                     id,
                     new DateTime(time),
                     latitude,
@@ -103,6 +145,33 @@ public class FusionIndex implements Index {
 
     }
 
+    /**
+     * List tables for the authenticated user.
+     */
+    private void listTables() throws IOException {
+
+        // Fetch the table list
+        Fusiontables.Table.List listTables = fusiontables.table().list();
+        TableList tablelist = listTables.execute();
+
+        if (tablelist.getItems() == null || tablelist.getItems().isEmpty()) {
+            System.out.println("No tables found!");
+            return;
+        }
+
+        for (Table table : tablelist.getItems()) {
+            show(table);
+        }
+    }
+
+    private void deleteTable(String id) {
+        try {
+            fusiontables.table().delete(id).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Create a table for the authenticated user.
@@ -111,9 +180,8 @@ public class FusionIndex implements Index {
 
         // Create a new table
         Table table = new Table();
-        table.setTableId(SPOTS_TABLE_ID);
         table.setName(TABLE_NAME);
-        table.setIsExportable(false);
+        table.setIsExportable(true);
         table.setDescription("Parking Spots Table");
 
         // Set columns for new table
@@ -122,10 +190,35 @@ public class FusionIndex implements Index {
                 new Column().setName("Location").setType("LOCATION")));
 
         // Adds a new column to the table.
-        Fusiontables.Table.Insert t = fusiontables.table().insert(table);
-        Table r = t.execute();
+        Table r = fusiontables.table().insert(table).execute();
+
+        show(r);
 
         return r.getTableId();
+    }
+
+    private void permissions(String email) {
+        try {
+
+            FileList execute = drive.files().list().execute();
+
+            System.out.println(execute);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void show(Table table) {
+        System.out.println("id: " + table.getTableId());
+        System.out.println("name: " + table.getName());
+        System.out.println("description: " + table.getDescription());
+        System.out.println("exportable: " + table.getIsExportable());
+        System.out.println("attribution: " + table.getAttribution());
+        System.out.println("attribution link: " + table.getAttributionLink());
+        System.out.println("kind: " + table.getKind());
+        System.out.println("------------------------------------------------------");
+        System.out.println();
     }
 
 }
