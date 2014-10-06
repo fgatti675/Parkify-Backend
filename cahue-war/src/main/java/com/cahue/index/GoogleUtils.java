@@ -13,13 +13,10 @@ import com.google.api.client.util.PemReader;
 import com.google.api.client.util.SecurityUtils;
 import com.google.api.client.util.store.FileDataStoreFactory;
 
-import java.awt.Desktop;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
+import java.awt.*;
+import java.io.*;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
@@ -34,8 +31,8 @@ public class GoogleUtils {
     private static final File CREDENTIAL_STORE = new File(System.getProperty("user.home"),
             ".credentials/mapsengine.json");
 
-    private static final String CLIENT_SECRETS_FILE = "res/client_secrets.json";
-    private static final String SERVICE_KEY_FILE = "res/service_key.json";
+    private static final String CLIENT_SECRETS_FILE = "client_secrets.json";
+    private static final String SERVICE_KEY_FILE = "service_key.json";
 
     /**
      * Credentials are stored against a user ID. This app does not manage multiple identities and
@@ -48,13 +45,23 @@ public class GoogleUtils {
      * with a human and access to a web browser (using the "Installed Application" OAuth flow).
      * For details on how to perform human-free authorization, check the "Server to server" OAuth
      * flow.
+     *
      * @param httpTransport The HTTP transport to use for network requests.
-     * @param jsonFactory The JSON factory to use for serialization / de-serialization.
-     * @param scopes The scopes for which this app should authorize.
+     * @param jsonFactory   The JSON factory to use for serialization / de-serialization.
+     * @param scopes        The scopes for which this app should authorize.
      */
     public static Credential authorizeUser(HttpTransport httpTransport, JsonFactory jsonFactory,
                                            Collection<String> scopes) throws IOException {
-        File secretsFile = new File(CLIENT_SECRETS_FILE);
+
+        File secretsFile = null;
+        try {
+            secretsFile = new File(GoogleUtils.class.getResource(SERVICE_KEY_FILE).toURI());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        BufferedReader reader = new BufferedReader(new FileReader(secretsFile));
+
+
         if (!secretsFile.exists()) {
             System.err.println("Client secrets file not found. Check out the JavaDoc for details on how"
                     + " to set up your client secrets.");
@@ -63,7 +70,6 @@ public class GoogleUtils {
 
         // Set up a local server to capture the authorization response from Google.
         LocalServerReceiver localServer = new LocalServerReceiver();
-
         try {
             // Load the client secret details from file.
             GoogleClientSecrets secrets = GoogleClientSecrets.load(jsonFactory,
@@ -115,7 +121,7 @@ public class GoogleUtils {
             AssertionError newEx = new AssertionError("File not found should already be handled.");
             newEx.initCause(e);
             throw newEx;
-        } finally {
+        }  finally {
             localServer.stop();
         }
     }
@@ -124,12 +130,18 @@ public class GoogleUtils {
      * Authorize using service account credentials.
      *
      * @param httpTransport The HTTP transport to use for network requests.
-     * @param jsonFactory The JSON factory to use for serialization / de-serialization.
-     * @param scopes The scopes for which this app should authorize.
+     * @param jsonFactory   The JSON factory to use for serialization / de-serialization.
+     * @param scopes        The scopes for which this app should authorize.
      */
     public static Credential authorizeService(HttpTransport httpTransport, JsonFactory jsonFactory,
                                               Collection<String> scopes) throws IOException {
-        File secretsFile = new File(SERVICE_KEY_FILE);
+        File secretsFile = null;
+        try {
+            secretsFile = new File(GoogleUtils.class.getResource(SERVICE_KEY_FILE).toURI());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
         if (!secretsFile.exists()) {
             System.err.println("Private key file not found.\n"
                     + "Follow the instructions at https://developers.google"

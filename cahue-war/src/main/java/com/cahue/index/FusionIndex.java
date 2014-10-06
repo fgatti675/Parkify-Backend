@@ -9,7 +9,7 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
-import com.google.api.services.drive.model.PermissionList;
+import com.google.api.services.drive.model.Permission;
 import com.google.api.services.fusiontables.Fusiontables;
 import com.google.api.services.fusiontables.FusiontablesScopes;
 import com.google.api.services.fusiontables.model.Column;
@@ -18,7 +18,6 @@ import com.google.api.services.fusiontables.model.Table;
 import com.google.api.services.fusiontables.model.TableList;
 
 import java.io.IOException;
-import java.nio.channels.FileLock;
 import java.util.*;
 
 /**
@@ -45,9 +44,9 @@ public class FusionIndex implements Index {
 //        fusionTablesIndex.createTable();
 
 //        fusionTablesIndex.put("AAA", 0.1, 0.1, new Date());
-//        fusionTablesIndex.query(0.1, 0.1, 10000L);
+        fusionTablesIndex.queryByRange(0.1, 0.1, 10000L);
 
-        fusionTablesIndex.permissions("");
+//        fusionTablesIndex.permissions("");
     }
 
     public FusionIndex() {
@@ -60,7 +59,7 @@ public class FusionIndex implements Index {
             scopes.addAll(FusiontablesScopes.all());
             scopes.addAll(DriveScopes.all());
 
-            Credential credential = GoogleUtils.authorizeService(httpTransport, jsonFactory,scopes );
+            Credential credential = GoogleUtils.authorizeService(httpTransport, jsonFactory, scopes);
             fusiontables = new Fusiontables.Builder(httpTransport, jsonFactory, credential)
                     .setApplicationName(APPLICATION_NAME)
                     .build();
@@ -74,13 +73,15 @@ public class FusionIndex implements Index {
     }
 
     @Override
-    public Set<Long> query(Double latitude, Double longitude, Long range) {
+    public Set<Long> queryByRange(Double latitude, Double longitude, Long range) {
         try {
             String sqlString = String.format(
-                    "SELECT * FROM %s ",
+                    Locale.ENGLISH,
+                    "SELECT * FROM %s WHERE ST_INTERSECTS(Location, CIRCLE(LATLNG(%f, %f), %d))",
                     TABLE_ID,
                     latitude,
-                    longitude, range);
+                    longitude,
+                    range);
 
             System.out.println(sqlString);
 
@@ -109,7 +110,7 @@ public class FusionIndex implements Index {
                     Locale.ENGLISH,
                     "INSERT INTO " + TABLE_ID +
                             " (Id, Time, Location) "
-                            + "VALUES ('%s', '%s', " + "'LATLNG(%f, %f)' )",
+                            + "VALUES ('%s', '%s', " + "'%f, %f' )",
                     id,
                     new DateTime(time),
                     latitude,
@@ -200,8 +201,16 @@ public class FusionIndex implements Index {
     private void permissions(String email) {
         try {
 
-            FileList execute = drive.files().list().execute();
+            System.out.println(drive.permissions().list(TABLE_ID).execute());
 
+
+            Permission permission = new Permission().setType("user").setRole("owner").setValue("empanadamental@gmail.com");
+//            Permission permission = new Permission().setType("anyone").setRole("reader");
+            permission = drive.permissions().insert(TABLE_ID, permission).execute();
+
+            System.out.println(permission);
+
+            FileList execute = drive.files().list().execute();
             System.out.println(execute);
 
         } catch (IOException e) {

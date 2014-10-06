@@ -39,7 +39,7 @@ public class SearchIndex implements Index {
      * @return
      */
     @Override
-    public Set<Long> query(Double latitude, Double longitude, Long range) {
+    public Set<Long> queryByRange(Double latitude, Double longitude, Long range) {
         /**
          * Query index first
          */

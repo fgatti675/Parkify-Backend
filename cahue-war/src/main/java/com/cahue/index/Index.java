@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public interface Index {
 
-    Set<Long> query(Double latitude, Double longitude, Long range);
+    Set<Long> queryByRange(Double latitude, Double longitude, Long range);
 
     void put(String id, Double latitude, Double longitude, Date time);
 

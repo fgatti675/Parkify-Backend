@@ -84,7 +84,7 @@ public class MapsEngineIndex implements Index {
     }
 
     @Override
-    public Set<Long> query(Double latitude, Double longitude, Long range) {
+    public Set<Long> queryByRange(Double latitude, Double longitude, Long range) {
         return null;
     }
 
