@@ -44,7 +44,8 @@ public class FusionIndex implements Index {
 //        fusionTablesIndex.createTable();
 
 //        fusionTablesIndex.put("AAA", 0.1, 0.1, new Date());
-        fusionTablesIndex.queryByRange(0.1, 0.1, 10000L);
+//        fusionTablesIndex.queryByRange(0.1, 0.1, 10000L);
+        fusionTablesIndex.deleteBefore(new Date());
 
 //        fusionTablesIndex.permissions("");
     }
@@ -138,6 +139,22 @@ public class FusionIndex implements Index {
 
     @Override
     public int deleteBefore(Date date) {
+        // TODO: Do one by one, not batch update
+        String sqlString = String.format(
+                Locale.ENGLISH,
+                "DELETE FROM " + TABLE_ID + " WHERE Time = '%s'",
+                new DateTime(date));
+
+        System.out.println(sqlString);
+
+        Fusiontables.Query.Sql sql = null;
+        try {
+            sql = fusiontables.query().sql(sqlString);
+            sql.execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return 0;
     }
 
