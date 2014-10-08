@@ -156,16 +156,20 @@ public class FusionIndex implements Index {
 
             Sqlresponse idsResponse = fusiontables.query().sql(selectString).execute();
 
+            logger.fine(idsResponse.toPrettyString());
+
             List<ArrayList> rows = (List<ArrayList>) idsResponse.get("rows");
-            for (ArrayList<String> element : rows) {
-                String id = element.get(0);
-                String deleteString = String.format(
-                        Locale.ENGLISH,
-                        "DELETE FROM %s WHERE ROWID = '%s'",
-                        TABLE_ID,
-                        id);
-                Sqlresponse deleteResponse = fusiontables.query().sql(deleteString).execute();
-                count++;
+            if (rows != null) {
+                for (ArrayList<String> element : rows) {
+                    String id = element.get(0);
+                    String deleteString = String.format(
+                            Locale.ENGLISH,
+                            "DELETE FROM %s WHERE ROWID = '%s'",
+                            TABLE_ID,
+                            id);
+                    Sqlresponse deleteResponse = fusiontables.query().sql(deleteString).execute();
+                    count++;
+                }
             }
 
         } catch (IOException e) {
