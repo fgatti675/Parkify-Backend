@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 @Path("/index")
 public class IndexCronResource {
 
-    private final Integer SPOT_TIMEOUT_H = 2; // 2 hours in ms
+    private final Integer SPOT_TIMEOUT_H = 24; // 2 hours in ms
 
     Logger logger = Logger.getLogger(getClass().getSimpleName());
 

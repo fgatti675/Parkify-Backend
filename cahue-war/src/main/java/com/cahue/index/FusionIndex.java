@@ -19,6 +19,7 @@ import com.google.api.services.fusiontables.model.TableList;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Date: 02.10.14
@@ -34,6 +35,8 @@ public class FusionIndex implements Index {
     private Fusiontables fusiontables;
     private Drive drive;
 
+    Logger logger = Logger.getLogger(getClass().getSimpleName());
+
     public static final void main(String[] args) throws Exception {
 
         FusionIndex fusionTablesIndex = new FusionIndex();
@@ -45,7 +48,12 @@ public class FusionIndex implements Index {
 
 //        fusionTablesIndex.put("AAA", 0.1, 0.1, new Date());
 //        fusionTablesIndex.queryByRange(0.1, 0.1, 10000L);
-        fusionTablesIndex.deleteBefore(new Date());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - 24);
+
+        Date time = calendar.getTime();
+        int count = fusionTablesIndex.deleteBefore(time);
 
 //        fusionTablesIndex.permissions("");
     }
@@ -84,12 +92,10 @@ public class FusionIndex implements Index {
                     longitude,
                     range);
 
-            System.out.println(sqlString);
 
             Fusiontables.Query.Sql sql = fusiontables.query().sql(sqlString);
             Sqlresponse execute = sql.execute();
 
-            System.out.println(execute);
         } catch (IllegalArgumentException e) {
             // For google-api-services-fusiontables-v1-rev1-1.7.2-beta this exception will always
             // been thrown.
@@ -117,8 +123,6 @@ public class FusionIndex implements Index {
                     latitude,
                     longitude);
 
-            System.out.println(sqlString);
-
             Fusiontables.Query.Sql sql = fusiontables.query().sql(sqlString);
             sql.execute();
 
@@ -139,23 +143,36 @@ public class FusionIndex implements Index {
 
     @Override
     public int deleteBefore(Date date) {
-        // TODO: Do one by one, not batch update
-        String sqlString = String.format(
-                Locale.ENGLISH,
-                "DELETE FROM " + TABLE_ID + " WHERE Time = '%s'",
-                new DateTime(date));
 
-        System.out.println(sqlString);
+        int count = 0;
 
-        Fusiontables.Query.Sql sql = null;
         try {
-            sql = fusiontables.query().sql(sqlString);
-            sql.execute();
+
+            String selectString = String.format(
+                    Locale.ENGLISH,
+                    "SELECT ROWID FROM %s WHERE Time < '%s'",
+                    TABLE_ID,
+                    new DateTime(date));
+
+            Sqlresponse idsResponse = fusiontables.query().sql(selectString).execute();
+
+            List<ArrayList> rows = (List<ArrayList>) idsResponse.get("rows");
+            for (ArrayList<String> element : rows) {
+                String id = element.get(0);
+                String deleteString = String.format(
+                        Locale.ENGLISH,
+                        "DELETE FROM %s WHERE ROWID = '%s'",
+                        TABLE_ID,
+                        id);
+                Sqlresponse deleteResponse = fusiontables.query().sql(deleteString).execute();
+                count++;
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return 0;
+        return count;
     }
 
     @Override
@@ -218,17 +235,13 @@ public class FusionIndex implements Index {
     private void permissions(String email) {
         try {
 
-            System.out.println(drive.permissions().list(TABLE_ID).execute());
-
 
             Permission permission = new Permission().setType("user").setRole("owner").setValue("empanadamental@gmail.com");
 //            Permission permission = new Permission().setType("anyone").setRole("reader");
             permission = drive.permissions().insert(TABLE_ID, permission).execute();
 
-            System.out.println(permission);
 
             FileList execute = drive.files().list().execute();
-            System.out.println(execute);
 
         } catch (IOException e) {
             e.printStackTrace();
