@@ -47,7 +47,8 @@ public class IndexCronResource {
         int count = index.deleteBefore(time);
 
         String result = String.format("Cleared %d entries from index before %s", count, time);
-        logger.info(result);
+        if (count > 0)
+            logger.info(result);
 
         return Response.ok(result).build();
     }

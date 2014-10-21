@@ -18,6 +18,7 @@ import com.google.api.services.fusiontables.model.Table;
 import com.google.api.services.fusiontables.model.TableList;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -31,6 +32,8 @@ public class FusionIndex implements Index {
     private static final String APPLICATION_NAME = "Cahue";
     private static final String TABLE_NAME = "Spots";
     private static final String TABLE_ID = "1KdObSc-BOSKNnH9zyei7WG--X1w4AyomUj-pB7Ii";
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private Fusiontables fusiontables;
     private Drive drive;
@@ -49,11 +52,17 @@ public class FusionIndex implements Index {
 //        fusionTablesIndex.put("AAA", 0.1, 0.1, new Date());
 //        fusionTablesIndex.queryByRange(0.1, 0.1, 10000L);
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - 24);
+        DateTime dateTime = new DateTime(new Date());
+        dateTime.getTimeZoneShift()    ;
+        System.out.println(dateTime.getTimeZoneShift() );
+        System.out.println(dateTime.toStringRfc3339());
 
-        Date time = calendar.getTime();
-        int count = fusionTablesIndex.deleteBefore(time);
+
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - 24);
+//
+//        Date time = calendar.getTime();
+//        int count = fusionTablesIndex.deleteBefore(time);
 
 //        fusionTablesIndex.permissions("");
     }
@@ -119,7 +128,7 @@ public class FusionIndex implements Index {
                             " (Id, Time, Location) "
                             + "VALUES ('%s', '%s', " + "'%f, %f' )",
                     id,
-                    new DateTime(time),
+                    dateFormat.format(time),
                     latitude,
                     longitude);
 
@@ -152,7 +161,7 @@ public class FusionIndex implements Index {
                     Locale.ENGLISH,
                     "SELECT ROWID FROM %s WHERE Time < '%s'",
                     TABLE_ID,
-                    new DateTime(date));
+                    dateFormat.format(date));
 
             Sqlresponse idsResponse = fusiontables.query().sql(selectString).execute();
 
