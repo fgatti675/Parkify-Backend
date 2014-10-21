@@ -41,7 +41,7 @@ public class IndexCronResource {
     public synchronized Response cleanIndex() {
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - SPOT_TIMEOUT_H);
+        calendar.add(Calendar.HOUR, -SPOT_TIMEOUT_H);
 
         Date time = calendar.getTime();
         int count = index.deleteBefore(time);

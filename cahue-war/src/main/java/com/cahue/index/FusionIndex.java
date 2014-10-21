@@ -59,12 +59,15 @@ public class FusionIndex implements Index {
 
 
 //        Calendar calendar = Calendar.getInstance();
-//        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - 24);
+//        calendar.add(Calendar.HOUR_OF_DAY, -24);
 //
 //        Date time = calendar.getTime();
 //        int count = fusionTablesIndex.deleteBefore(time);
 
 //        fusionTablesIndex.permissions("");
+
+        fusionTablesIndex.queryRectangle(40.350358,-3.817309, 40.346335, -3.821536);
+        fusionTablesIndex.queryByRange(40.348656, -3.819214, 10000L);
     }
 
     public FusionIndex() {
@@ -105,12 +108,31 @@ public class FusionIndex implements Index {
             Fusiontables.Query.Sql sql = fusiontables.query().sql(sqlString);
             Sqlresponse execute = sql.execute();
 
-        } catch (IllegalArgumentException e) {
-            // For google-api-services-fusiontables-v1-rev1-1.7.2-beta this exception will always
-            // been thrown.
-            // Please see issue 545: JSON response could not be deserialized to Sqlresponse.class
-            // http://code.google.com/p/google-api-java-client/issues/detail?id=545
-        } catch (IOException e) {
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public Set<Long> queryRectangle(Double latitudeNE, Double longitudeNE, Double latitudeSW, Double longitudeSW) {
+        try {
+
+            String sqlString = String.format(
+                    Locale.ENGLISH,
+                    "SELECT * FROM %s WHERE ST_INTERSECTS(Location, RECTANGLE(LATLNG(%f, %f), LATLNG(%f, %f)))",
+                    TABLE_ID,
+                    latitudeSW,
+                    longitudeSW,
+                    latitudeNE,
+                    longitudeNE
+            );
+
+
+            Fusiontables.Query.Sql sql = fusiontables.query().sql(sqlString);
+            Sqlresponse execute = sql.execute();
+
+        }  catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -126,7 +148,7 @@ public class FusionIndex implements Index {
                     Locale.ENGLISH,
                     "INSERT INTO " + TABLE_ID +
                             " (Id, Time, Location) "
-                            + "VALUES ('%s', '%s', " + "'%f, %f' )",
+                            + "VALUES ('%s', '%s', '%f, %f' )",
                     id,
                     dateFormat.format(time),
                     latitude,
