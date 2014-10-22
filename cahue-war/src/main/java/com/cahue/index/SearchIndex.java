@@ -11,6 +11,7 @@ import java.util.*;
  *
  * @author francesco
  */
+@Deprecated
 @Singleton
 public class SearchIndex implements Index {
 

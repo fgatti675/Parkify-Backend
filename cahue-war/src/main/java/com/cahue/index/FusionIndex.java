@@ -1,17 +1,8 @@
 package com.cahue.index;
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.cahue.util.FusionUtil;
 import com.google.api.client.util.DateTime;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.FileList;
-import com.google.api.services.drive.model.Permission;
 import com.google.api.services.fusiontables.Fusiontables;
-import com.google.api.services.fusiontables.FusiontablesScopes;
 import com.google.api.services.fusiontables.model.Column;
 import com.google.api.services.fusiontables.model.Sqlresponse;
 import com.google.api.services.fusiontables.model.Table;
@@ -29,14 +20,12 @@ import java.util.logging.Logger;
  */
 public class FusionIndex implements Index {
 
-    private static final String APPLICATION_NAME = "Cahue";
     private static final String TABLE_NAME = "Spots";
     private static final String TABLE_ID = "1KdObSc-BOSKNnH9zyei7WG--X1w4AyomUj-pB7Ii";
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private Fusiontables fusiontables;
-    private Drive drive;
 
     Logger logger = Logger.getLogger(getClass().getSimpleName());
 
@@ -53,8 +42,8 @@ public class FusionIndex implements Index {
 //        fusionTablesIndex.queryByRange(0.1, 0.1, 10000L);
 
         DateTime dateTime = new DateTime(new Date());
-        dateTime.getTimeZoneShift()    ;
-        System.out.println(dateTime.getTimeZoneShift() );
+        dateTime.getTimeZoneShift();
+        System.out.println(dateTime.getTimeZoneShift());
         System.out.println(dateTime.toStringRfc3339());
 
 
@@ -66,31 +55,12 @@ public class FusionIndex implements Index {
 
 //        fusionTablesIndex.permissions("");
 
-        fusionTablesIndex.queryRectangle(40.350358,-3.817309, 40.346335, -3.821536);
+        fusionTablesIndex.queryRectangle(40.350358, -3.817309, 40.346335, -3.821536);
         fusionTablesIndex.queryByRange(40.348656, -3.819214, 10000L);
     }
 
     public FusionIndex() {
-        try {
-
-            HttpTransport httpTransport = new NetHttpTransport();
-            JsonFactory jsonFactory = new JacksonFactory();
-
-            List scopes = new ArrayList();
-            scopes.addAll(FusiontablesScopes.all());
-            scopes.addAll(DriveScopes.all());
-
-            Credential credential = GoogleUtils.authorizeService(httpTransport, jsonFactory, scopes);
-            fusiontables = new Fusiontables.Builder(httpTransport, jsonFactory, credential)
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
-            drive = new Drive.Builder(
-                    httpTransport, jsonFactory, credential).setApplicationName(APPLICATION_NAME).build();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        fusiontables = FusionUtil.createFusionTablesInstance();
     }
 
     @Override
@@ -108,7 +78,7 @@ public class FusionIndex implements Index {
             Fusiontables.Query.Sql sql = fusiontables.query().sql(sqlString);
             Sqlresponse execute = sql.execute();
 
-        }  catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -132,7 +102,7 @@ public class FusionIndex implements Index {
             Fusiontables.Query.Sql sql = fusiontables.query().sql(sqlString);
             Sqlresponse execute = sql.execute();
 
-        }  catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -267,21 +237,6 @@ public class FusionIndex implements Index {
         return r.getTableId();
     }
 
-    private void permissions(String email) {
-        try {
-
-
-            Permission permission = new Permission().setType("user").setRole("owner").setValue("empanadamental@gmail.com");
-//            Permission permission = new Permission().setType("anyone").setRole("reader");
-            permission = drive.permissions().insert(TABLE_ID, permission).execute();
-
-
-            FileList execute = drive.files().list().execute();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     static void show(Table table) {
         System.out.println("id: " + table.getTableId());

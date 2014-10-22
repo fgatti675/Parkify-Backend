@@ -11,6 +11,15 @@ public class Location {
     private Double latitude;
     private Float accuracy;
 
+    public Location() {
+    }
+
+    public Location(Double longitude, Double latitude, Float accuracy) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+        this.accuracy = accuracy;
+    }
+
     public Double getLongitude() {
         return longitude;
     }

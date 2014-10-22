@@ -1,5 +1,6 @@
 package com.cahue.index;
 
+import com.cahue.util.GoogleAuth;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -18,6 +19,7 @@ import java.util.*;
  *
  * @author francesco
  */
+@Deprecated
 public class MapsEngineIndex implements Index {
 
     static final String PROJECT_ID = "13309007342718171126";
@@ -35,7 +37,7 @@ public class MapsEngineIndex implements Index {
             MapsEngineRequestInitializer apiKeyInitializer =
                     new MapsEngineRequestInitializer(PUBLIC_SERVER_API_KEY);
 
-            Credential credential = GoogleUtils.authorizeService(transport, jsonFactory, MapsEngineScopes.all());
+            Credential credential = GoogleAuth.authorizeService(transport, jsonFactory, MapsEngineScopes.all());
             engine = new MapsEngine.Builder(transport, jsonFactory, credential)
                     .setApplicationName("Cahue Test")
                     .build();
