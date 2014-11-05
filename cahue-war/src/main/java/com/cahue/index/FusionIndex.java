@@ -1,12 +1,18 @@
 package com.cahue.index;
 
-import com.cahue.util.FusionUtil;
-import com.google.api.client.util.DateTime;
+import com.cahue.util.GoogleAuth;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.fusiontables.Fusiontables;
+import com.google.api.services.fusiontables.FusiontablesScopes;
 import com.google.api.services.fusiontables.model.Column;
 import com.google.api.services.fusiontables.model.Sqlresponse;
 import com.google.api.services.fusiontables.model.Table;
 import com.google.api.services.fusiontables.model.TableList;
+import org.mortbay.log.Log;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -20,6 +26,7 @@ import java.util.logging.Logger;
  */
 public class FusionIndex implements Index {
 
+    private static final String APPLICATION_NAME = "Cahue";
     private static final String TABLE_NAME = "Spots";
     private static final String TABLE_ID = "1KdObSc-BOSKNnH9zyei7WG--X1w4AyomUj-pB7Ii";
 
@@ -29,6 +36,7 @@ public class FusionIndex implements Index {
 
     Logger logger = Logger.getLogger(getClass().getSimpleName());
 
+    // TODO: REMOVE
     public static final void main(String[] args) throws Exception {
 
         FusionIndex fusionTablesIndex = new FusionIndex();
@@ -41,27 +49,45 @@ public class FusionIndex implements Index {
 //        fusionTablesIndex.put("AAA", 0.1, 0.1, new Date());
 //        fusionTablesIndex.queryByRange(0.1, 0.1, 10000L);
 
-        DateTime dateTime = new DateTime(new Date());
-        dateTime.getTimeZoneShift();
-        System.out.println(dateTime.getTimeZoneShift());
-        System.out.println(dateTime.toStringRfc3339());
 
 
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.add(Calendar.HOUR_OF_DAY, -24);
-//
-//        Date time = calendar.getTime();
-//        int count = fusionTablesIndex.deleteBefore(time);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - 3);
+
+        Date time = calendar.getTime();
+        int count = fusionTablesIndex.deleteBefore(time);
 
 //        fusionTablesIndex.permissions("");
-
-        fusionTablesIndex.queryRectangle(40.350358, -3.817309, 40.346335, -3.821536);
-        fusionTablesIndex.queryByRange(40.348656, -3.819214, 10000L);
     }
 
     public FusionIndex() {
-        fusiontables = FusionUtil.createFusionTablesInstance();
+        fusiontables = createFusionTablesInstance();
     }
+
+    /**
+     * Create a Fusion tables object
+     * @return
+     */
+    public Fusiontables createFusionTablesInstance() {
+
+        try {
+            HttpTransport httpTransport = new NetHttpTransport();
+            JsonFactory jsonFactory = new JacksonFactory();
+
+            List scopes = new ArrayList();
+            scopes.addAll(FusiontablesScopes.all());
+
+            Credential credential = GoogleAuth.authorizeService(httpTransport, jsonFactory, scopes);
+            return new Fusiontables.Builder(httpTransport, jsonFactory, credential)
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     @Override
     public Set<Long> queryByRange(Double latitude, Double longitude, Long range) {
@@ -69,7 +95,7 @@ public class FusionIndex implements Index {
             String sqlString = String.format(
                     Locale.ENGLISH,
                     "SELECT * FROM %s WHERE ST_INTERSECTS(Location, CIRCLE(LATLNG(%f, %f), %d))",
-                    TABLE_ID,
+                    getTableId(),
                     latitude,
                     longitude,
                     range);
@@ -91,7 +117,7 @@ public class FusionIndex implements Index {
             String sqlString = String.format(
                     Locale.ENGLISH,
                     "SELECT * FROM %s WHERE ST_INTERSECTS(Location, RECTANGLE(LATLNG(%f, %f), LATLNG(%f, %f)))",
-                    TABLE_ID,
+                    getTableId(),
                     latitudeSW,
                     longitudeSW,
                     latitudeNE,
@@ -116,9 +142,10 @@ public class FusionIndex implements Index {
 
             String sqlString = String.format(
                     Locale.ENGLISH,
-                    "INSERT INTO " + TABLE_ID +
+                    "INSERT INTO %s" +
                             " (Id, Time, Location) "
                             + "VALUES ('%s', '%s', '%f, %f' )",
+                    getTableId(),
                     id,
                     dateFormat.format(time),
                     latitude,
@@ -152,7 +179,7 @@ public class FusionIndex implements Index {
             String selectString = String.format(
                     Locale.ENGLISH,
                     "SELECT ROWID FROM %s WHERE Time < '%s'",
-                    TABLE_ID,
+                    getTableId(),
                     dateFormat.format(date));
 
             Sqlresponse idsResponse = fusiontables.query().sql(selectString).execute();
@@ -166,7 +193,7 @@ public class FusionIndex implements Index {
                     String deleteString = String.format(
                             Locale.ENGLISH,
                             "DELETE FROM %s WHERE ROWID = '%s'",
-                            TABLE_ID,
+                            getTableId(),
                             id);
                     Sqlresponse deleteResponse = fusiontables.query().sql(deleteString).execute();
                     count++;
@@ -178,6 +205,10 @@ public class FusionIndex implements Index {
         }
 
         return count;
+    }
+
+    protected String getTableId(){
+        return TABLE_ID;
     }
 
     @Override

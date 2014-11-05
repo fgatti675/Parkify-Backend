@@ -43,4 +43,13 @@ public class Location {
     public void setAccuracy(Float accuracy) {
         this.accuracy = accuracy;
     }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", accuracy=" + accuracy +
+                '}';
+    }
 }

@@ -4,11 +4,13 @@ import com.cahue.DataSource;
 import com.cahue.api.Location;
 import com.cahue.api.ParkingSpot;
 import com.cahue.index.FusionIndex;
+import com.cahue.index.Index;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -26,7 +28,8 @@ public class SpotsResource {
     DataSource dataSource;
 
     @Inject
-    FusionIndex index;
+    @Named("Fusion")
+    Index index;
 
     /**
      * Get
