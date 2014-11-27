@@ -56,4 +56,15 @@ public class ParkingSpot {
     public Date getTime() {
 		return time;
 	}
+
+    @Override
+    public String toString() {
+        return "ParkingSpot{" +
+                "id=" + id +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
+                ", accuracy=" + accuracy +
+                ", time=" + time +
+                '}';
+    }
 }

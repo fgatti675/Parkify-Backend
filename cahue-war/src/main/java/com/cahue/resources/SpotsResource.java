@@ -78,7 +78,7 @@ public class SpotsResource {
     public ParkingSpot put(Location location) {
 
         if (location.getAccuracy() > ACCURACY_LIMIT_M) {
-            logger.fine("Location received but too inaccurate : " + location.getAccuracy() + " m.");
+            logger.fine("Spot received but too inaccurate : " + location.getAccuracy() + " m.");
             return null;
         }
 
@@ -107,6 +107,8 @@ public class SpotsResource {
                 location.getLongitude(),
                 parkingSpot.getTime()
         );
+
+        logger.fine(parkingSpot.toString());
 
         return parkingSpot;
     }

@@ -6,6 +6,7 @@ import com.cartodb.impl.ApiKeyCartoDBClient;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Date: 14.11.14
@@ -25,6 +26,7 @@ public class CartoDBIndex implements Index {
     private static final String ACCOUNT_NAME = "cahue";
     private static final String TABLE_NAME = "spots";
 
+    Logger logger = Logger.getLogger(getClass().getSimpleName());
     CartoDBClientIF cartoDBClient;
 
 
@@ -75,7 +77,7 @@ public class CartoDBIndex implements Index {
                 longitude,
                 latitude
         );
-        System.out.println(sqlString);
+        logger.finer(sqlString);
 
         // get rows as a Map
         try {
@@ -101,7 +103,7 @@ public class CartoDBIndex implements Index {
                 getTableId(),
                 dateFormat.format(date)
         );
-        System.out.println(sqlString);
+        logger.finer(sqlString);
 
         // get rows as a Map
         try {
