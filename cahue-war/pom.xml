@@ -9,7 +9,7 @@
     <artifactId>cahue-war</artifactId>
 
     <properties>
-        <appengine.app.version>3-war</appengine.app.version>
+        <appengine.app.version>4-war</appengine.app.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>2.12</jersey.version>
         <guice.version>4.0-beta4</guice.version>
@@ -22,6 +22,11 @@
             <id>javageomodel-repo</id>
             <name>GeocellJava Repository</name>
             <url>http://javageomodel.googlecode.com/svn/repository</url>
+        </repository>
+
+        <repository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
         </repository>
     </repositories>
 
@@ -166,11 +171,10 @@
             <version>1.19.0</version>
         </dependency>
 
-
         <dependency>
-            <groupId>javax.jdo</groupId>
-            <artifactId>jdo-api</artifactId>
-            <version>3.0.1</version>
+            <groupId>cartodb-java-client</groupId>
+            <artifactId>cartodb-java-client</artifactId>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>

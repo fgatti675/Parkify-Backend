@@ -3,7 +3,6 @@ package com.cahue.resources;
 import com.cahue.DataSource;
 import com.cahue.api.Location;
 import com.cahue.api.ParkingSpot;
-import com.cahue.index.FusionIndex;
 import com.cahue.index.Index;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -15,7 +14,10 @@ import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Created by Francesco on 07/09/2014.
@@ -23,12 +25,17 @@ import java.util.*;
 @Path("/spots")
 public class SpotsResource {
 
+    /**
+     * Threshold for storing parking spots
+     */
+    private final static int ACCURACY_LIMIT_M = 20;
+
+    Logger logger = Logger.getLogger(getClass().getSimpleName());
 
     @Inject
     DataSource dataSource;
-
     @Inject
-    @Named("Fusion")
+    @Named("CartoDB")
     Index index;
 
     /**
@@ -69,6 +76,11 @@ public class SpotsResource {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     public ParkingSpot put(Location location) {
+
+        if (location.getAccuracy() > ACCURACY_LIMIT_M) {
+            logger.fine("Location received but too inaccurate : " + location.getAccuracy() + " m.");
+            return null;
+        }
 
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();

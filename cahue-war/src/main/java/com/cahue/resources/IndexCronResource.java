@@ -33,7 +33,7 @@ public class IndexCronResource {
     DataSource dataSource;
 
     @Inject
-    @Named("Fusion")
+    @Named("CartoDB")
     Index index;
 
     @GET
