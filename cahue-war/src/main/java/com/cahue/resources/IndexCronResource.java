@@ -1,7 +1,6 @@
 package com.cahue.resources;
 
 import com.cahue.DataSource;
-import com.cahue.index.Index;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -32,9 +31,6 @@ public class IndexCronResource {
     @Inject
     DataSource dataSource;
 
-    @Inject
-    @Named("CartoDB")
-    Index index;
 
     @GET
     @Path("/cleanStale")
@@ -44,13 +40,9 @@ public class IndexCronResource {
         calendar.add(Calendar.HOUR, -SPOT_TIMEOUT_H);
 
         Date time = calendar.getTime();
-        int count = index.deleteBefore(time);
 
-        String result = String.format("Cleared %d entries from index before %s", count, time);
-        if (count > 0)
-            logger.info(result);
 
-        return Response.ok(result).build();
+        return Response.ok().build();
     }
 
 }

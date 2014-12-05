@@ -1,8 +1,6 @@
 package com.cahue.debug;
 
 import com.cahue.api.Location;
-import com.cahue.index.Index;
-import com.cahue.index.TestFusionIndex;
 
 import java.util.Date;
 import java.util.Random;
@@ -16,7 +14,6 @@ public class RandomSpotsGenerator {
     private static final String TEST_TABLE_ID = "1Pa5hqK1KxKwgZmbgBFJ5opcbRGHELFsCL6CyE8bf";
     private static final Location CENTER = new Location(40.435165, -3.69684243, 0F);
 
-    Index index = new TestFusionIndex();
 
     Random random = new Random();
 
@@ -30,7 +27,7 @@ public class RandomSpotsGenerator {
         for (int i = 0; i < 1000; i++) {
             Location randomLocation = getRandomLocationWithin(CENTER, random.nextInt(5000));
             System.out.println(randomLocation);
-            index.put(UUID.randomUUID().toString(), randomLocation.getLatitude(), randomLocation.getLongitude(), new Date());
+//            index.put(UUID.randomUUID().toString(), randomLocation.getLatitude(), randomLocation.getLongitude(), new Date());
         }
 
     }

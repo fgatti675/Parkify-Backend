@@ -6,7 +6,7 @@
 
     <persistence-unit name="datanucleus">
         <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
-        <class>com.cahue.api.ParkingSpot</class>
+        <class>com.cahue.datastore.ParkingSpotDS</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.query.timeout" value="5000"/>
@@ -21,10 +21,13 @@
 
 
     <persistence-unit name="mysql">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <class>com.cahue.api.ParkingSpot</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
-
+            <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.password" value="arrabal"/>
+            <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
         </properties>
     </persistence-unit>
 

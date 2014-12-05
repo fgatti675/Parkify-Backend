@@ -3,7 +3,7 @@ package com.cahue.resources;
 import com.cahue.DataSource;
 import com.cahue.api.Location;
 import com.cahue.api.ParkingSpot;
-import com.cahue.index.Index;
+import com.cahue.datastore.ParkingSpotDS;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -70,10 +70,10 @@ public class SpotsResource {
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
 
-        ParkingSpot parkingSpot = new ParkingSpot();
-        parkingSpot.setLatitude(location.getLatitude());
-        parkingSpot.setLongitude(location.getLongitude());
-        parkingSpot.setAccuracy(location.getAccuracy());
+        ParkingSpotDS parkingSpotDS = new ParkingSpotDS();
+        parkingSpotDS.setLatitude(location.getLatitude());
+        parkingSpotDS.setLongitude(location.getLongitude());
+        parkingSpotDS.setAccuracy(location.getAccuracy());
 
         /**
          * Save in datastore
@@ -81,12 +81,16 @@ public class SpotsResource {
         EntityManager em = dataSource.createDatastoreEntityManager();
         try {
             em.getTransaction().begin();
-            em.persist(parkingSpot);  // this sets the ID
+            em.persist(parkingSpotDS);
             em.getTransaction().commit();
         } finally {
             em.close();
         }
 
+        ParkingSpot parkingSpot = new ParkingSpot();
+        parkingSpot.setLatitude(location.getLatitude());
+        parkingSpot.setLongitude(location.getLongitude());
+        parkingSpot.setAccuracy(location.getAccuracy());
         /**
          * Save in index DB
          */

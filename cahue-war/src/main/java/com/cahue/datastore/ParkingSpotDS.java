@@ -1,4 +1,4 @@
-package com.cahue.api;
+package com.cahue.datastore;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Date;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-public class ParkingSpot {
+public class ParkingSpotDS {
 
 	@Id
     @GeneratedValue(strategy = IDENTITY)
@@ -18,7 +18,7 @@ public class ParkingSpot {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date time = new Date();
 
-    public ParkingSpot() {
+    public ParkingSpotDS() {
     }
 
 	public Long getId() {
