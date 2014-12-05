@@ -3,8 +3,15 @@
     <application>cahue</application>
     <version>${appengine.app.version}</version>
     <threadsafe>true</threadsafe>
-    
+
     <system-properties>
+        <property name="cloudsql.url.dev" value="jdbc:mysql://localhost/cahue?user=root"/>
+        <property name="cloudsql.url"
+                  value="jdbc:google:mysql://glossy-radio:reflektor/cahue?user=root;"/>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>
+
+    <!-- Used for Cloud SQL -->
+    <use-google-connector-j>true</use-google-connector-j>
+
 </appengine-web-app>

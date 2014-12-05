@@ -34,9 +34,6 @@ public class SpotsResource {
 
     @Inject
     DataSource dataSource;
-    @Inject
-    @Named("CartoDB")
-    Index index;
 
     /**
      * Get
@@ -53,19 +50,7 @@ public class SpotsResource {
         if (latitude == null || longitude == null || range == null)
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
 
-        /**
-         * Query index
-         */
-        Set<Long> ids = index.queryByRange(latitude, longitude, range);
-
-        /**
-         * Query datastore with the results from the Index
-         */
-        EntityManager em = dataSource.createEntityManager();
         Set<ParkingSpot> spots = new HashSet<>();
-        for (Long id : ids) {
-            spots.add(em.find(ParkingSpot.class, id));
-        }
 
         return spots;
     }
@@ -93,20 +78,26 @@ public class SpotsResource {
         /**
          * Save in datastore
          */
-        EntityManager em = dataSource.createEntityManager();
-        em.getTransaction().begin();
-        em.persist(parkingSpot);
-        em.getTransaction().commit();
+        EntityManager em = dataSource.createDatastoreEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.persist(parkingSpot);  // this sets the ID
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
 
         /**
-         * Put in index
+         * Save in index DB
          */
-        index.put(
-                parkingSpot.getId().toString(),
-                location.getLatitude(),
-                location.getLongitude(),
-                parkingSpot.getTime()
-        );
+        EntityManager indexEm = dataSource.createRelationalEntityManager();
+        try {
+            indexEm.getTransaction().begin();
+            indexEm.persist(parkingSpot);
+            indexEm.getTransaction().commit();
+        } finally {
+            indexEm.close();
+        }
 
         logger.fine(parkingSpot.toString());
 
