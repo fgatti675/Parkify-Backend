@@ -1,6 +1,7 @@
 package com.cahue;
 
 import com.cahue.api.ParkingSpot;
+import com.cahue.api.QueryResult;
 import com.cartodb.CartoDBClientIF;
 import com.cartodb.CartoDBException;
 import com.cartodb.impl.ApiKeyCartoDBClient;
@@ -87,7 +88,7 @@ public class CartoDBPersistence {
         return TABLE_NAME;
     }
 
-    public Set<ParkingSpot> queryNearest(Double latitude, Double longitude, int nearest) {
+    public QueryResult queryNearest(Double latitude, Double longitude, int nearest) {
 
         String sqlString = String.format(
                 Locale.ENGLISH,
@@ -102,7 +103,7 @@ public class CartoDBPersistence {
         return retrieve(sqlString);
     }
 
-    public Set<ParkingSpot> queryArea(
+    public QueryResult queryArea(
             Double southwestLatitude,
             Double southwestLongitude,
             Double northeastLatitude,
@@ -122,7 +123,9 @@ public class CartoDBPersistence {
         return retrieve(sqlString);
     }
 
-    private Set<ParkingSpot> retrieve(String sql) {
+    private QueryResult retrieve(String sql) {
+
+        QueryResult result = new QueryResult();
 
         Set<ParkingSpot> spots = new HashSet<>();
 
@@ -130,7 +133,7 @@ public class CartoDBPersistence {
 
         JSONObject json = doQuery(sqlString);
         if (json == null) {
-            return spots;
+            result.setError(true);
         } else {
             try {
                 JSONArray rows = json.getJSONArray("features");
@@ -154,6 +157,9 @@ public class CartoDBPersistence {
                     spot.setTime(date);
                     spots.add(spot);
                 }
+
+                result.setSpots(spots);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -161,7 +167,7 @@ public class CartoDBPersistence {
             }
         }
 
-        return spots;
+        return result;
     }
 
     private JSONObject doQuery(String sql) {
@@ -173,7 +179,6 @@ public class CartoDBPersistence {
             HttpGet httpGet = new HttpGet(url);
             httpGet.setHeader("Accept", "application/json");
             httpGet.setHeader("Content-type", "application/json");
-
 
             HttpResponse response = httpclient.execute(httpGet);
             StatusLine statusLine = response.getStatusLine();

@@ -4,6 +4,7 @@ import com.cahue.CartoDBPersistence;
 import com.cahue.DataSource;
 import com.cahue.api.Location;
 import com.cahue.api.ParkingSpot;
+import com.cahue.api.QueryResult;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -41,7 +42,7 @@ public class SpotsResource {
     @GET
     @Path("/nearest")
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<ParkingSpot> getNearest(
+    public QueryResult getNearest(
             @QueryParam("lat") Double latitude,
             @QueryParam("long") Double longitude,
             @QueryParam("count") Integer count) {
@@ -55,7 +56,7 @@ public class SpotsResource {
     @GET
     @Path("/area")
     @Produces(MediaType.APPLICATION_JSON)
-    public Collection<ParkingSpot> getArea(
+    public QueryResult getArea(
             @QueryParam("swLat") Double southwestLatitude,
             @QueryParam("swLong") Double southwestLongitude,
             @QueryParam("neLat") Double northeastLatitude,

@@ -1,0 +1,46 @@
+package com.cahue.api;
+
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Created by Francesco on 11/12/2014.
+ */
+public class QueryResult {
+
+    /**
+     * Was there an error retrieving data
+     */
+    boolean error = false;
+
+    /**
+     * The results included are not complete
+     */
+    boolean moreResults = false;
+
+    Set<ParkingSpot> spots;
+
+    public boolean isMoreResults() {
+        return moreResults;
+    }
+
+    public void setMoreResults(boolean moreResults) {
+        this.moreResults = moreResults;
+    }
+
+    public Set<ParkingSpot> getSpots() {
+        return spots;
+    }
+
+    public void setSpots(Set<ParkingSpot> spots) {
+        this.spots = spots;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
+    }
+}
