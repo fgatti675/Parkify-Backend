@@ -26,9 +26,9 @@ public class MySQLPersistence implements Persistence {
         EntityManager em = dataSource.createRelationalEntityManager();
         String sql = String.format(
                 Locale.ENGLISH,
-                "SELECT id, accuracy, time, x(spot) as longitude, y(spot) as latitude \n" +
-                        "FROM parkingspot " +
-                        "ORDER BY st_distance(GeomFromText('POINT(%f %f)', 4326), spot) LIMIT %d;",
+                "SELECT ID, ACCURACY, TIME, X(SPOT) AS LONGITUDE, Y(SPOT) AS LATITUDE \n" +
+                        "FROM PARKINGSPOT " +
+                        "ORDER BY ST_DISTANCE(GEOMFROMTEXT('POINT(%f %f)', 4326), SPOT) LIMIT %d;",
                 longitude,
                 latitude,
                 nearest
@@ -46,9 +46,9 @@ public class MySQLPersistence implements Persistence {
         EntityManager em = dataSource.createRelationalEntityManager();
         String sql = String.format(
                 Locale.ENGLISH,
-                "SELECT id, accuracy, time, x(spot) as longitude, y(spot) as latitude " +
-                        "FROM parkingspot " +
-                        "WHERE ST_contains(ST_Envelope(GeomFromText('LineString(%f %f,%f %f)', 4326)), spot);",
+                "SELECT ID, ACCURACY, TIME, X(SPOT) AS LONGITUDE, Y(SPOT) AS LATITUDE " +
+                        "FROM PARKINGSPOT " +
+                        "WHERE ST_CONTAINS(ST_ENVELOPE(GEOMFROMTEXT('LINESTRING(%f %f,%f %f)', 4326)), SPOT);",
                 southwestLongitude,
                 southwestLatitude,
                 northeastLongitude,
@@ -69,7 +69,7 @@ public class MySQLPersistence implements Persistence {
         em.getTransaction().begin();
         String sql = String.format(
                 Locale.ENGLISH,
-                "INSERT INTO parkingspot (id, accuracy, time, spot) VALUES (%d, %.2f, now(), (GeomFromText('POINT(%f %f)', 4326)));",
+                "INSERT INTO PARKINGSPOT (ID, ACCURACY, TIME, SPOT) VALUES (%d, %.2f, NOW(), (GEOMFROMTEXT('POINT(%f %f)', 4326)));",
                 spot.getId(),
                 spot.getAccuracy(),
                 spot.getLongitude(),
