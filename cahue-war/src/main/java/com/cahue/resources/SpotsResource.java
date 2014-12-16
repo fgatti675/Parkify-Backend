@@ -1,12 +1,13 @@
 package com.cahue.resources;
 
-import com.cahue.CartoDBPersistence;
 import com.cahue.DataSource;
 import com.cahue.api.Location;
 import com.cahue.api.ParkingSpot;
+import com.cahue.persistence.Persistence;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.inject.name.Named;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -36,7 +37,8 @@ public class SpotsResource {
     DataSource dataSource;
 
     @Inject
-    CartoDBPersistence cartoDBPersistence;
+    @Named(Persistence.MySQL)
+    Persistence persistence;
 
     @GET
     @Path("/nearest")
@@ -49,7 +51,7 @@ public class SpotsResource {
         if (latitude == null || longitude == null || count == null)
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
 
-        return cartoDBPersistence.queryNearest(latitude, longitude, count);
+        return persistence.queryNearest(latitude, longitude, count);
     }
 
     @GET
@@ -64,7 +66,7 @@ public class SpotsResource {
         if (southwestLatitude == null || southwestLongitude == null || northeastLatitude == null || northeastLongitude == null)
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
 
-        return cartoDBPersistence.queryArea(southwestLatitude, southwestLongitude, northeastLatitude, northeastLongitude);
+        return persistence.queryArea(southwestLatitude, southwestLongitude, northeastLatitude, northeastLongitude);
     }
 
     /**
@@ -91,7 +93,7 @@ public class SpotsResource {
         /**
          * Save in datastore
          */
-        EntityManager em = dataSource.createEntityManager();
+        EntityManager em = dataSource.createDatastoreEntityManager();
         em.getTransaction().begin();
         em.persist(parkingSpot);
         em.getTransaction().commit();
@@ -99,7 +101,7 @@ public class SpotsResource {
         /**
          * Put in cartoDBPersistence
          */
-        cartoDBPersistence.put(parkingSpot);
+        persistence.put(parkingSpot);
 
         logger.fine(parkingSpot.toString());
 

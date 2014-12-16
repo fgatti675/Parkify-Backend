@@ -1,9 +1,9 @@
 package com.cahue.resources;
 
-import com.cahue.DataSource;
+import com.cahue.persistence.Persistence;
+import com.google.inject.name.Named;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -29,8 +29,8 @@ public class IndexCronResource {
     private static Date lastTimeout;
 
     @Inject
-    DataSource dataSource;
-
+    @Named(Persistence.MySQL)
+    Persistence persistence;
 
     @GET
     @Path("/cleanStale")
@@ -41,6 +41,7 @@ public class IndexCronResource {
 
         Date time = calendar.getTime();
 
+        persistence.deleteBefore(time);
 
         return Response.ok().build();
     }

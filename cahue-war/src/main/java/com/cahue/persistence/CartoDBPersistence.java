@@ -1,4 +1,4 @@
-package com.cahue;
+package com.cahue.persistence;
 
 import com.cahue.api.ParkingSpot;
 import com.cartodb.CartoDBClientIF;
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  *
  * @author francesco
  */
-public class CartoDBPersistence {
+public class CartoDBPersistence implements Persistence {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final SimpleDateFormat resultDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -50,7 +50,7 @@ public class CartoDBPersistence {
 
 
     public static final void main(String[] args) throws Exception {
-        CartoDBPersistence cartoDBIndex = new CartoDBPersistence();
+        Persistence persistence = new CartoDBPersistence();
         Calendar calendar = Calendar.getInstance();
 //        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - 3);
 
@@ -61,8 +61,8 @@ public class CartoDBPersistence {
         spot.setLongitude(0D);
         spot.setTime(new Date());
 
-        cartoDBIndex.put(spot);
-        System.out.println(cartoDBIndex.queryArea(-1D, -1D, 1D, 1D));
+        persistence.put(spot);
+        System.out.println(persistence.queryArea(-1D, -1D, 1D, 1D));
 
 //        int count = cartoDBIndex.deleteBefore(time);
     }
@@ -83,10 +83,11 @@ public class CartoDBPersistence {
      *
      * @return
      */
-    public String getTableId() {
+    protected String getTableId() {
         return TABLE_NAME;
     }
 
+    @Override
     public Set<ParkingSpot> queryNearest(Double latitude, Double longitude, int nearest) {
 
         String sqlString = String.format(
@@ -102,6 +103,7 @@ public class CartoDBPersistence {
         return retrieve(sqlString);
     }
 
+    @Override
     public Set<ParkingSpot> queryArea(
             Double southwestLatitude,
             Double southwestLongitude,
@@ -200,6 +202,7 @@ public class CartoDBPersistence {
         return null;
     }
 
+    @Override
     public void put(ParkingSpot spot) {
 
         String sqlString = String.format(
@@ -220,6 +223,7 @@ public class CartoDBPersistence {
         }
     }
 
+    @Override
     public int deleteBefore(Date date) {
 
         String sqlString = String.format(
