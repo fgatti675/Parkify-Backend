@@ -7,7 +7,7 @@
     <system-properties>
         <property name="cloudsql.url.dev" value="jdbc:mysql://localhost/cahue?user=root"/>
         <property name="cloudsql.url"
-                  value="jdbc:google:mysql://glossy-radio:reflektor/cahue?user=root;"/>
+                  value="jdbc:google:mysql://glossy-radio:corinne/cahue?user=root"/>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>
 
