@@ -18,7 +18,7 @@ public class QueryResult {
      */
     boolean moreResults = false;
 
-    Set<ParkingSpot> spots;
+    List<ParkingSpot> spots;
 
     public boolean isMoreResults() {
         return moreResults;
@@ -28,11 +28,11 @@ public class QueryResult {
         this.moreResults = moreResults;
     }
 
-    public Set<ParkingSpot> getSpots() {
+    public List<ParkingSpot> getSpots() {
         return spots;
     }
 
-    public void setSpots(Set<ParkingSpot> spots) {
+    public void setSpots(List<ParkingSpot> spots) {
         this.spots = spots;
     }
 

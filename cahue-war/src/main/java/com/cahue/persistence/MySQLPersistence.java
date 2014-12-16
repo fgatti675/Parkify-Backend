@@ -2,6 +2,7 @@ package com.cahue.persistence;
 
 import com.cahue.DataSource;
 import com.cahue.api.ParkingSpot;
+import com.cahue.api.QueryResult;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -21,11 +22,11 @@ public class MySQLPersistence implements Persistence {
     DataSource dataSource;
 
     @Override
-    public List<ParkingSpot> queryNearest(Double latitude, Double longitude, int nearest) {
+    public QueryResult queryNearest(Double latitude, Double longitude, int nearest) {
         EntityManager em = dataSource.createRelationalEntityManager();
         String sql = String.format(
                 Locale.ENGLISH,
-                "SELECT id, accuracy, x(spot) as longitude, y(spot) as latitude \n" +
+                "SELECT id, accuracy, time, x(spot) as longitude, y(spot) as latitude \n" +
                         "FROM parkingspot " +
                         "ORDER BY st_distance(GeomFromText('POINT(%f %f)', 4326), spot) LIMIT %d;",
                 longitude,
@@ -33,16 +34,19 @@ public class MySQLPersistence implements Persistence {
                 nearest
         );
         List resultList = em.createNativeQuery(sql, ParkingSpot.class).getResultList();
-        return resultList;
+
+        QueryResult result = new QueryResult();
+        result.setSpots(resultList);
+        return result;
     }
 
     @Override
-    public List<ParkingSpot> queryArea(Double southwestLatitude, Double southwestLongitude, Double northeastLatitude, Double northeastLongitude) {
+    public QueryResult queryArea(Double southwestLatitude, Double southwestLongitude, Double northeastLatitude, Double northeastLongitude) {
 
         EntityManager em = dataSource.createRelationalEntityManager();
         String sql = String.format(
                 Locale.ENGLISH,
-                "SELECT id, accuracy, x(spot) as longitude, y(spot) as latitude " +
+                "SELECT id, accuracy, time, x(spot) as longitude, y(spot) as latitude " +
                         "FROM parkingspot " +
                         "WHERE ST_contains(ST_Envelope(GeomFromText('LineString(%f %f,%f %f)', 4326)), spot);",
                 southwestLongitude,
@@ -51,7 +55,10 @@ public class MySQLPersistence implements Persistence {
                 northeastLatitude
         );
         List resultList = em.createNativeQuery(sql, ParkingSpot.class).getResultList();
-        return resultList;
+
+        QueryResult result = new QueryResult();
+        result.setSpots(resultList);
+        return result;
     }
 
     @Override
@@ -76,6 +83,12 @@ public class MySQLPersistence implements Persistence {
 
     @Override
     public int deleteBefore(Date date) {
-        return 0;
+
+        EntityManager em = dataSource.createRelationalEntityManager();
+        em.getTransaction().begin();
+        int deleted = em.createQuery("DELETE FROM ParkingSpot p WHERE p.time < :time ").setParameter("time", date).executeUpdate();
+        em.getTransaction().commit();
+
+        return deleted;
     }
 }

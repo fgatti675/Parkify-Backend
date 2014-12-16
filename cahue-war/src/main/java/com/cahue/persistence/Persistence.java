@@ -1,6 +1,7 @@
 package com.cahue.persistence;
 
 import com.cahue.api.ParkingSpot;
+import com.cahue.api.QueryResult;
 
 import java.util.Date;
 import java.util.List;
@@ -17,9 +18,9 @@ public interface Persistence {
     public final static String MySQL = "MySQL";
 
 
-    List<ParkingSpot> queryNearest(Double latitude, Double longitude, int nearest);
+    QueryResult queryNearest(Double latitude, Double longitude, int nearest);
 
-    List<ParkingSpot> queryArea(
+    QueryResult queryArea(
             Double southwestLatitude,
             Double southwestLongitude,
             Double northeastLatitude,
