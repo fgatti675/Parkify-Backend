@@ -13,9 +13,10 @@ public class ListerlyServletModule extends ServletModule {
 	protected void configureServlets() {
 
         bind(DataSource.class);
+        bind(Persistence.class).to(MySQLPersistence.class);
 
-        bind(Persistence.class).annotatedWith(Names.named(Persistence.CartoDB)).to(CartoDBPersistence.class);
-        bind(Persistence.class).annotatedWith(Names.named(Persistence.MySQL)).to(MySQLPersistence.class);
+//        bind(Persistence.class).annotatedWith(Names.named(Persistence.CartoDB)).to(CartoDBPersistence.class);
+//        bind(Persistence.class).annotatedWith(Names.named(Persistence.MySQL)).to(MySQLPersistence.class);
 	}
 
 }

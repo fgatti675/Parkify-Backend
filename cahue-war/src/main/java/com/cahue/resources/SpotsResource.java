@@ -3,6 +3,7 @@ package com.cahue.resources;
 import com.cahue.DataSource;
 import com.cahue.api.Location;
 import com.cahue.api.ParkingSpot;
+import com.cahue.datastore.ParkingSpotDS;
 import com.cahue.persistence.Persistence;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -84,20 +85,27 @@ public class SpotsResource {
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
 
-        ParkingSpot parkingSpot = new ParkingSpot();
-        parkingSpot.setLatitude(location.getLatitude());
-        parkingSpot.setLongitude(location.getLongitude());
-        parkingSpot.setAccuracy(location.getAccuracy());
-        parkingSpot.setTime(new Date());
+        ParkingSpotDS parkingSpotDS = new ParkingSpotDS();
+        parkingSpotDS.setLatitude(location.getLatitude());
+        parkingSpotDS.setLongitude(location.getLongitude());
+        parkingSpotDS.setAccuracy(location.getAccuracy());
+        parkingSpotDS.setTime(new Date());
 
         /**
          * Save in datastore
          */
         EntityManager em = dataSource.createDatastoreEntityManager();
         em.getTransaction().begin();
-        em.persist(parkingSpot);
+        em.persist(parkingSpotDS);
         em.getTransaction().commit();
 
+
+        ParkingSpot parkingSpot = new ParkingSpot();
+        parkingSpot.setId(parkingSpotDS.getId());
+        parkingSpot.setLatitude(location.getLatitude());
+        parkingSpot.setLongitude(location.getLongitude());
+        parkingSpot.setAccuracy(location.getAccuracy());
+        parkingSpot.setTime(new Date());
         /**
          * Put in cartoDBPersistence
          */

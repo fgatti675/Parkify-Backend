@@ -88,7 +88,7 @@ public class CartoDBPersistence implements Persistence {
     }
 
     @Override
-    public Set<ParkingSpot> queryNearest(Double latitude, Double longitude, int nearest) {
+    public List<ParkingSpot> queryNearest(Double latitude, Double longitude, int nearest) {
 
         String sqlString = String.format(
                 Locale.ENGLISH,
@@ -104,7 +104,7 @@ public class CartoDBPersistence implements Persistence {
     }
 
     @Override
-    public Set<ParkingSpot> queryArea(
+    public List<ParkingSpot> queryArea(
             Double southwestLatitude,
             Double southwestLongitude,
             Double northeastLatitude,
@@ -124,9 +124,9 @@ public class CartoDBPersistence implements Persistence {
         return retrieve(sqlString);
     }
 
-    private Set<ParkingSpot> retrieve(String sql) {
+    private List<ParkingSpot> retrieve(String sql) {
 
-        Set<ParkingSpot> spots = new HashSet<>();
+        List<ParkingSpot> spots = new ArrayList<>();
 
         String sqlString = sql;
 
