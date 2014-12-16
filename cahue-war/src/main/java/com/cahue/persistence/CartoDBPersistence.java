@@ -1,6 +1,7 @@
-package com.cahue.persistence;
+package com.cahue;
 
 import com.cahue.api.ParkingSpot;
+import com.cahue.api.QueryResult;
 import com.cartodb.CartoDBClientIF;
 import com.cartodb.CartoDBException;
 import com.cartodb.impl.ApiKeyCartoDBClient;
@@ -87,8 +88,7 @@ public class CartoDBPersistence implements Persistence {
         return TABLE_NAME;
     }
 
-    @Override
-    public List<ParkingSpot> queryNearest(Double latitude, Double longitude, int nearest) {
+    public QueryResult queryNearest(Double latitude, Double longitude, int nearest) {
 
         String sqlString = String.format(
                 Locale.ENGLISH,
@@ -103,8 +103,7 @@ public class CartoDBPersistence implements Persistence {
         return retrieve(sqlString);
     }
 
-    @Override
-    public List<ParkingSpot> queryArea(
+    public QueryResult queryArea(
             Double southwestLatitude,
             Double southwestLongitude,
             Double northeastLatitude,
@@ -124,15 +123,16 @@ public class CartoDBPersistence implements Persistence {
         return retrieve(sqlString);
     }
 
-    private List<ParkingSpot> retrieve(String sql) {
+    private QueryResult retrieve(String sql) {
 
         List<ParkingSpot> spots = new ArrayList<>();
+        QueryResult result = new QueryResult();
 
         String sqlString = sql;
 
         JSONObject json = doQuery(sqlString);
         if (json == null) {
-            return spots;
+            result.setError(true);
         } else {
             try {
                 JSONArray rows = json.getJSONArray("features");
@@ -156,6 +156,9 @@ public class CartoDBPersistence implements Persistence {
                     spot.setTime(date);
                     spots.add(spot);
                 }
+
+                result.setSpots(spots);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -163,7 +166,7 @@ public class CartoDBPersistence implements Persistence {
             }
         }
 
-        return spots;
+        return result;
     }
 
     private JSONObject doQuery(String sql) {
