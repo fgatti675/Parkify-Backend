@@ -53,6 +53,10 @@ public class ParkingSpot {
         this.accuracy = accuracy;
     }
 
+    public void setTime(Date time) {
+        this.time = time;
+    }
+
     public Date getTime() {
 		return time;
 	}

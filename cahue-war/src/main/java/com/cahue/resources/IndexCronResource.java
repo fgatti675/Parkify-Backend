@@ -24,7 +24,7 @@ public class IndexCronResource {
     Logger logger = Logger.getLogger(getClass().getSimpleName());
 
     /**
-     * Last timeout time. Every entry in the index before this time should have been previously removed.
+     * Last timeout time. Every entry in the cartoDBPersistence before this time should have been previously removed.
      */
     private static Date lastTimeout;
 
