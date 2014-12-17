@@ -1,7 +1,6 @@
 package com.cahue.resources;
 
-import com.cahue.CartoDBPersistence;
-import com.cahue.DataSource;
+import com.cahue.persistence.DataSource;
 import com.cahue.api.Location;
 import com.cahue.api.ParkingSpot;
 import com.cahue.datastore.ParkingSpotDS;
@@ -19,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
 import java.util.Date;
 import java.util.logging.Logger;
 

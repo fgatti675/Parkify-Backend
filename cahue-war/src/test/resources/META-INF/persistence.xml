@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" version="1.0">
+
+    <persistence-unit name="datanucleus">
+        <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
+        <class>com.cahue.datastore.ParkingSpotDS</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <!--<property name="javax.persistence.query.timeout" value="5000"/>-->
+            <!--&lt;!&ndash;<property name="datanucleus.appengine.datastoreReadConsistency" value="STRONG"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;<property name="datanucleus.appengine.datastoreEnableXGTransactions" value="true"/>&ndash;&gt;-->
+            <!--<property name="datanucleus.datastoreWriteTimeout" value="5000"/>-->
+            <!--<property name="datanucleus.NontransactionalRead" value="true"/>-->
+            <!--<property name="datanucleus.NontransactionalWrite" value="true"/>-->
+            <!--<property name="datanucleus.ConnectionURL" value="appengine"/>-->
+        </properties>
+    </persistence-unit>
+
+
+    <persistence-unit name="test-mysql">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>com.cahue.api.ParkingSpot</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/test?user=root"/>
+            <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="javax.persistence.jdbc.password" value="arrabal"/>
+            <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>

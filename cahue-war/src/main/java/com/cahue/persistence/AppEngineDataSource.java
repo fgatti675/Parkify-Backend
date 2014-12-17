@@ -1,4 +1,4 @@
-package com.cahue;
+package com.cahue.persistence;
 
 import com.google.appengine.api.utils.SystemProperty;
 
@@ -13,13 +13,13 @@ import java.util.Map;
  * Created by Francesco on 07/09/2014.
  */
 @Singleton
-public class DataSource {
+public class AppEngineDataSource implements DataSource {
 
     private EntityManagerFactory nucleusFactory;
 
     private EntityManagerFactory mysqlFactory;
 
-    public DataSource() {
+    public AppEngineDataSource() {
         Map<String, String> properties = new HashMap();
         if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production) {
             properties.put("javax.persistence.jdbc.driver", "com.mysql.jdbc.GoogleDriver");
@@ -33,10 +33,12 @@ public class DataSource {
         nucleusFactory = Persistence.createEntityManagerFactory("datanucleus");
     }
 
+    @Override
     public EntityManager createDatastoreEntityManager() {
         return nucleusFactory.createEntityManager();
     }
 
+    @Override
     public EntityManager createRelationalEntityManager() {
         return mysqlFactory.createEntityManager();
     }
