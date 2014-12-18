@@ -22,7 +22,7 @@ import java.util.Random;
  * @author francesco
  */
 @RunWith(JukitoRunner.class)
-public class CapacityTest extends BaseTest {
+public class CapacityTest {
 
     /**
      * Overrides the common bindings from TestBase with the
@@ -58,7 +58,6 @@ public class CapacityTest extends BaseTest {
 
     @Test
     public void responseTest() {
-
 
     }
 }
