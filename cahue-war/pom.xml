@@ -146,12 +146,16 @@
         <dependency>
             <groupId>com.google.appengine.orm</groupId>
             <artifactId>datanucleus-appengine</artifactId>
-            <version>2.1.1</version>
+            <version>2.1.2</version>
 
             <exclusions>
                 <exclusion>
                     <groupId>org.datanucleus</groupId>
                     <artifactId>datanucleus-enhancer</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.datanucleus</groupId>
+                    <artifactId>datanucleus-core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -297,6 +301,7 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.datanucleus</groupId>
                 <artifactId>maven-datanucleus-plugin</artifactId>
@@ -306,6 +311,7 @@
                     <api>JPA</api>
                     <persistenceUnitName>datanucleus</persistenceUnitName>
                     <verbose>true</verbose>
+                    <fork>false</fork>   <!-- Solve windows line too long error -->
                 </configuration>
 
                 <dependencies>
