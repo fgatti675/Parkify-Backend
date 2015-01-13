@@ -168,6 +168,20 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-appengine</artifactId>
+            <version>1.19.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-plus</artifactId>
+            <version>v1-rev204-1.19.1</version>
+        </dependency>
+
+
+
+        <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-mapsengine</artifactId>
             <version>exp2-rev14-1.19.0</version>
@@ -177,6 +191,12 @@
             <artifactId>google-oauth-client-servlet</artifactId>
             <version>1.19.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-oauth2</artifactId>
+            <version>v2-rev84-1.19.1</version>
+        </dependency>
+
 
         <dependency>
             <groupId>cartodb-java-client</groupId>
