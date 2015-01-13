@@ -84,6 +84,9 @@ public class SpotsResource {
 
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
+        if(user != null){
+            logger.info("FOUND USER: " + user.getEmail());
+        }
 
         ParkingSpotDS parkingSpotDS = new ParkingSpotDS();
         parkingSpotDS.setLatitude(location.getLatitude());

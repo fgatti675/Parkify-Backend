@@ -174,7 +174,7 @@
         </dependency>
         <dependency>
             <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client-jetty</artifactId>
+            <artifactId>google-oauth-client-servlet</artifactId>
             <version>1.19.0</version>
         </dependency>
 
@@ -200,6 +200,12 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20140107</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-jackson</artifactId>
+            <version>1.19.0</version>
         </dependency>
 
 
