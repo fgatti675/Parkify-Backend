@@ -19,6 +19,9 @@ import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.apache.ApacheHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.Preconditions;
 import com.google.api.services.plus.PlusScopes;
@@ -42,7 +45,7 @@ class UserAuthUtils {
   private static final Set<String> SCOPES = Collections.singleton(PlusScopes.PLUS_ME);
   static final String MAIN_SERVLET_PATH = "/plussampleservlet";
   static final String AUTH_CALLBACK_SERVLET_PATH = "/oauth2callback";
-  static final UrlFetchTransport HTTP_TRANSPORT = new UrlFetchTransport();
+  static final HttpTransport HTTP_TRANSPORT = new NetHttpTransport();
   static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
   private static GoogleClientSecrets getClientSecrets() throws IOException {

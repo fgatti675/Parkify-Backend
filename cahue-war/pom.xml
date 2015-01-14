@@ -196,6 +196,11 @@
             <version>1.19.0</version>
         </dependency>
         <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-appengine</artifactId>
+            <version>1.19.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-oauth2</artifactId>
             <version>v2-rev84-1.19.1</version>
