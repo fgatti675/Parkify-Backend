@@ -1,7 +1,7 @@
 package com.cahue.persistence;
 
-import com.cahue.api.ParkingSpot;
-import com.cahue.api.QueryResult;
+import com.cahue.model.QueryResult;
+import com.cahue.model.ParkingSpot;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -16,6 +16,8 @@ import java.util.Locale;
  * @author francesco
  */
 public class MySQLPersistence implements Persistence {
+
+    private static final int MAX_RESULTS = 200;
 
     @Inject
     DataSource dataSource;
@@ -47,16 +49,19 @@ public class MySQLPersistence implements Persistence {
                 Locale.ENGLISH,
                 "SELECT ID, ACCURACY, TIME, X(SPOT) AS LONGITUDE, Y(SPOT) AS LATITUDE " +
                         "FROM PARKINGSPOT " +
-                        "WHERE ST_CONTAINS(ST_ENVELOPE(GEOMFROMTEXT('LINESTRING(%f %f,%f %f)', 4326)), SPOT);",
+                        "WHERE ST_CONTAINS(ST_ENVELOPE(GEOMFROMTEXT('LINESTRING(%f %f,%f %f)', 4326)), SPOT) " +
+                        "LIMIT %d;",
                 southwestLongitude,
                 southwestLatitude,
                 northeastLongitude,
-                northeastLatitude
+                northeastLatitude,
+                MAX_RESULTS
         );
         List resultList = em.createNativeQuery(sql, ParkingSpot.class).getResultList();
 
         QueryResult result = new QueryResult();
         result.setSpots(resultList);
+        result.setMoreResults(resultList.size() == MAX_RESULTS);
         return result;
     }
 

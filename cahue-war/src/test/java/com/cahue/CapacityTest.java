@@ -1,7 +1,7 @@
 package com.cahue;
 
 
-import com.cahue.api.ParkingSpot;
+import com.cahue.model.ParkingSpot;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.ProductionModule;
 import com.cahue.persistence.MySQLPersistence;

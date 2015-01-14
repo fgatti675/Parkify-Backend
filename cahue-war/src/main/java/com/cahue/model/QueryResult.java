@@ -1,7 +1,6 @@
-package com.cahue.api;
+package com.cahue.model;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Francesco on 11/12/2014.

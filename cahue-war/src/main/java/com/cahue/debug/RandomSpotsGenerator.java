@@ -1,10 +1,8 @@
 package com.cahue.debug;
 
-import com.cahue.api.Location;
+import com.cahue.model.ParkingSpot;
 
-import java.util.Date;
 import java.util.Random;
-import java.util.UUID;
 
 /**
  * Created by Francesco on 22/10/2014.
@@ -12,7 +10,7 @@ import java.util.UUID;
 public class RandomSpotsGenerator {
 
     private static final String TEST_TABLE_ID = "1Pa5hqK1KxKwgZmbgBFJ5opcbRGHELFsCL6CyE8bf";
-    private static final Location CENTER = new Location(40.435165, -3.69684243, 0F);
+    private static final ParkingSpot CENTER = new ParkingSpot(40.435165, -3.69684243, 0F);
 
 
     Random random = new Random();
@@ -25,14 +23,14 @@ public class RandomSpotsGenerator {
     public void generate() {
 
         for (int i = 0; i < 1000; i++) {
-            Location randomLocation = getRandomLocationWithin(CENTER, random.nextInt(5000));
+            ParkingSpot randomLocation = getRandomLocationWithin(CENTER, random.nextInt(5000));
             System.out.println(randomLocation);
 //            index.put(UUID.randomUUID().toString(), randomLocation.getLatitude(), randomLocation.getLongitude(), new Date());
         }
 
     }
 
-    private Location getRandomLocationWithin(Location center, int radius) {
+    private ParkingSpot getRandomLocationWithin(ParkingSpot center, int radius) {
         //Position, decimal degrees
         double lat = center.getLatitude();
         double lon = center.getLongitude();
@@ -48,7 +46,7 @@ public class RandomSpotsGenerator {
         double nLat = lat + dLat * (random.nextDouble() * 2 - 1) * 360 / Math.PI;
         double nLon = lon + dLon * (random.nextDouble() * 2 - 1) * 360 / Math.PI;
 
-        return new Location(nLat, nLon, 0F);
+        return new ParkingSpot(nLat, nLon, 0F);
     }
 
 }

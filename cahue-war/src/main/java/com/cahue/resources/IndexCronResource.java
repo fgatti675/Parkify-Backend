@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 @Path("/index")
 public class IndexCronResource {
 
-    private final Integer SPOT_TIMEOUT_H = 3; // 2 hours in ms
+    private final Integer SPOT_TIMEOUT_H = 2; // 2 hours
 
     Logger logger = Logger.getLogger(getClass().getSimpleName());
 
@@ -41,7 +41,8 @@ public class IndexCronResource {
 
         Date time = calendar.getTime();
 
-        persistence.deleteBefore(time);
+        int deletedCount = persistence.deleteBefore(time);
+        logger.fine(String.format("Deleted %d entries from spots index", deletedCount));
 
         return Response.ok().build();
     }

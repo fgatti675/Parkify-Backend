@@ -1,7 +1,7 @@
 package com.cahue;
 
-import com.cahue.api.ParkingSpot;
-import com.cahue.api.QueryResult;
+import com.cahue.model.QueryResult;
+import com.cahue.model.ParkingSpot;
 import com.cahue.persistence.Persistence;
 import com.cartodb.CartoDBClientIF;
 import com.cartodb.CartoDBException;

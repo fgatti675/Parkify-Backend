@@ -6,7 +6,8 @@
 
     <persistence-unit name="datanucleus">
         <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
-        <class>com.cahue.datastore.ParkingSpotDS</class>
+        <class>com.cahue.model.ParkingSpot</class>
+        <class>com.cahue.model.User</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!--<property name="javax.persistence.query.timeout" value="5000"/>-->
@@ -22,7 +23,7 @@
 
     <persistence-unit name="test-mysql">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-        <class>com.cahue.api.ParkingSpot</class>
+        <class>com.cahue.model.ParkingSpot</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>

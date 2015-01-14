@@ -1,11 +1,9 @@
 package com.cahue.persistence;
 
-import com.cahue.api.ParkingSpot;
-import com.cahue.api.QueryResult;
+import com.cahue.model.QueryResult;
+import com.cahue.model.ParkingSpot;
 
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Date: 16.12.14

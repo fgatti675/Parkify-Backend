@@ -1,11 +1,9 @@
 package com.cahue.resources;
 
+import com.cahue.model.QueryResult;
 import com.cahue.persistence.DataSource;
-import com.cahue.api.Location;
-import com.cahue.api.ParkingSpot;
-import com.cahue.datastore.ParkingSpotDS;
+import com.cahue.model.ParkingSpot;
 import com.cahue.persistence.Persistence;
-import com.cahue.api.QueryResult;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -30,7 +28,7 @@ public class SpotsResource {
     /**
      * Threshold for storing parking spots
      */
-    private final static int ACCURACY_LIMIT_M = 20;
+    private final static int ACCURACY_LIMIT_M = 25;
 
     Logger logger = Logger.getLogger(getClass().getSimpleName());
 
@@ -41,9 +39,64 @@ public class SpotsResource {
     @Named(Persistence.MySQL)
     Persistence persistence;
 
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public QueryResult getArea(
+            @QueryParam("swLat") Double southwestLatitude,
+            @QueryParam("swLong") Double southwestLongitude,
+            @QueryParam("neLat") Double northeastLatitude,
+            @QueryParam("neLong") Double northeastLongitude) {
+
+        if (southwestLatitude == null || southwestLongitude == null || northeastLatitude == null || northeastLongitude == null)
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
+
+        return persistence.queryArea(southwestLatitude, southwestLongitude, northeastLatitude, northeastLongitude);
+    }
+
+
+    /**
+     * Store a new parking position
+     */
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    public ParkingSpot put(ParkingSpot parkingSpot, @Context HttpHeaders headers) {
+
+        if (parkingSpot.getAccuracy() > ACCURACY_LIMIT_M) {
+            logger.fine("Spot received but too inaccurate : " + parkingSpot.getAccuracy() + " m.");
+            return null;
+        }
+
+        UserService userService = UserServiceFactory.getUserService();
+        User user = userService.getCurrentUser();
+        if(user != null){
+            logger.info("FOUND USER: " + user.getEmail());
+        }
+
+        parkingSpot.setTime(new Date());
+
+        /**
+         * Save in datastore
+         */
+        EntityManager em = dataSource.createDatastoreEntityManager();
+        em.getTransaction().begin();
+        em.persist(parkingSpot);  // sets the id
+        em.getTransaction().commit();
+
+        /**
+         * Put in index database
+         */
+        persistence.put(parkingSpot);
+
+        logger.fine(parkingSpot.toString());
+
+        return parkingSpot;
+    }
+
     @GET
     @Path("/nearest")
     @Produces(MediaType.APPLICATION_JSON)
+    @Deprecated
     public QueryResult getNearest(
             @QueryParam("lat") Double latitude,
             @QueryParam("long") Double longitude,
@@ -58,64 +111,14 @@ public class SpotsResource {
     @GET
     @Path("/area")
     @Produces(MediaType.APPLICATION_JSON)
-    public QueryResult getArea(
+    @Deprecated
+    public QueryResult getAreaLegacy(
             @QueryParam("swLat") Double southwestLatitude,
             @QueryParam("swLong") Double southwestLongitude,
             @QueryParam("neLat") Double northeastLatitude,
             @QueryParam("neLong") Double northeastLongitude) {
 
-        if (southwestLatitude == null || southwestLongitude == null || northeastLatitude == null || northeastLongitude == null)
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
-
-        return persistence.queryArea(southwestLatitude, southwestLongitude, northeastLatitude, northeastLongitude);
+        return getArea(southwestLatitude, southwestLongitude, northeastLatitude, northeastLongitude);
     }
 
-    /**
-     * Store a new parking position
-     */
-    @POST
-    @Consumes({MediaType.APPLICATION_JSON})
-    public ParkingSpot put(Location location, @Context HttpHeaders headers) {
-
-        if (location.getAccuracy() > ACCURACY_LIMIT_M) {
-            logger.fine("Spot received but too inaccurate : " + location.getAccuracy() + " m.");
-            return null;
-        }
-
-        UserService userService = UserServiceFactory.getUserService();
-        User user = userService.getCurrentUser();
-        if(user != null){
-            logger.info("FOUND USER: " + user.getEmail());
-        }
-
-        ParkingSpotDS parkingSpotDS = new ParkingSpotDS();
-        parkingSpotDS.setLatitude(location.getLatitude());
-        parkingSpotDS.setLongitude(location.getLongitude());
-        parkingSpotDS.setAccuracy(location.getAccuracy());
-        parkingSpotDS.setTime(new Date());
-
-        /**
-         * Save in datastore
-         */
-        EntityManager em = dataSource.createDatastoreEntityManager();
-        em.getTransaction().begin();
-        em.persist(parkingSpotDS);
-        em.getTransaction().commit();
-
-
-        ParkingSpot parkingSpot = new ParkingSpot();
-        parkingSpot.setId(parkingSpotDS.getId());
-        parkingSpot.setLatitude(location.getLatitude());
-        parkingSpot.setLongitude(location.getLongitude());
-        parkingSpot.setAccuracy(location.getAccuracy());
-        parkingSpot.setTime(new Date());
-        /**
-         * Put in cartoDBPersistence
-         */
-        persistence.put(parkingSpot);
-
-        logger.fine(parkingSpot.toString());
-
-        return parkingSpot;
-    }
 }

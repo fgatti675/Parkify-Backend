@@ -1,4 +1,4 @@
-package com.cahue.api;
+package com.cahue.model;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -8,9 +8,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 public class ParkingSpot {
 
-	@Id
-    @GeneratedValue(strategy = IDENTITY)
-    private Long id;
     private Double longitude;
     private Double latitude;
     private Float accuracy;
@@ -21,7 +18,17 @@ public class ParkingSpot {
     public ParkingSpot() {
     }
 
-	public Long getId() {
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    private Long id;
+
+    public ParkingSpot(double latitude, double longitude, float accuracy) {
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.accuracy = accuracy;
+    }
+
+    public Long getId() {
 		return id;
 	}
 
