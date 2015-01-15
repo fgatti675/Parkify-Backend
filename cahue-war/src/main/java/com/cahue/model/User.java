@@ -1,7 +1,10 @@
 package com.cahue.model;
 
+import com.google.appengine.api.datastore.Key;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -18,19 +21,24 @@ public class User implements Serializable {
     public User() {
     }
 
-    private Long id;
-
     @Id
-    @GeneratedValue(strategy = IDENTITY)
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Key key;
 
     private String email;
+
+    private String googleId;
+
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private Date creationDate = new Date();
+
+    public Key getKey() {
+        return key;
+    }
+
+    public void setKey(Key key) {
+        this.key = key;
+    }
 
     public String getEmail() {
         return email;
@@ -40,8 +48,6 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    private String googleId;
-
     public String getGoogleId() {
         return googleId;
     }
@@ -50,10 +56,19 @@ public class User implements Serializable {
         this.googleId = googleId;
     }
 
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
+                "key=" + key +
                 ", email=" + email +
                 ", googleId='" + googleId + '\'' +
                 '}';

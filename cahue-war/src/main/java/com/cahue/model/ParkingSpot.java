@@ -15,12 +15,12 @@ public class ParkingSpot {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date time = new Date();
 
-    public ParkingSpot() {
-    }
-
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
+
+    public ParkingSpot() {
+    }
 
     public ParkingSpot(double latitude, double longitude, float accuracy) {
         this.latitude = latitude;
