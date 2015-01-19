@@ -51,7 +51,6 @@ public class DeviceResource {
         em.persist(device);
 
         user.getDevices().add(device);
-        em.merge(user);
 
         em.getTransaction().commit();
     }
