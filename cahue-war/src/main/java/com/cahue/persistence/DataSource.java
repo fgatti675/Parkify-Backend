@@ -8,7 +8,9 @@ import javax.persistence.EntityManager;
  * @author francesco
  */
 public interface DataSource {
+
     EntityManager createDatastoreEntityManager();
 
     EntityManager createRelationalEntityManager();
+
 }

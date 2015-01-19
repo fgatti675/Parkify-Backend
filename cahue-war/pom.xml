@@ -23,6 +23,10 @@
             <name>GeocellJava Repository</name>
             <url>http://javageomodel.googlecode.com/svn/repository</url>
         </repository>
+        <repository>
+            <id>gcm-server-repository</id>
+            <url>https://raw.githubusercontent.com/slorber/gcm-server-repository/master/releases/</url>
+        </repository>
     </repositories>
 
     <parent>
@@ -237,11 +241,35 @@
             <version>1.19.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.igniterealtime.smack</groupId>
+            <artifactId>smack-core</artifactId>
+            <version>4.0.6</version>
+        </dependency>
+
+        <!-- GCM -->
+        <dependency>
+            <groupId>com.google.android.gcm</groupId>
+            <artifactId>gcm-server</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+            <version>2.2.4</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-testing</artifactId>
+            <version>${appengine.target.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-labs</artifactId>
             <version>${appengine.target.version}</version>
             <scope>test</scope>
         </dependency>

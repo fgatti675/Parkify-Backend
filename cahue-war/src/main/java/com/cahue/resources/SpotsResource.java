@@ -1,12 +1,11 @@
 package com.cahue.resources;
 
 import com.cahue.model.QueryResult;
+import com.cahue.model.User;
 import com.cahue.persistence.DataSource;
 import com.cahue.model.ParkingSpot;
 import com.cahue.persistence.Persistence;
-import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
+import com.cahue.util.UserService;
 import com.google.inject.name.Named;
 
 import javax.inject.Inject;
@@ -39,6 +38,9 @@ public class SpotsResource {
     @Named(Persistence.MySQL)
     Persistence persistence;
 
+    @Inject
+    UserService userService;
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -67,8 +69,7 @@ public class SpotsResource {
             return null;
         }
 
-        UserService userService = UserServiceFactory.getUserService();
-        User user = userService.getCurrentUser();
+        User user = userService.getFromHeaders();
         if(user != null){
             logger.info("FOUND USER: " + user.getEmail());
         }

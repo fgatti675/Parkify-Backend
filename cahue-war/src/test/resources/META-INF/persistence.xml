@@ -8,6 +8,7 @@
         <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
         <class>com.cahue.model.ParkingSpot</class>
         <class>com.cahue.model.User</class>
+        <class>com.cahue.model.Device</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!--<property name="javax.persistence.query.timeout" value="5000"/>-->
@@ -21,15 +22,15 @@
     </persistence-unit>
 
 
-    <persistence-unit name="test-mysql">
+    <persistence-unit name="mysql">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <class>com.cahue.model.ParkingSpot</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/test?user=root"/>
-            <property name="javax.persistence.jdbc.user" value="root"/>
-            <property name="javax.persistence.jdbc.password" value="arrabal"/>
+            <!--<property name="javax.persistence.jdbc.user" value="root"/>-->
+            <!--<property name="javax.persistence.jdbc.password" value="arrabal"/>-->
             <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
         </properties>
     </persistence-unit>

@@ -8,6 +8,7 @@
         <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
         <class>com.cahue.model.ParkingSpot</class>
         <class>com.cahue.model.User</class>
+        <class>com.cahue.model.Device</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.query.timeout" value="5000"/>

@@ -1,9 +1,11 @@
 package com.cahue.model;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +34,9 @@ public class User implements Serializable {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date creationDate = new Date();
 
+    @OneToMany(mappedBy = "user")
+    private List<Device> devices = new ArrayList<>();
+
     public Key getKey() {
         return key;
     }
@@ -56,13 +61,20 @@ public class User implements Serializable {
         this.googleId = googleId;
     }
 
-
     public Date getCreationDate() {
         return creationDate;
     }
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public List<Device> getDevices() {
+        return devices;
+    }
+
+    public void setDevices(List<Device> devices) {
+        this.devices = devices;
     }
 
     @Override
@@ -73,4 +85,9 @@ public class User implements Serializable {
                 ", googleId='" + googleId + '\'' +
                 '}';
     }
+
+    public static Key createGoogleUserKey(String googleId) {
+        return KeyFactory.createKey(User.class.getSimpleName(), "G" + googleId);
+    }
+
 }
