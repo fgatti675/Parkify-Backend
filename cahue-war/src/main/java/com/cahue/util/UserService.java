@@ -143,9 +143,7 @@ public class UserService {
     }
 
 
-    @Context HttpHeaders headers;
-
-    public User getFromHeaders() {
+    public User getFromHeaders(HttpHeaders headers) {
         String authToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);
         return retrieveGoogleUser(authToken);
     }

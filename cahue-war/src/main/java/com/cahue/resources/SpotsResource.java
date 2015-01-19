@@ -1,6 +1,6 @@
 package com.cahue.resources;
 
-import com.cahue.model.QueryResult;
+import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.User;
 import com.cahue.persistence.DataSource;
 import com.cahue.model.ParkingSpot;
@@ -69,7 +69,7 @@ public class SpotsResource {
             return null;
         }
 
-        User user = userService.getFromHeaders();
+        User user = userService.getFromHeaders(headers);
         if(user != null){
             logger.info("FOUND USER: " + user.getEmail());
         }

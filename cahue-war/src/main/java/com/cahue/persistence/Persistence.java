@@ -1,6 +1,6 @@
 package com.cahue.persistence;
 
-import com.cahue.model.QueryResult;
+import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.ParkingSpot;
 
 import java.util.Date;

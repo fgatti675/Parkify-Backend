@@ -1,6 +1,6 @@
 package com.cahue;
 
-import com.cahue.model.QueryResult;
+import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.ParkingSpot;
 import com.cahue.persistence.Persistence;
 import com.cartodb.CartoDBClientIF;

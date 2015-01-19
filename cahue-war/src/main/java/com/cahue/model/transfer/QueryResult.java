@@ -1,4 +1,6 @@
-package com.cahue.model;
+package com.cahue.model.transfer;
+
+import com.cahue.model.ParkingSpot;
 
 import java.util.List;
 

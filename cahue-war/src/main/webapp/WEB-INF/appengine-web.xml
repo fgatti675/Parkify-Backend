@@ -14,4 +14,6 @@
     <!-- Used for Cloud SQL -->
     <use-google-connector-j>true</use-google-connector-j>
 
+    <sessions-enabled>false</sessions-enabled>
+
 </appengine-web-app>
