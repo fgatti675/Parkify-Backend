@@ -35,16 +35,23 @@ public class DeviceResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public void registerDevice(String regId, @Context HttpHeaders headers) {
+    public void register(String regId, @Context HttpHeaders headers) {
 
         User user = userService.getFromHeaders(headers);
 
+        registerNewDevice(regId, user);
+    }
+
+    public void registerNewDevice(String regId, User user) {
         EntityManager em = dataSource.createDatastoreEntityManager();
 
         em.getTransaction().begin();
 
         Device device = Device.createDevice(regId, user);
-        em.merge(device);
+        em.persist(device);
+
+        user.getDevices().add(device);
+        em.merge(user);
 
         em.getTransaction().commit();
     }

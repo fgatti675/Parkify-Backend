@@ -1,6 +1,7 @@
 package com.cahue.resources;
 
 import com.cahue.model.User;
+import com.cahue.model.transfer.RegistrationBean;
 import com.cahue.util.UserService;
 
 import javax.inject.Inject;
@@ -23,11 +24,14 @@ public class UsersResource {
     @Inject
     UserService userService;
 
+    @Inject
+    DeviceResource deviceResource;
+
     Logger logger = Logger.getLogger(getClass().getSimpleName());
 
     @POST
     @Path("/createGoogle")
-    public User createGoogleUser(@Context HttpHeaders headers) {
+    public User createGoogleUser(RegistrationBean registration, @Context HttpHeaders headers) {
 
         User user = userService.getFromHeaders(headers);
 
@@ -36,6 +40,14 @@ public class UsersResource {
                     Response.status(Response.Status.BAD_REQUEST)
                             .entity("A header named GoogleAuth is compulsory. It must contain a valid Google access token.")
                             .build());
+
+        if(registration == null)
+            throw new WebApplicationException(
+                    Response.status(Response.Status.BAD_REQUEST)
+                            .entity("A device registration ID must be set to register.")
+                            .build());
+
+        deviceResource.registerNewDevice(registration.getDeviceRegId(), user);
 
         return user;
     }
