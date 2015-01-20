@@ -1,6 +1,7 @@
 package com.cahue.model;
 
 
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
 
@@ -27,7 +28,7 @@ public class Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private com.google.appengine.api.datastore.Key key;
+    private Key key;
 
     private String regId;
 
@@ -49,6 +50,23 @@ public class Device {
 
     private void setUser(User user) {
         this.user = user;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Device device = (Device) o;
+
+        if (key != null ? !key.equals(device.key) : device.key != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return key != null ? key.hashCode() : 0;
     }
 
     @Override

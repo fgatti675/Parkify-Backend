@@ -9,6 +9,7 @@
         <class>com.cahue.model.ParkingSpot</class>
         <class>com.cahue.model.User</class>
         <class>com.cahue.model.Device</class>
+        <class>com.cahue.model.Car</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <!--<property name="javax.persistence.query.timeout" value="5000"/>-->

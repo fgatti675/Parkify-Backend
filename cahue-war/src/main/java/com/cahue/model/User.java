@@ -5,9 +5,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -35,7 +33,10 @@ public class User implements Serializable {
     private Date creationDate = new Date();
 
     @OneToMany(mappedBy = "user")
-    private List<Device> devices = new ArrayList<>();
+    private Set<Device> devices = new HashSet<>();
+
+    @ManyToMany
+    private Set<Car> cars = new HashSet<>();
 
     public Key getKey() {
         return key;
@@ -69,12 +70,20 @@ public class User implements Serializable {
         this.creationDate = creationDate;
     }
 
-    public List<Device> getDevices() {
+    public Set<Device> getDevices() {
         return devices;
     }
 
-    public void setDevices(List<Device> devices) {
+    public void setDevices(Set<Device> devices) {
         this.devices = devices;
+    }
+
+    public Set<Car> getCars() {
+        return cars;
+    }
+
+    public void setCars(Set<Car> cars) {
+        this.cars = cars;
     }
 
     @Override

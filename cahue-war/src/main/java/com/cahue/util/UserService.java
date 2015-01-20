@@ -1,8 +1,12 @@
 package com.cahue.util;
 
+import com.cahue.model.Device;
 import com.cahue.model.User;
+import com.cahue.model.transfer.RegistrationBean;
 import com.cahue.persistence.DataSource;
+import com.cahue.resources.InvalidTokenException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.oauth2.Oauth2;
@@ -17,7 +21,6 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -50,6 +53,15 @@ public class UserService {
     Logger logger = Logger.getLogger(getClass().getSimpleName());
 
     public User retrieveGoogleUser(final String accessToken) {
+        EntityManager em = dataSource.createDatastoreEntityManager();
+        try {
+            return retrieveGoogleUser(em, accessToken);
+        } finally {
+            em.close();
+        }
+    }
+
+    public User retrieveGoogleUser(EntityManager em, final String accessToken) {
 
         User user = null;
 
@@ -59,7 +71,6 @@ public class UserService {
              * Try to retrieve it directly from the auth token
              */
             MemcacheService cache = MemcacheServiceFactory.getMemcacheService(GOOGLE_AUTH_TOKENS_MEMCACHE);
-            EntityManager em = dataSource.createDatastoreEntityManager();
 
             Key key = (Key) cache.get(accessToken);
             if (key != null)
@@ -105,6 +116,20 @@ public class UserService {
 
     }
 
+    /**
+     * Register a new device and asign it to a user
+     * @param em
+     * @param deviceRegistrationId
+     * @param user
+     */
+    private void registerDevice(EntityManager em, String deviceRegistrationId, User user) {
+        Device device = Device.createDevice(deviceRegistrationId, user);
+        user.getDevices().add(device); // no matter if its duplicated because we are adding it to a set
+        em.getTransaction().begin();
+        em.persist(device);
+        em.getTransaction().commit();
+    }
+
     public User createUserFromGoogleAccount(EntityManager em, Userinfoplus person) {
         try {
             em.getTransaction().begin();
@@ -113,7 +138,9 @@ public class UserService {
             user.setKey(User.createGoogleUserKey(googleId));
             user.setGoogleId(googleId);
             user.setEmail(person.getEmail());
+
             em.persist(user);
+
             em.getTransaction().commit();
             logger.fine("Created new user: " + user);
             return user;
@@ -127,13 +154,18 @@ public class UserService {
     }
 
     private Userinfoplus getUserInfoPlus(GoogleCredential credential) throws IOException {
-        Oauth2 userInfoService = new Oauth2.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
-                .setApplicationName("Cahue")
-                .build();
+        try {
+            Oauth2 userInfoService = new Oauth2.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+                    .setApplicationName("Cahue")
+                    .build();
 
-        return userInfoService.userinfo().get().execute();
+            return userInfoService.userinfo().get().execute();
+        } catch (GoogleJsonResponseException e) {
+            throw new InvalidTokenException(e.getStatusCode(), e.getDetails().getMessage());
+        }
     }
 
+    @Deprecated
     private Person getPlusPerson(GoogleCredential credential) throws IOException {
         Plus plus = new Plus.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
                 .setApplicationName("Cahue")
@@ -146,5 +178,16 @@ public class UserService {
     public User getFromHeaders(HttpHeaders headers) {
         String authToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);
         return retrieveGoogleUser(authToken);
+    }
+
+    public User register(RegistrationBean registration) {
+        EntityManager em = dataSource.createDatastoreEntityManager();
+        try {
+            User user = retrieveGoogleUser(em, registration.getAuthToken());
+            registerDevice(em, registration.getDeviceRegId(), user);
+            return user;
+        } finally {
+            em.close();
+        }
     }
 }

@@ -24,16 +24,19 @@ public class UsersResource {
     @Inject
     UserService userService;
 
-    @Inject
-    DeviceResource deviceResource;
-
     Logger logger = Logger.getLogger(getClass().getSimpleName());
 
     @POST
     @Path("/createGoogle")
     public User createGoogleUser(RegistrationBean registration, @Context HttpHeaders headers) {
 
-        User user = userService.getFromHeaders(headers);
+        if (registration == null)
+            throw new WebApplicationException(
+                    Response.status(Response.Status.BAD_REQUEST)
+                            .entity("A device registration ID must be set to register.")
+                            .build());
+
+        User user = userService.register(registration);
 
         if (user == null)
             throw new WebApplicationException(
@@ -41,13 +44,8 @@ public class UsersResource {
                             .entity("A header named GoogleAuth is compulsory. It must contain a valid Google access token.")
                             .build());
 
-        if(registration == null)
-            throw new WebApplicationException(
-                    Response.status(Response.Status.BAD_REQUEST)
-                            .entity("A device registration ID must be set to register.")
-                            .build());
+        logger.info("Logged in user: " + user);
 
-        deviceResource.registerNewDevice(registration.getDeviceRegId(), user);
 
         return user;
     }

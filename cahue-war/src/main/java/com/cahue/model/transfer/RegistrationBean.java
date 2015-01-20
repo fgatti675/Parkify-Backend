@@ -5,6 +5,16 @@ package com.cahue.model.transfer;
  */
 public class RegistrationBean {
 
+    private String authToken;
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
+
     private String deviceRegId;
 
     public String getDeviceRegId() {
