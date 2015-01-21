@@ -47,7 +47,7 @@ public class CartoDBPersistence implements Persistence {
 
     private static final String URL = "http://" + ACCOUNT_NAME + ".cartodb.com/api/v2/sql?format=GeoJSON";
 
-    Logger logger = Logger.getLogger(getClass().getSimpleName());
+    Logger logger = Logger.getLogger(getClass().getName());
     CartoDBClientIF cartoDBClient;
 
 

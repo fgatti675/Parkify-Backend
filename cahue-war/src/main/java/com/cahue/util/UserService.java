@@ -50,7 +50,7 @@ public class UserService {
     @Inject
     DataSource dataSource;
 
-    Logger logger = Logger.getLogger(getClass().getSimpleName());
+    Logger logger = Logger.getLogger(getClass().getName());
 
     public User retrieveGoogleUser(final String accessToken) {
         EntityManager em = dataSource.createDatastoreEntityManager();
@@ -104,7 +104,8 @@ public class UserService {
                 if (user == null)
                     user = createUserFromGoogleAccount(em, person);
 
-                cache.put(accessToken, key, Expiration.byDeltaSeconds(MEMCACHE_ESPIRATION_SECONDS));
+                if (user != null)
+                    cache.put(accessToken, key, Expiration.byDeltaSeconds(MEMCACHE_ESPIRATION_SECONDS));
 
             }
 
@@ -116,23 +117,11 @@ public class UserService {
 
     }
 
-    /**
-     * Register a new device and asign it to a user
-     * @param em
-     * @param deviceRegistrationId
-     * @param user
-     */
-    private void registerDevice(EntityManager em, String deviceRegistrationId, User user) {
-        Device device = Device.createDevice(deviceRegistrationId, user);
-        user.getDevices().add(device); // no matter if its duplicated because we are adding it to a set
-        em.getTransaction().begin();
-        em.persist(device);
-        em.getTransaction().commit();
-    }
 
     public User createUserFromGoogleAccount(EntityManager em, Userinfoplus person) {
         try {
             em.getTransaction().begin();
+
             User user = new User();
             String googleId = person.getId();
             user.setKey(User.createGoogleUserKey(googleId));
@@ -142,13 +131,14 @@ public class UserService {
             em.persist(user);
 
             em.getTransaction().commit();
+
             logger.fine("Created new user: " + user);
             return user;
 
         } catch (Exception e) {
             e.printStackTrace();
             if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            throw new WebApplicationException("Error creating new user");
+            return null;
         }
 
     }
@@ -175,11 +165,23 @@ public class UserService {
     }
 
 
+    /**
+     * Get the user based on the HTTP headers. May create a new User.
+     *
+     * @param headers
+     * @return
+     */
     public User getFromHeaders(HttpHeaders headers) {
         String authToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);
-        return retrieveGoogleUser(authToken);
+        return authToken == null ? null : retrieveGoogleUser(authToken);
     }
 
+    /**
+     * Register a new user from a {@link RegistrationBean}
+     *
+     * @param registration
+     * @return
+     */
     public User register(RegistrationBean registration) {
         EntityManager em = dataSource.createDatastoreEntityManager();
         try {
@@ -189,5 +191,21 @@ public class UserService {
         } finally {
             em.close();
         }
+    }
+
+
+    /**
+     * Register a new device and asign it to a user
+     *
+     * @param em
+     * @param deviceRegistrationId
+     * @param user
+     */
+    private void registerDevice(EntityManager em, String deviceRegistrationId, User user) {
+        Device device = Device.createDevice(deviceRegistrationId, user);
+        user.getDevices().add(device); // no matter if its duplicated because we are adding it to a set
+        em.getTransaction().begin();
+        em.persist(device);
+        em.getTransaction().commit();
     }
 }

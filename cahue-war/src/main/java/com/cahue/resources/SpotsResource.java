@@ -1,9 +1,9 @@
 package com.cahue.resources;
 
-import com.cahue.model.transfer.QueryResult;
-import com.cahue.model.User;
-import com.cahue.persistence.DataSource;
 import com.cahue.model.ParkingSpot;
+import com.cahue.model.User;
+import com.cahue.model.transfer.QueryResult;
+import com.cahue.persistence.DataSource;
 import com.cahue.persistence.Persistence;
 import com.cahue.util.UserService;
 import com.google.inject.name.Named;
@@ -29,7 +29,7 @@ public class SpotsResource {
      */
     private final static int ACCURACY_LIMIT_M = 25;
 
-    Logger logger = Logger.getLogger(getClass().getSimpleName());
+    Logger logger = Logger.getLogger(getClass().getName());
 
     @Inject
     DataSource dataSource;
@@ -69,9 +69,15 @@ public class SpotsResource {
             return null;
         }
 
-        User user = userService.getFromHeaders(headers);
-        if(user != null){
-            logger.info("FOUND USER: " + user.getEmail());
+        try {
+            User user = userService.getFromHeaders(headers);
+            if (user != null) {
+                logger.info("Found user: " + user.getEmail());
+            } else {
+                logger.fine("User not found");
+            }
+        } catch (InvalidTokenException e) {
+            logger.warning("Invalid Token");
         }
 
         parkingSpot.setTime(new Date());

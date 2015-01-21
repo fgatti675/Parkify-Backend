@@ -21,7 +21,7 @@ public class IndexCronResource {
 
     private final Integer SPOT_TIMEOUT_H = 2; // 2 hours
 
-    Logger logger = Logger.getLogger(getClass().getSimpleName());
+    Logger logger = Logger.getLogger(getClass().getName());
 
     /**
      * Last timeout time. Every entry in the cartoDBPersistence before this time should have been previously removed.

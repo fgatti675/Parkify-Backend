@@ -24,7 +24,7 @@ public class UsersResource {
     @Inject
     UserService userService;
 
-    Logger logger = Logger.getLogger(getClass().getSimpleName());
+    Logger logger = Logger.getLogger(getClass().getName());
 
     @POST
     @Path("/createGoogle")

@@ -36,7 +36,7 @@ public class Car {
     @ManyToOne
     private User owner;
 
-    private List<User> relatedUsers;
+//    private List<User> relatedUsers;
 
     public Key getKey() {
         return key;
@@ -62,14 +62,14 @@ public class Car {
         this.owner = owner;
     }
 
-    @ManyToMany (mappedBy = "cars")
-    public List<User> getRelatedUsers() {
-        return relatedUsers;
-    }
-
-    public void setRelatedUsers(List<User> relatedUsers) {
-        this.relatedUsers = relatedUsers;
-    }
+//    @ManyToMany (mappedBy = "cars")
+//    public List<User> getRelatedUsers() {
+//        return relatedUsers;
+//    }
+//
+//    public void setRelatedUsers(List<User> relatedUsers) {
+//        this.relatedUsers = relatedUsers;
+//    }
 
     @Override
     public boolean equals(Object o) {
