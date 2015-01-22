@@ -4,6 +4,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.*;
 
@@ -23,6 +24,7 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @XmlTransient
     private Key key;
 
     private String email;
@@ -33,10 +35,14 @@ public class User implements Serializable {
     private Date creationDate = new Date();
 
     @OneToMany(mappedBy = "user")
+    @XmlTransient
     private Set<Device> devices = new HashSet<>();
 
     @ManyToMany
     private Set<Car> cars = new HashSet<>();
+
+    @Transient
+    private String authToken;
 
     public Key getKey() {
         return key;
@@ -84,6 +90,14 @@ public class User implements Serializable {
 
     public void setCars(Set<Car> cars) {
         this.cars = cars;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
     }
 
     @Override

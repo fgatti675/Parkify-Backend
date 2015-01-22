@@ -5,10 +5,12 @@ import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationBean;
 import com.cahue.persistence.DataSource;
 import com.cahue.resources.InvalidTokenException;
+import com.google.api.client.extensions.appengine.datastore.AppEngineDataStoreFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.DataStore;
 import com.google.api.services.oauth2.Oauth2;
 import com.google.api.services.oauth2.model.Userinfoplus;
 import com.google.api.services.plus.Plus;
@@ -23,6 +25,7 @@ import javax.persistence.EntityManager;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +35,8 @@ import java.util.logging.Logger;
 public class UserService {
 
 
-    public static final int MEMCACHE_ESPIRATION_SECONDS = 60 * 24 * 60 * 60;
+    public static final int GOOGLE_MEMCACHE_EXPIRATION_SECONDS = 60 * 60;
+    public static final String APPLICATION_NAME = "Cahue";
 
     public static final void main(String[] args) throws Exception {
         UserService usersResource = new UserService();
@@ -43,8 +47,10 @@ public class UserService {
     private static final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
+    public static final String AUTH_TOKENS_DATASTORE = "AUTH_TOKENS_DATASTORE";
     public static final String GOOGLE_AUTH_TOKENS_MEMCACHE = "GOOGLE_AUTH_TOKENS_MEMCACHE";
 
+    public static final String IWECO_AUTH_HEADER = "Authorization";
     public static final String GOOGLE_AUTH_HEADER = "GoogleAuth";
 
     @Inject
@@ -52,16 +58,74 @@ public class UserService {
 
     Logger logger = Logger.getLogger(getClass().getName());
 
-    public User retrieveGoogleUser(final String accessToken) {
+    /**
+     * Register a new user from a {@link RegistrationBean}
+     *
+     * @param registration
+     * @return
+     */
+    public User register(RegistrationBean registration) {
         EntityManager em = dataSource.createDatastoreEntityManager();
         try {
-            return retrieveGoogleUser(em, accessToken);
+            // create or retrieve an existing Google user
+            User user = retrieveGoogleUser(em, registration.getGoogleAuthToken());
+
+            // register the device
+            registerDevice(em, registration.getDeviceRegId(), user);
+
+            // create new Auth Token
+            String authToken = UUID.randomUUID().toString();
+
+            // store the token
+            DataStore<Key> dataStore = getTokenDataStore();
+            dataStore.set(authToken, user.getKey());
+
+            // store the token as a transient property in the user so it can be returned to the client
+            user.setAuthToken(authToken);
+
+            return user;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new WebApplicationException(e);
         } finally {
             em.close();
         }
     }
 
-    public User retrieveGoogleUser(EntityManager em, final String accessToken) {
+    public User retrieveGoogleUser(final String authToken) {
+        EntityManager em = dataSource.createDatastoreEntityManager();
+        try {
+            return retrieveGoogleUser(em, authToken);
+        } finally {
+            em.close();
+        }
+    }
+
+    public User retrieveUser(final String authToken) {
+        try {
+            EntityManager em = dataSource.createDatastoreEntityManager();
+            DataStore<Key> dataStore = getTokenDataStore();
+            Key userKey = dataStore.get(authToken);
+            return userKey == null ? null : em.find(User.class, userKey);
+        }  catch (IOException e) {
+            e.printStackTrace();
+            throw new WebApplicationException(e);
+        }
+    }
+
+    private DataStore<Key> getTokenDataStore() throws IOException {
+            return AppEngineDataStoreFactory.getDefaultInstance().getDataStore(AUTH_TOKENS_DATASTORE);
+    }
+
+    /**
+     * Retrieve a user from an Google access token.
+     *
+     * @param em
+     * @param googleAccessToken
+     * @return
+     */
+    public User retrieveGoogleUser(EntityManager em, final String googleAccessToken) {
 
         User user = null;
 
@@ -72,16 +136,16 @@ public class UserService {
              */
             MemcacheService cache = MemcacheServiceFactory.getMemcacheService(GOOGLE_AUTH_TOKENS_MEMCACHE);
 
-            Key key = (Key) cache.get(accessToken);
+            Key key = (Key) cache.get(googleAccessToken);
             if (key != null)
                 user = em.find(User.class, key);
 
             /**
-             * If not found by access token, retrieve the user from Google and search by GoogleID
+             * If not found by google access token, retrieve the user from Google and search by GoogleID
              */
             if (user == null) {
 
-                GoogleCredential credential = new GoogleCredential().setAccessToken(accessToken);
+                GoogleCredential credential = new GoogleCredential().setAccessToken(googleAccessToken);
 
                 Userinfoplus person = getUserInfoPlus(credential);
 
@@ -105,7 +169,7 @@ public class UserService {
                     user = createUserFromGoogleAccount(em, person);
 
                 if (user != null)
-                    cache.put(accessToken, key, Expiration.byDeltaSeconds(MEMCACHE_ESPIRATION_SECONDS));
+                    cache.put(googleAccessToken, key, Expiration.byDeltaSeconds(GOOGLE_MEMCACHE_EXPIRATION_SECONDS));
 
             }
 
@@ -146,7 +210,7 @@ public class UserService {
     private Userinfoplus getUserInfoPlus(GoogleCredential credential) throws IOException {
         try {
             Oauth2 userInfoService = new Oauth2.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
-                    .setApplicationName("Cahue")
+                    .setApplicationName(APPLICATION_NAME)
                     .build();
 
             return userInfoService.userinfo().get().execute();
@@ -158,7 +222,7 @@ public class UserService {
     @Deprecated
     private Person getPlusPerson(GoogleCredential credential) throws IOException {
         Plus plus = new Plus.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
-                .setApplicationName("Cahue")
+                .setApplicationName(APPLICATION_NAME)
                 .build();
 
         return plus.people().get("me").execute();
@@ -166,36 +230,26 @@ public class UserService {
 
 
     /**
-     * Get the user based on the HTTP headers. May create a new User.
+     * Get the user based on the HTTP headers. It may create a new User.
      *
      * @param headers
      * @return
      */
     public User getFromHeaders(HttpHeaders headers) {
-        String authToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);
-        return authToken == null ? null : retrieveGoogleUser(authToken);
-    }
 
-    /**
-     * Register a new user from a {@link RegistrationBean}
-     *
-     * @param registration
-     * @return
-     */
-    public User register(RegistrationBean registration) {
-        EntityManager em = dataSource.createDatastoreEntityManager();
-        try {
-            User user = retrieveGoogleUser(em, registration.getAuthToken());
-            registerDevice(em, registration.getDeviceRegId(), user);
-            return user;
-        } finally {
-            em.close();
+        String authToken = headers.getHeaderString(IWECO_AUTH_HEADER);
+        User user = retrieveUser(authToken);
+
+        if (user == null) {
+            String googleAuthToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);
+            user = googleAuthToken == null ? null : retrieveGoogleUser(googleAuthToken);
         }
+
+        return user;
     }
 
-
     /**
-     * Register a new device and asign it to a user
+     * Register a new device and assign it to a user
      *
      * @param em
      * @param deviceRegistrationId

@@ -6,37 +6,53 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 
 /**
- * Android device, linked to a User.
+ * Car linked to a User.
  *
  * @author Francesco
  */
 @Entity
 public class Car {
 
-//    public static Car createDevice(@Nullable String btID, User user) {
-//        Car car = new Car();
-//        car.owner = user;
-//        car.bluetoothAddress = btID;
-//        return car;
-//    }
+    public static Car createCar(User user, String name, @Nullable String btID) {
+        Car car = new Car();
+        car.user = user;
+        car.bluetoothAddress = btID;
+        car.name = name;
+        car.generateId();
+        car.updateKey();
+        return car;
+    }
 
+    public void generateId(){
+        this.id = UUID.randomUUID().toString();
+    }
+
+    public void updateKey() {
+        this.key = KeyFactory.createKey(this.user.getKey(), this.getClass().getSimpleName(), UUID.randomUUID().toString());
+    }
+
+    private Key key;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Key key;
+    private String id;
 
     private String bluetoothAddress;
 
     private String name;
 
     @ManyToOne
-    private User owner;
+    private User user;
 
-//    private List<User> relatedUsers;
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private Date creationDate = new Date();
+
+    private List<Key> relatedUsers;
 
     public Key getKey() {
         return key;
@@ -44,6 +60,22 @@ public class Car {
 
     public void setKey(Key key) {
         this.key = key;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getBluetoothAddress() {
@@ -54,22 +86,14 @@ public class Car {
         this.bluetoothAddress = bluetoothAddress;
     }
 
-    public User getOwner() {
-        return owner;
+    public User getUser() {
+        return user;
     }
 
-    public void setOwner(User owner) {
-        this.owner = owner;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-//    @ManyToMany (mappedBy = "cars")
-//    public List<User> getRelatedUsers() {
-//        return relatedUsers;
-//    }
-//
-//    public void setRelatedUsers(List<User> relatedUsers) {
-//        this.relatedUsers = relatedUsers;
-//    }
 
     @Override
     public boolean equals(Object o) {

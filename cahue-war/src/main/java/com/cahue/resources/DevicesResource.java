@@ -22,7 +22,7 @@ import java.io.IOException;
  * @author Francesco
  */
 @Path("/devices")
-public class DeviceResource {
+public class DevicesResource {
 
     @Inject
     GCMSender sender;
@@ -32,28 +32,6 @@ public class DeviceResource {
 
     @Inject
     DataSource dataSource;
-
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void register(String regId, @Context HttpHeaders headers) {
-
-        User user = userService.getFromHeaders(headers);
-
-        registerNewDevice(regId, user);
-    }
-
-    public void registerNewDevice(String regId, User user) {
-        EntityManager em = dataSource.createDatastoreEntityManager();
-
-        em.getTransaction().begin();
-
-        Device device = Device.createDevice(regId, user);
-        em.persist(device);
-
-        user.getDevices().add(device);
-
-        em.getTransaction().commit();
-    }
 
     @POST
     @Path("/send")

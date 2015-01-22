@@ -5,14 +5,14 @@ package com.cahue.model.transfer;
  */
 public class RegistrationBean {
 
-    private String authToken;
+    private String googleAuthToken;
 
-    public String getAuthToken() {
-        return authToken;
+    public String getGoogleAuthToken() {
+        return googleAuthToken;
     }
 
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
+    public void setGoogleAuthToken(String googleAuthToken) {
+        this.googleAuthToken = googleAuthToken;
     }
 
     private String deviceRegId;
