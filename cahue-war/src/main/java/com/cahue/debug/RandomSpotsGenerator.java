@@ -10,8 +10,11 @@ import java.util.Random;
 public class RandomSpotsGenerator {
 
     private static final String TEST_TABLE_ID = "1Pa5hqK1KxKwgZmbgBFJ5opcbRGHELFsCL6CyE8bf";
-    private static final ParkingSpot CENTER = new ParkingSpot(40.435165, -3.69684243, 0F);
-
+    private static final ParkingSpot CENTER = new ParkingSpot(){{
+        setLatitude(40.435165);
+        setLongitude(-3.69684243);
+        setAccuracy(0F);
+    }};
 
     Random random = new Random();
 
@@ -46,7 +49,11 @@ public class RandomSpotsGenerator {
         double nLat = lat + dLat * (random.nextDouble() * 2 - 1) * 360 / Math.PI;
         double nLon = lon + dLon * (random.nextDouble() * 2 - 1) * 360 / Math.PI;
 
-        return new ParkingSpot(nLat, nLon, 0F);
+        ParkingSpot parkingSpot = new ParkingSpot();
+        parkingSpot.setLatitude(nLat);
+        parkingSpot.setLongitude(nLon);
+        parkingSpot.setAccuracy(0F);
+        return parkingSpot;
     }
 
 }

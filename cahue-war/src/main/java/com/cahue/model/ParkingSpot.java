@@ -1,6 +1,9 @@
 package com.cahue.model;
 
+import com.google.appengine.api.datastore.Key;
+
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -17,22 +20,20 @@ public class ParkingSpot {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private Key id;
 
     public ParkingSpot() {
     }
 
-    public ParkingSpot(double latitude, double longitude, float accuracy) {
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.accuracy = accuracy;
-    }
+    @ManyToOne (fetch = FetchType.LAZY)
+    private Car car;
 
-    public Long getId() {
+    @XmlTransient
+    public Key getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Key id) {
 		this.id = id;
 	}
 
@@ -67,6 +68,14 @@ public class ParkingSpot {
     public Date getTime() {
 		return time;
 	}
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
+    }
 
     @Override
     public String toString() {

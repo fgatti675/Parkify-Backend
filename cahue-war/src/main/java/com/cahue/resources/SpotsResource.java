@@ -69,34 +69,39 @@ public class SpotsResource {
             return null;
         }
 
+        EntityManager em = dataSource.createDatastoreEntityManager();
+
         try {
-            User user = userService.getFromHeaders(headers);
+            User user = userService.getFromHeaders(em, headers);
             if (user != null) {
-                logger.info("Found user: " + user.getEmail());
+                logger.fine("Found user: " + user.getEmail());
             } else {
+                // TODO: this will eventually need to crash
                 logger.fine("User not found");
             }
+
+
+            parkingSpot.setTime(new Date());
+
+            /**
+             * Save in datastore
+             */
+            em.getTransaction().begin();
+            em.persist(parkingSpot);  // sets the id
+            em.getTransaction().commit();
+
+            /**
+             * Put in index database
+             */
+            persistence.put(parkingSpot);
+
+            logger.fine(parkingSpot.toString());
+
         } catch (InvalidTokenException e) {
             logger.warning("Invalid Token");
+        } finally {
+            em.close();
         }
-
-        parkingSpot.setTime(new Date());
-
-        /**
-         * Save in datastore
-         */
-        EntityManager em = dataSource.createDatastoreEntityManager();
-        em.getTransaction().begin();
-        em.persist(parkingSpot);  // sets the id
-        em.getTransaction().commit();
-
-        /**
-         * Put in index database
-         */
-        persistence.put(parkingSpot);
-
-        logger.fine(parkingSpot.toString());
-
         return parkingSpot;
     }
 

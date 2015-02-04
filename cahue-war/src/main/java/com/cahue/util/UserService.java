@@ -3,6 +3,7 @@ package com.cahue.util;
 import com.cahue.model.Device;
 import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationBean;
+import com.cahue.persistence.AppEngineDataSource;
 import com.cahue.persistence.DataSource;
 import com.cahue.resources.InvalidTokenException;
 import com.google.api.client.extensions.appengine.datastore.AppEngineDataStoreFactory;
@@ -40,7 +41,7 @@ public class UserService {
 
     public static final void main(String[] args) throws Exception {
         UserService usersResource = new UserService();
-        usersResource.retrieveGoogleUser("ya29._ABph75AciNZOw0dlgD3EUDJK3BtaNR9fXJwNWCJ-OJrJ8KyUn9PY4B7BhnVAr41Xs4_04iCJ3loCQ");
+        usersResource.retrieveGoogleUser(new AppEngineDataSource().createDatastoreEntityManager(), "ya29._ABph75AciNZOw0dlgD3EUDJK3BtaNR9fXJwNWCJ-OJrJ8KyUn9PY4B7BhnVAr41Xs4_04iCJ3loCQ");
     }
 
 
@@ -64,8 +65,7 @@ public class UserService {
      * @param registration
      * @return
      */
-    public User register(RegistrationBean registration) {
-        EntityManager em = dataSource.createDatastoreEntityManager();
+    public User register(EntityManager em, RegistrationBean registration) {
         try {
             // create or retrieve an existing Google user
             User user = retrieveGoogleUser(em, registration.getGoogleAuthToken());
@@ -88,23 +88,12 @@ public class UserService {
         } catch (IOException e) {
             e.printStackTrace();
             throw new WebApplicationException(e);
-        } finally {
-            em.close();
         }
     }
 
-    public User retrieveGoogleUser(final String authToken) {
-        EntityManager em = dataSource.createDatastoreEntityManager();
-        try {
-            return retrieveGoogleUser(em, authToken);
-        } finally {
-            em.close();
-        }
-    }
 
-    public User retrieveUser(final String authToken) {
+    public User retrieveUser(EntityManager em, final String authToken) {
         try {
-            EntityManager em = dataSource.createDatastoreEntityManager();
             DataStore<Key> dataStore = getTokenDataStore();
             Key userKey = dataStore.get(authToken);
             return userKey == null ? null : em.find(User.class, userKey);
@@ -235,14 +224,14 @@ public class UserService {
      * @param headers
      * @return
      */
-    public User getFromHeaders(HttpHeaders headers) {
+    public User getFromHeaders(EntityManager em, HttpHeaders headers) {
 
         String authToken = headers.getHeaderString(IWECO_AUTH_HEADER);
-        User user = retrieveUser(authToken);
+        User user = retrieveUser(em, authToken);
 
         if (user == null) {
             String googleAuthToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);
-            user = googleAuthToken == null ? null : retrieveGoogleUser(googleAuthToken);
+            user = googleAuthToken == null ? null : retrieveGoogleUser(em, googleAuthToken);
         }
 
         return user;

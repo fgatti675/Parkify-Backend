@@ -41,24 +41,26 @@ public class CarsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public void register(List<Car> cars, @Context HttpHeaders headers) {
-        EntityManager em = dataSource.createDatastoreEntityManager();
 
+        EntityManager em = dataSource.createDatastoreEntityManager();
         try {
-            User user = userService.getFromHeaders(headers);
+
+            User user = userService.getFromHeaders(em, headers);
             if (user != null) {
-                logger.info("Found user: " + user.getEmail());
+                logger.fine("Found user: " + user.getEmail());
             } else {
-                logger.fine("User not found");
+                throw new WebApplicationException("Every car must have a name assigned");
             }
+
 
             em.getTransaction().begin();
 
             for (Car car : cars) {
 
-                if(car.getName() == null)
+                if (car.getName() == null)
                     throw new WebApplicationException("Every car must have a name assigned");
 
-                if(car.getId() == null) car.generateId();   // it's a new car
+                if (car.getId() == null) car.generateId();   // it's a new car
 
                 car.updateKey();
                 car.setUser(user);
@@ -73,6 +75,8 @@ public class CarsResource {
 
         } catch (InvalidTokenException e) {
             logger.warning("Invalid Token");
+        } finally {
+            em.close();
         }
     }
 
