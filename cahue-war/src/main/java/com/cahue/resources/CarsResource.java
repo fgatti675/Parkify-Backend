@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 /**
  * @author Francesco
  */
-@Path("/devices")
+@Path("/cars")
 public class CarsResource {
 
     Logger logger = Logger.getLogger(getClass().getName());

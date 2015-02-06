@@ -16,26 +16,39 @@ import javax.persistence.*;
 @Entity
 public class Device {
 
+    public static Device createDevice(String regId, User user) {
+        Device device = new Device();
+        device.user = user;
+        device.key = KeyFactory.createKey(user.getKey(), device.getClass().getSimpleName(), regId);
+        device.regId = regId;
+        return device;
+    }
+
+    private Device(){}
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Key key;
+
     private String regId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private User user;
 
     public String getRegId() {
         return regId;
     }
 
-    public void setRegId(String regId) {
+    private void setRegId(String regId) {
         this.regId = regId;
     }
 
-    @XmlInverseReference(mappedBy = "devices")
+    @XmlInverseReference(mappedBy="devices")
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    private void setUser(User user) {
         this.user = user;
     }
 
@@ -46,14 +59,14 @@ public class Device {
 
         Device device = (Device) o;
 
-        if (regId != null ? !regId.equals(device.regId) : device.regId != null) return false;
+        if (key != null ? !key.equals(device.key) : device.key != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return regId != null ? regId.hashCode() : 0;
+        return key != null ? key.hashCode() : 0;
     }
 
     @Override

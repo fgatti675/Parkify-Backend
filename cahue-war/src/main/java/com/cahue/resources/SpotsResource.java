@@ -27,7 +27,7 @@ public class SpotsResource {
     /**
      * Threshold for storing parking spots
      */
-    private final static int ACCURACY_LIMIT_M = 22;
+    private final static int ACCURACY_LIMIT_M = 25;
 
     Logger logger = Logger.getLogger(getClass().getName());
 
@@ -79,6 +79,7 @@ public class SpotsResource {
                 // TODO: this will eventually need to crash
                 logger.fine("User not found");
             }
+
 
             parkingSpot.setTime(new Date());
 

@@ -20,7 +20,7 @@ public class ParkingSpot {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private Key id;
 
     public ParkingSpot() {
     }
@@ -29,11 +29,11 @@ public class ParkingSpot {
     private Car car;
 
     @XmlTransient
-    public Long getId() {
+    public Key getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Key id) {
 		this.id = id;
 	}
 

@@ -24,6 +24,7 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @XmlTransient
     private Key key;
 
     private String email;
@@ -33,16 +34,15 @@ public class User implements Serializable {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date creationDate = new Date();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user")
     private Set<Device> devices = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany
     private Set<Car> cars = new HashSet<>();
 
     @Transient
     private String authToken;
 
-    @XmlTransient
     public Key getKey() {
         return key;
     }
@@ -75,7 +75,6 @@ public class User implements Serializable {
         this.creationDate = creationDate;
     }
 
-    @XmlTransient
     public Set<Device> getDevices() {
         return devices;
     }
@@ -103,10 +102,9 @@ public class User implements Serializable {
     @Override
     public String toString() {
         return "User{" +
-                "email='" + email + '\'' +
+                "key=" + key +
+                ", email=" + email +
                 ", googleId='" + googleId + '\'' +
-                ", creationDate=" + creationDate +
-                ", authToken='" + authToken + '\'' +
                 '}';
     }
 

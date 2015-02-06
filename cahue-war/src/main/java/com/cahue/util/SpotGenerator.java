@@ -26,6 +26,7 @@ public class SpotGenerator {
         int amount = 1000000;
         for (int i = 0; i < amount; i++) {
             ParkingSpot spot = new ParkingSpot();
+//            spot.setId((long) i);
             spot.setLatitude(r.nextDouble() * 180 - 90);
             spot.setLongitude(r.nextDouble() * 360 - 180);
             spot.setAccuracy(r.nextFloat() * 12);

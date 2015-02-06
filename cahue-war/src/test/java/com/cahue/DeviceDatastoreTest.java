@@ -4,9 +4,11 @@ import com.cahue.config.TestModule;
 import com.cahue.config.guice.ProductionModule;
 import com.cahue.model.Device;
 import com.cahue.model.User;
+import com.cahue.model.transfer.RegistrationBean;
 import com.cahue.persistence.AppEngineDataSource;
 import com.cahue.persistence.DataSource;
 import com.cahue.persistence.MySQLPersistence;
+import com.cahue.util.UserService;
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -41,7 +43,10 @@ public class DeviceDatastoreTest {
     }
 
     @Inject
-    DataSource dataSource = new AppEngineDataSource();
+    UserService userService;
+
+    @Inject
+    DataSource dataSource;
 
     private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
@@ -59,13 +64,16 @@ public class DeviceDatastoreTest {
     public void test() {
         EntityManager em = dataSource.createDatastoreEntityManager();
 
+        RegistrationBean registrationBean = new RegistrationBean();
+        registrationBean.setDeviceRegId("TEST_DEV");
+
+        userService.register(em, registrationBean);
+
         User user = new User();
         user.setKey(User.createGoogleUserKey("randomKey"));
         user.setEmail("bla@bla.com");
 
-        Device device = new Device();
-        device.setRegId("bla");
-        device.setUser(user);
+        Device device = Device.createDevice("bla", user);
         user.getDevices().add(device);
 
         em.getTransaction().begin();

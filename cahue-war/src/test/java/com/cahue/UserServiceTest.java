@@ -3,7 +3,6 @@ package com.cahue;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.ProductionModule;
 import com.cahue.model.Car;
-import com.cahue.model.Device;
 import com.cahue.model.User;
 import com.cahue.persistence.AppEngineDataSource;
 import com.cahue.persistence.DataSource;
@@ -17,15 +16,30 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class CarPersistenceTest {
+/**
+ * Date: 05.02.15
+ *
+ * @author francesco
+ */
+@RunWith(JukitoRunner.class)
+public class UserServiceTest {
 
     DataSource dataSource = new AppEngineDataSource();
+
+    /**
+     * Overrides the common bindings from TestBase with the
+     * module that has test-specific bindings for Foo.
+     */
+    public static class Module extends JukitoModule {
+        protected void configureTest() {
+            install(Modules.override(new ProductionModule()).with(new TestModule()));
+        }
+    }
 
     private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
@@ -40,7 +54,7 @@ public class CarPersistenceTest {
     }
 
     @Test
-    public void test() {
+    public void registrationTest() {
         EntityManager em = dataSource.createDatastoreEntityManager();
 
         User user = new User();
