@@ -25,8 +25,9 @@
 
     <persistence-unit name="mysql">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <class>com.cahue.model.Car</class>
         <class>com.cahue.model.ParkingSpot</class>
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.jdbc.user" value="root"/>
             <!--<property name="javax.persistence.jdbc.password" value="arrabal"/>-->

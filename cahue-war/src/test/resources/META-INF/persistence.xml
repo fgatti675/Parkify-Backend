@@ -26,7 +26,10 @@
     <persistence-unit name="mysql">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <class>com.cahue.model.ParkingSpot</class>
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <class>com.cahue.model.User</class>
+        <class>com.cahue.model.Device</class>
+        <class>com.cahue.model.Car</class>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/test?user=root"/>

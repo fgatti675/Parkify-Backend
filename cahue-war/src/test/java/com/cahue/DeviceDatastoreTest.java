@@ -7,10 +7,7 @@ import com.cahue.model.User;
 import com.cahue.persistence.AppEngineDataSource;
 import com.cahue.persistence.DataSource;
 import com.cahue.persistence.MySQLPersistence;
-import com.google.appengine.api.datastore.DatastoreService;
-import com.google.appengine.api.datastore.DatastoreServiceFactory;
-import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.*;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.inject.util.Modules;
@@ -66,20 +63,24 @@ public class DeviceDatastoreTest {
         user.setKey(User.createGoogleUserKey("randomKey"));
         user.setEmail("bla@bla.com");
 
-        Device device = Device.createDevice("bla", user);
+        Device device = new Device();
+        device.setRegId("bla");
+        device.setUser(user);
         user.getDevices().add(device);
 
         em.getTransaction().begin();
-        em.persist(user);
-        em.persist(device);
+        em.merge(user);
+        em.merge(device);
         em.getTransaction().commit();
 
         List<User> list = em.createQuery("select u from User u", User.class).getResultList();
         assertEquals(list.size(), 1);
 
-        User x = em.find(User.class, user.getKey());
-        for (Device d : x.getDevices()) {
+        User retrievedUser = em.find(User.class, user.getKey());
+        assertEquals(1, retrievedUser.getDevices().size());
+        for (Device d : retrievedUser.getDevices()) {
             assertEquals(d, device);
+            assertEquals(d.getUser(), user);
         }
     }
 }

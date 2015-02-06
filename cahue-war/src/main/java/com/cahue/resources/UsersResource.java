@@ -7,11 +7,13 @@ import com.cahue.util.UserService;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.logging.Logger;
 
@@ -32,8 +34,9 @@ public class UsersResource {
     Logger logger = Logger.getLogger(getClass().getName());
 
     @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/createGoogle")
-    public User createGoogleUser(RegistrationBean registration, @Context HttpHeaders headers) {
+    public User createGoogleUser(RegistrationBean registration) {
 
         if (registration == null)
             throw new WebApplicationException(

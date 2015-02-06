@@ -23,9 +23,11 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.Transient;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
+import java.security.KeyFactory;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -185,7 +187,7 @@ public class UserService {
 
             em.getTransaction().commit();
 
-            logger.fine("Created new user: " + user);
+            logger.fine("Created new Google user: " + user);
             return user;
 
         } catch (Exception e) {
@@ -245,10 +247,12 @@ public class UserService {
      * @param user
      */
     private void registerDevice(EntityManager em, String deviceRegistrationId, User user) {
-        Device device = Device.createDevice(deviceRegistrationId, user);
-        user.getDevices().add(device); // no matter if its duplicated because we are adding it to a set
+        Device device = new Device();
+        device.setRegId(deviceRegistrationId);
+        device.setUser(user);
         em.getTransaction().begin();
-        em.persist(device);
+        user.getDevices().add(device); // no matter if its duplicated because we are adding it to a set
+        em.merge(device);
         em.getTransaction().commit();
     }
 }

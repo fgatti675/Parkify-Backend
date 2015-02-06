@@ -1,4 +1,4 @@
-package com.cahue;
+package com.cahue.persistence;
 
 import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.ParkingSpot;
@@ -58,7 +58,7 @@ public class CartoDBPersistence implements Persistence {
 
         Date time = calendar.getTime();
         ParkingSpot spot = new ParkingSpot();
-        spot.setId(1L);
+//        spot.setId(1L);
         spot.setLatitude(0D);
         spot.setLongitude(0D);
         spot.setTime(new Date());
@@ -151,7 +151,7 @@ public class CartoDBPersistence implements Persistence {
                     double lon = coordinates.getDouble(0);
 
                     ParkingSpot spot = new ParkingSpot();
-                    spot.setId(Long.parseLong(id));
+//                    spot.setId(Long.parseLong(id));
                     spot.setLatitude(lat);
                     spot.setLongitude(lon);
                     spot.setTime(date);

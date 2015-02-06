@@ -6,6 +6,8 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -19,48 +21,25 @@ import java.util.UUID;
 @Entity
 public class Car {
 
-    public static Car createCar(User user, String name, @Nullable String btID) {
-        Car car = new Car();
-        car.user = user;
-        car.bluetoothAddress = btID;
-        car.name = name;
-        car.generateId();
-        car.updateKey();
-        return car;
-    }
-
-    public void generateId(){
-        this.id = UUID.randomUUID().toString();
-    }
-
-    public void updateKey() {
-        this.key = KeyFactory.createKey(this.user.getKey(), this.getClass().getSimpleName(), UUID.randomUUID().toString());
-    }
-
-    private Key key;
-
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id = UUID.randomUUID().toString();
 
     private String bluetoothAddress;
 
     private String name;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date creationDate = new Date();
 
-    private List<Key> relatedUsers;
+    private Double longitude;
 
-    public Key getKey() {
-        return key;
-    }
+    private Double latitude;
 
-    public void setKey(Key key) {
-        this.key = key;
-    }
+    private Float accuracy;
 
     public String getId() {
         return id;
@@ -76,6 +55,14 @@ public class Car {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 
     public String getBluetoothAddress() {
@@ -94,6 +81,29 @@ public class Car {
         this.user = user;
     }
 
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Float getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(Float accuracy) {
+        this.accuracy = accuracy;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -102,14 +112,13 @@ public class Car {
 
         Car car = (Car) o;
 
-        if (key != null ? !key.equals(car.key) : car.key != null) return false;
+        if (id != null ? !id.equals(car.id) : car.id != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return key != null ? key.hashCode() : 0;
+        return id != null ? id.hashCode() : 0;
     }
-
 }
