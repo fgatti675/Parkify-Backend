@@ -3,7 +3,7 @@ package com.cahue.model.transfer;
 /**
  * Created by francesco on 19.01.2015.
  */
-public class RegistrationBean {
+public class RegistrationRequestBean {
 
     private String googleAuthToken;
 

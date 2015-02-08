@@ -1,29 +1,25 @@
 package com.cahue.resources;
 
-import com.cahue.gcm.MessageFactory;
 import com.cahue.model.Car;
-import com.cahue.model.Device;
 import com.cahue.model.User;
-import com.cahue.persistence.DataSource;
+import com.cahue.persistence.OfyService;
 import com.cahue.util.UserService;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
+
+import static com.googlecode.objectify.ObjectifyService.ofy;
 
 /**
  * @author Francesco
  */
 @Path("/cars")
-public class CarsResource {
+public class Cars {
 
     Logger logger = Logger.getLogger(getClass().getName());
 
@@ -33,54 +29,38 @@ public class CarsResource {
     @Inject
     UserService userService;
 
-    @Inject
-    DataSource dataSource;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Set<Car> retrieve(@Context HttpHeaders headers) {
+    public List<Car> retrieve(@Context HttpHeaders headers) {
 
-        EntityManager em = dataSource.createDatastoreEntityManager();
-
-        try {
-
-            User user = userService.getFromHeaders(em, headers);
-            if (user != null) {
-                logger.fine("Found user: " + user.getEmail());
-            } else {
-                throw new WebApplicationException("Every car must have a name assigned");
-            }
-
-            return user.getCars();
-
-        }  finally {
-            em.close();
+        User user = userService.getFromHeaders(headers);
+        if (user != null) {
+            logger.fine("Found user: " + user.getGoogleUser().getEmail());
+        } else {
+            throw new WebApplicationException("Every car must have a name assigned");
         }
+
+        return retrieveUserCars(user);
+
     }
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     public void save(List<Car> cars, @Context HttpHeaders headers) {
-        EntityManager em = dataSource.createDatastoreEntityManager();
 
-        try {
-
-            User user = userService.getFromHeaders(em, headers);
+            User user = userService.getFromHeaders(headers);
             if (user != null) {
-                logger.fine("Found user: " + user.getEmail());
+                logger.fine("Found user: " + user.getGoogleUser().getEmail());
             } else {
                 throw new WebApplicationException("Every car must have a name assigned");
             }
 
-            save(em, cars, user);
+            save(cars, user);
 
-        } finally {
-            em.close();
-        }
     }
 
-    public void save(EntityManager em, List<Car> cars, User user) {
-        em.getTransaction().begin();
+    public void save(List<Car> cars, User user) {
 
         for (Car car : cars) {
 
@@ -88,13 +68,13 @@ public class CarsResource {
             if (!car.getUser().equals(user))
                 throw new WebApplicationException("This car doesn't belong to this user.");
 
-            car.setUser(user);
-            user.getCars().add(car);
-
-            em.merge(car);
         }
+        ofy().save().entities(cars).now();
+    }
 
-        em.getTransaction().commit();
+
+    public List<Car> retrieveUserCars(User user) {
+        return OfyService.ofy().load().type(Car.class).ancestor(user).list();
     }
 
 

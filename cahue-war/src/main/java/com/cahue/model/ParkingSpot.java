@@ -1,39 +1,38 @@
 package com.cahue.model;
 
 import com.google.appengine.api.datastore.Key;
+import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.*;
 
-import javax.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
+@Cache
 @Entity
 public class ParkingSpot {
+
+    private Date time = new Date();
+
+    @Id
+    private long id;
+
+    @Index
+    @Load
+    private Ref<Car> car;
 
     private Double longitude;
     private Double latitude;
     private Float accuracy;
 
-    @Temporal(value = TemporalType.TIMESTAMP)
-    private Date time = new Date();
-
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private Key id;
-
     public ParkingSpot() {
     }
 
-    @ManyToOne (fetch = FetchType.LAZY)
-    private Car car;
-
     @XmlTransient
-    public Key getId() {
+    public long getId() {
 		return id;
 	}
 
-	public void setId(Key id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -70,11 +69,11 @@ public class ParkingSpot {
 	}
 
     public Car getCar() {
-        return car;
+        return car.get();
     }
 
     public void setCar(Car car) {
-        this.car = car;
+        this.car = Ref.create(car);
     }
 
     @Override

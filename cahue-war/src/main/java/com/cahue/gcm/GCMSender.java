@@ -1,14 +1,18 @@
 package com.cahue.gcm;
 
 import com.cahue.model.Device;
+import com.cahue.model.GoogleUser;
 import com.cahue.model.User;
 import com.google.android.gcm.server.*;
+import com.googlecode.objectify.Key;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+
+import static com.googlecode.objectify.ObjectifyService.ofy;
 
 /**
  * @author Francesco
@@ -24,8 +28,6 @@ public class GCMSender {
 
     private Sender sender = new Sender(GOOGLE_API_KEY);
 
-    @PersistenceContext
-    private EntityManager em;
 
     /**
      * Unregisters a device.
@@ -35,14 +37,14 @@ public class GCMSender {
     public void unregister(Device device) {
         log.fine("Unregistering " + device);
         if (device != null)
-            em.remove(device);
+            ofy().delete().entity(device).now();
     }
 
     /**
      * Gets all registered devices.
      */
     public List<Device> getDevices() {
-        return em.createQuery("select d from Device d").getResultList();
+        return ofy().load().type(Device.class).list();
     }
 
     /**
@@ -117,12 +119,10 @@ public class GCMSender {
      */
     public void updateRegistration(String oldId, String newId) {
         log.info("Updating " + oldId + " to " + newId);
-        em.getTransaction().begin();
-        Device oldDevice = em.find(Device.class, oldId);
+        Device oldDevice = ofy().load().key(Key.create(Device.class, oldId)).now();
         User user = oldDevice.getUser();
         Device device = Device.createDevice(newId, user);
-        em.remove(oldDevice);
-        em.persist(device);
-        em.getTransaction().commit();
+        ofy().save().entity(device).now();
+        ofy().clear();
     }
 }

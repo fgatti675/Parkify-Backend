@@ -3,10 +3,10 @@ package com.cahue.resources;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
-import com.cahue.persistence.DataSource;
-import com.cahue.persistence.Persistence;
+import com.cahue.persistence.SpotsIndex;
 import com.cahue.util.UserService;
 import com.google.inject.name.Named;
+import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -18,11 +18,13 @@ import javax.ws.rs.core.Response;
 import java.util.Date;
 import java.util.logging.Logger;
 
+import static com.cahue.persistence.OfyService.ofy;
+
 /**
  * Created by Francesco on 07/09/2014.
  */
 @Path("/spots")
-public class SpotsResource {
+public class Spots {
 
     /**
      * Threshold for storing parking spots
@@ -32,11 +34,8 @@ public class SpotsResource {
     Logger logger = Logger.getLogger(getClass().getName());
 
     @Inject
-    DataSource dataSource;
-
-    @Inject
-    @Named(Persistence.MySQL)
-    Persistence persistence;
+    @Named(SpotsIndex.MySQL)
+    SpotsIndex spotsIndex;
 
     @Inject
     UserService userService;
@@ -53,7 +52,7 @@ public class SpotsResource {
         if (southwestLatitude == null || southwestLongitude == null || northeastLatitude == null || northeastLongitude == null)
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
 
-        return persistence.queryArea(southwestLatitude, southwestLongitude, northeastLatitude, northeastLongitude);
+        return spotsIndex.queryArea(southwestLatitude, southwestLongitude, northeastLatitude, northeastLongitude);
     }
 
 
@@ -69,39 +68,32 @@ public class SpotsResource {
             return null;
         }
 
-        EntityManager em = dataSource.createDatastoreEntityManager();
-
-        try {
-            User user = userService.getFromHeaders(em, headers);
-            if (user != null) {
-                logger.fine("Found user: " + user.getEmail());
-            } else {
-                // TODO: this will eventually need to crash
-                logger.fine("User not found");
-            }
-
-
-            parkingSpot.setTime(new Date());
-
-            /**
-             * Save in datastore
-             */
-            em.getTransaction().begin();
-            em.persist(parkingSpot);  // sets the id
-            em.getTransaction().commit();
-
-            /**
-             * Put in index database
-             */
-            persistence.put(parkingSpot);
-
-            logger.fine(parkingSpot.toString());
-
-        } catch (InvalidTokenException e) {
-            logger.warning("Invalid Token");
-        } finally {
-            em.close();
+        User user = userService.getFromHeaders(headers);
+        if (user != null) {
+            logger.fine("Found user: " + user.getGoogleUser().getEmail());
+        } else {
+            // TODO: this will eventually need to crash
+            logger.fine("User not found");
         }
+
+
+        parkingSpot.setTime(new Date());
+
+        /**
+         * Save in datastore
+         */
+        Key<ParkingSpot> key = ofy().save().entity(parkingSpot).now();
+
+        // TODO: needed?
+//        parkingSpot.setId(key.getId());
+
+        /**
+         * Put in index database
+         */
+        spotsIndex.put(parkingSpot);
+
+        logger.fine(parkingSpot.toString());
+
         return parkingSpot;
     }
 
@@ -117,7 +109,7 @@ public class SpotsResource {
         if (latitude == null || longitude == null || count == null)
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
 
-        return persistence.queryNearest(latitude, longitude, count);
+        return spotsIndex.queryNearest(latitude, longitude, count);
     }
 
     @GET

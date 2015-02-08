@@ -7,7 +7,7 @@
     <persistence-unit name="datanucleus">
         <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
         <class>com.cahue.model.ParkingSpot</class>
-        <class>com.cahue.model.User</class>
+        <class>com.cahue.model.GoogleUser</class>
         <class>com.cahue.model.Device</class>
         <class>com.cahue.model.Car</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
@@ -26,7 +26,7 @@
     <persistence-unit name="mysql">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <class>com.cahue.model.ParkingSpot</class>
-        <class>com.cahue.model.User</class>
+        <class>com.cahue.model.GoogleUser</class>
         <class>com.cahue.model.Device</class>
         <class>com.cahue.model.Car</class>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>

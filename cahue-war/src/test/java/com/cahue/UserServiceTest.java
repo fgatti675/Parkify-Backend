@@ -2,22 +2,25 @@ package com.cahue;
 
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.ProductionModule;
-import com.cahue.model.Car;
 import com.cahue.model.User;
-import com.cahue.persistence.AppEngineDataSource;
-import com.cahue.persistence.DataSource;
+import com.cahue.model.transfer.RegistrationRequestBean;
+import com.cahue.model.transfer.RegistrationResult;
+import com.cahue.util.UserService;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.google.inject.Inject;
 import com.google.inject.util.Modules;
+import com.googlecode.objectify.ObjectifyFactory;
+import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.cache.AsyncCacheFilter;
 import org.jukito.JukitoModule;
 import org.jukito.JukitoRunner;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import javax.persistence.EntityManager;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -29,7 +32,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JukitoRunner.class)
 public class UserServiceTest {
 
-    DataSource dataSource = new AppEngineDataSource();
+    @Inject
+    UserService userService;
 
     /**
      * Overrides the common bindings from TestBase with the
@@ -41,8 +45,17 @@ public class UserServiceTest {
         }
     }
 
-    private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+    private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
+            new LocalDatastoreServiceTestConfig(),
+            new LocalMemcacheServiceTestConfig());
 
+    @BeforeClass
+    public static void setUpBeforeClass()
+    {
+        ObjectifyService.begin();
+        // Reset the Factory so that all translators work properly.
+        ObjectifyService.setFactory(new ObjectifyFactory());
+    }
     @Before
     public void setUp() {
         helper.setUp();
@@ -50,31 +63,19 @@ public class UserServiceTest {
 
     @After
     public void tearDown() {
+        AsyncCacheFilter.complete();
         helper.tearDown();
     }
 
     @Test
     public void registrationTest() {
-        EntityManager em = dataSource.createDatastoreEntityManager();
+        RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
+        registrationRequestBean.setDeviceRegId("Test device");
+        registrationRequestBean.setGoogleAuthToken("ya29.FAEqcYwhewINFfqgMtRfiRBUT2x7OsL21JfpqruqYCucw7xB_dOHA-dHC8m7SHeyLk7O6X_VFqhxOA");
 
-        User user = new User();
-        user.setKey(User.createGoogleUserKey("randomKey"));
-        user.setEmail("bla@bla.com");
+        RegistrationResult result = userService.register(registrationRequestBean);
+        User user = result.getUser();
 
-        Car car = new Car();
-        user.getCars().add(car);
-
-        em.getTransaction().begin();
-        em.persist(user);
-        em.persist(car);
-        em.getTransaction().commit();
-
-        List<User> list = em.createQuery("select u from User u", User.class).getResultList();
-        assertEquals(list.size(), 1);
-
-        User x = em.find(User.class, user.getKey());
-        for (Car c : x.getCars()) {
-            assertEquals(c, car);
-        }
+        assertEquals(user.getGoogleUser().getEmail(), "empanadamental@gmail.com");
     }
 }

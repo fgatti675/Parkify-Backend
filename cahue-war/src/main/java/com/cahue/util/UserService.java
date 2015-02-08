@@ -1,10 +1,8 @@
 package com.cahue.util;
 
-import com.cahue.model.Device;
-import com.cahue.model.User;
-import com.cahue.model.transfer.RegistrationBean;
-import com.cahue.persistence.AppEngineDataSource;
-import com.cahue.persistence.DataSource;
+import com.cahue.model.*;
+import com.cahue.model.transfer.RegistrationRequestBean;
+import com.cahue.model.transfer.RegistrationResult;
 import com.cahue.resources.InvalidTokenException;
 import com.google.api.client.extensions.appengine.datastore.AppEngineDataStoreFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -16,118 +14,125 @@ import com.google.api.services.oauth2.Oauth2;
 import com.google.api.services.oauth2.model.Userinfoplus;
 import com.google.api.services.plus.Plus;
 import com.google.api.services.plus.model.Person;
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.googlecode.objectify.Key;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.cahue.persistence.OfyService.ofy;
 
 /**
  * Created by Francesco on 18/01/2015.
  */
 public class UserService {
 
+    public static final int TOKEN_EXPIRATION_MS = 365 * 24 * 60 * 60 * 1000;
 
-    public static final int GOOGLE_MEMCACHE_EXPIRATION_SECONDS = 60 * 60;
-    public static final String APPLICATION_NAME = "Cahue";
+    private static final String APPLICATION_NAME = "Cahue";
+    private static final String SECRET = "ABph75AciNZOw0dlgD3E_JK3";
 
     public static final void main(String[] args) throws Exception {
         UserService usersResource = new UserService();
-        usersResource.retrieveGoogleUser(new AppEngineDataSource().createDatastoreEntityManager(), "ya29._ABph75AciNZOw0dlgD3EUDJK3BtaNR9fXJwNWCJ-OJrJ8KyUn9PY4B7BhnVAr41Xs4_04iCJ3loCQ");
+        usersResource.retrieveGoogleUser("ya29._ABph75AciNZOw0dlgD3EUDJK3BtaNR9fXJwNWCJ-OJrJ8KyUn9PY4B7BhnVAr41Xs4_04iCJ3loCQ");
     }
-
 
     private static final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    public static final String AUTH_TOKENS_DATASTORE = "AUTH_TOKENS_DATASTORE";
-    public static final String GOOGLE_AUTH_TOKENS_MEMCACHE = "GOOGLE_AUTH_TOKENS_MEMCACHE";
+    public static final String AUTH_TOKENS_MEMCACHE = "AUTH_TOKENS_MEMCACHE";
 
     public static final String IWECO_AUTH_HEADER = "Authorization";
     public static final String GOOGLE_AUTH_HEADER = "GoogleAuth";
 
-    @Inject
-    DataSource dataSource;
 
     Logger logger = Logger.getLogger(getClass().getName());
 
     /**
-     * Register a new user from a {@link RegistrationBean}
+     * Register a new user from a {@link com.cahue.model.transfer.RegistrationRequestBean}
      *
      * @param registration
      * @return
      */
-    public User register(EntityManager em, RegistrationBean registration) {
-        try {
-            // create or retrieve an existing Google user
-            User user = retrieveGoogleUser(em, registration.getGoogleAuthToken());
+    public RegistrationResult register(RegistrationRequestBean registration) {
 
-            // register the device
-            registerDevice(em, registration.getDeviceRegId(), user);
+        RegistrationResult result = new RegistrationResult();
 
-            // create new Auth Token
-            String authToken = UUID.randomUUID().toString();
+        // create or retrieve an existing Google user
+        User user = retrieveGoogleUser(registration.getGoogleAuthToken());
+        result.setUser(user);
 
-            // store the token
-            DataStore<Key> dataStore = getTokenDataStore();
-            dataStore.set(authToken, user.getKey());
+        // register the device
+        registerDevice(registration.getDeviceRegId(), user);
 
-            // store the token as a transient property in the user so it can be returned to the client
-            user.setAuthToken(authToken);
+        // create new Auth Token
+        String authToken = generateToken();
 
-            return user;
+        // store the token
+        storeAuthToken(user, authToken);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new WebApplicationException(e);
-        }
+        // store the token as a transient property in the user so it can be returned to the client
+        result.setAuthToken(authToken);
+
+        return result;
+    }
+
+    private void storeAuthToken(User user, String authTokenString) {
+        AuthToken token = new AuthToken();
+        token.setUser(user);
+        Date date = new Date();
+        date.setTime(date.getTime() + TOKEN_EXPIRATION_MS);
+        token.setExpirationDate(date);
+        token.setToken(authTokenString);
+        ofy().save().entity(token);
+        MemcacheService cache = getAuthTokensMemcacheService();
+        cache.put(authTokenString, user.getId());
+    }
+
+    private MemcacheService getAuthTokensMemcacheService() {
+        return MemcacheServiceFactory.getMemcacheService(AUTH_TOKENS_MEMCACHE);
     }
 
 
-    public User retrieveUser(EntityManager em, final String authToken) {
-        try {
-            DataStore<Key> dataStore = getTokenDataStore();
-            Key userKey = dataStore.get(authToken);
-            return userKey == null ? null : em.find(User.class, userKey);
-        }  catch (IOException e) {
-            e.printStackTrace();
-            throw new WebApplicationException(e);
-        }
-    }
+    public User retrieveUser(final String authTokenValue) {
 
-    private DataStore<Key> getTokenDataStore() throws IOException {
-            return AppEngineDataStoreFactory.getDefaultInstance().getDataStore(AUTH_TOKENS_DATASTORE);
+        /**
+         * If in memcache return by ID
+         */
+        String userId = (String) getAuthTokensMemcacheService().get(authTokenValue);
+        if (userId != null) {
+            return ofy().load().type(User.class).id(userId).now();
+        }
+
+        /**
+         * Else go through datastore
+         */
+        else {
+            AuthToken authToken = ofy().load().type(AuthToken.class).id(authTokenValue).now();
+            return authToken.getUser();
+        }
     }
 
     /**
      * Retrieve a user from an Google access token.
      *
-     * @param em
      * @param googleAccessToken
      * @return
      */
-    public User retrieveGoogleUser(EntityManager em, final String googleAccessToken) {
+    public User retrieveGoogleUser(final String googleAccessToken) {
 
         User user = null;
 
         try {
-
-            /**
-             * Try to retrieve it directly from the auth token
-             */
-            MemcacheService cache = MemcacheServiceFactory.getMemcacheService(GOOGLE_AUTH_TOKENS_MEMCACHE);
-
-            Key key = (Key) cache.get(googleAccessToken);
-            if (key != null)
-                user = em.find(User.class, key);
 
             /**
              * If not found by google access token, retrieve the user from Google and search by GoogleID
@@ -148,17 +153,16 @@ public class UserService {
                 /**
                  * Try to retrieve the user via the google id
                  */
-                key = User.createGoogleUserKey(googleId);
-                user = em.find(User.class, key);
+                Key<GoogleUser> key = GoogleUser.createGoogleUserKey(googleId);
+                GoogleUser googleUser = ofy().load().key(key).now();
+                if (googleUser != null)
+                    user = googleUser.getUser();
 
                 /**
                  * If it's still null we create it
                  */
                 if (user == null)
-                    user = createUserFromGoogleAccount(em, person);
-
-                if (user != null)
-                    cache.put(googleAccessToken, key, Expiration.byDeltaSeconds(GOOGLE_MEMCACHE_EXPIRATION_SECONDS));
+                    user = createUserFromGoogleAccount(person);
 
             }
 
@@ -171,28 +175,22 @@ public class UserService {
     }
 
 
-    public User createUserFromGoogleAccount(EntityManager em, Userinfoplus person) {
-        try {
-            em.getTransaction().begin();
+    public User createUserFromGoogleAccount(Userinfoplus person) {
 
-            User user = new User();
-            String googleId = person.getId();
-            user.setKey(User.createGoogleUserKey(googleId));
-            user.setGoogleId(googleId);
-            user.setEmail(person.getEmail());
+        User user = new User();
+        user.setRefreshToken(generateToken());
 
-            em.persist(user);
+        GoogleUser googleUser = new GoogleUser();
+        googleUser.setGoogleId(person.getId());
+        googleUser.setEmail(person.getEmail());
 
-            em.getTransaction().commit();
+        user.setGoogleUser(googleUser);
+        googleUser.setUser(user);
 
-            logger.fine("Created new user: " + user);
-            return user;
+        ofy().save().entities(user, googleUser).now();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (em.getTransaction().isActive()) em.getTransaction().rollback();
-            return null;
-        }
+        logger.fine("Created new googleUser: " + googleUser);
+        return user;
 
     }
 
@@ -224,14 +222,14 @@ public class UserService {
      * @param headers
      * @return
      */
-    public User getFromHeaders(EntityManager em, HttpHeaders headers) {
+    public User getFromHeaders(HttpHeaders headers) {
 
         String authToken = headers.getHeaderString(IWECO_AUTH_HEADER);
-        User user = retrieveUser(em, authToken);
+        User user = retrieveUser(authToken);
 
         if (user == null) {
             String googleAuthToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);
-            user = googleAuthToken == null ? null : retrieveGoogleUser(em, googleAuthToken);
+            user = googleAuthToken == null ? null : retrieveGoogleUser(googleAuthToken);
         }
 
         return user;
@@ -240,13 +238,24 @@ public class UserService {
     /**
      * Register a new device and assign it to a user
      *
-     * @param em
      * @param deviceRegistrationId
      * @param user
      */
-    private void registerDevice(EntityManager em, String deviceRegistrationId, User user) {
+    private void registerDevice(String deviceRegistrationId, User user) {
         Device device = Device.createDevice(deviceRegistrationId, user);
-        user.getDevices().add(device); // no matter if its duplicated because we are adding it to a set
-        em.persist(device);
+        ofy().save().entity(device).now();
+    }
+
+    private String generateToken() {
+        String key = UUID.randomUUID().toString().toUpperCase() +
+                "|" + APPLICATION_NAME +
+                "|" + new Date().getTime();
+
+        // TODO: can be initialized somewhere else
+        StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
+        jasypt.setPassword(SECRET);
+
+        // this is the authentication token user will send in order to use the web service
+        return jasypt.encrypt(key);
     }
 }

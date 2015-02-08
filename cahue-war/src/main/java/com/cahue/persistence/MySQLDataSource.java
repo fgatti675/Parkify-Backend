@@ -13,13 +13,11 @@ import java.util.Map;
  * Created by Francesco on 07/09/2014.
  */
 @Singleton
-public class AppEngineDataSource implements DataSource {
-
-    private EntityManagerFactory nucleusFactory;
+public class MySQLDataSource{
 
     private EntityManagerFactory mysqlFactory;
 
-    public AppEngineDataSource() {
+    public MySQLDataSource() {
         Map<String, String> properties = new HashMap();
         if (SystemProperty.environment.value() == SystemProperty.Environment.Value.Production) {
             properties.put("javax.persistence.jdbc.driver", "com.mysql.jdbc.GoogleDriver");
@@ -30,15 +28,8 @@ public class AppEngineDataSource implements DataSource {
         }
         mysqlFactory = Persistence.createEntityManagerFactory("mysql", properties);
 
-        nucleusFactory = Persistence.createEntityManagerFactory("datanucleus");
     }
 
-    @Override
-    public EntityManager createDatastoreEntityManager() {
-        return nucleusFactory.createEntityManager();
-    }
-
-    @Override
     public EntityManager createRelationalEntityManager() {
         return mysqlFactory.createEntityManager();
     }

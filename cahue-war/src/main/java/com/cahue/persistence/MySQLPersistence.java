@@ -15,12 +15,12 @@ import java.util.Locale;
  *
  * @author francesco
  */
-public class MySQLPersistence implements Persistence {
+public class MySQLPersistence implements SpotsIndex {
 
     private static final int MAX_RESULTS = 200;
 
     @Inject
-    DataSource dataSource;
+    MySQLDataSource dataSource;
 
     @Override
     public QueryResult queryNearest(Double latitude, Double longitude, int nearest) {

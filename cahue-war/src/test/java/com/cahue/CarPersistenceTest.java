@@ -1,31 +1,33 @@
 package com.cahue;
 
-import com.cahue.config.TestModule;
-import com.cahue.config.guice.ProductionModule;
 import com.cahue.model.Car;
-import com.cahue.model.Device;
 import com.cahue.model.User;
-import com.cahue.persistence.AppEngineDataSource;
-import com.cahue.persistence.DataSource;
+import com.cahue.model.transfer.RegistrationRequestBean;
+import com.cahue.model.transfer.RegistrationResult;
+import com.cahue.resources.Cars;
+import com.cahue.util.UserService;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import com.google.inject.util.Modules;
-import org.jukito.JukitoModule;
-import org.jukito.JukitoRunner;
+import com.google.inject.Inject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class CarPersistenceTest {
 
-    DataSource dataSource = new AppEngineDataSource();
+    @Inject
+    UserService userService;
+
+    @Inject
+    Cars cars;
+
 
     private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 
@@ -41,26 +43,22 @@ public class CarPersistenceTest {
 
     @Test
     public void test() {
-        EntityManager em = dataSource.createDatastoreEntityManager();
 
-        User user = new User();
-        user.setKey(User.createGoogleUserKey("randomKey"));
-        user.setEmail("bla@bla.com");
+        RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
+        registrationRequestBean.setDeviceRegId("Test device");
+        registrationRequestBean.setGoogleAuthToken("ya29.FAEqcYwhewINFfqgMtRfiRBUT2x7OsL21JfpqruqYCucw7xB_dOHA-dHC8m7SHeyLk7O6X_VFqhxOA");
 
-        Car car = new Car();
-        user.getCars().add(car);
+        RegistrationResult result = userService.register(registrationRequestBean);
+        User user = result.getUser();
 
-        em.getTransaction().begin();
-        em.persist(user);
-        em.persist(car);
-        em.getTransaction().commit();
+        assertEquals(user.getGoogleUser().getEmail(), "empanadamental@gmail.com");
 
-        List<User> list = em.createQuery("select u from User u", User.class).getResultList();
-        assertEquals(list.size(), 1);
+        Car car = Car.createCar(user, "Car name", "Test BT address");
 
-        User x = em.find(User.class, user.getKey());
-        for (Car c : x.getCars()) {
-            assertEquals(c, car);
-        }
+        List<Car> cars = Arrays.asList(car);
+        this.cars.save(cars, user);
+
+        List<Car> retrievedCars = this.cars.retrieveUserCars(user);
+        assertThat(cars, is(retrievedCars));
     }
 }

@@ -1,70 +1,34 @@
 package com.cahue.model;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.*;
 
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlTransient;
-import java.io.Serializable;
 import java.util.*;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
 /**
- * Date: 14.01.15
- *
- * @author francesco
+ * Created by Francesco on 07/02/2015.
  */
-@NamedQuery(name = "User.findByGoogleId", query = "select u from User u where u.googleId = :googleId")
+@Cache
 @Entity
-public class User implements Serializable {
-
-    public User() {
-    }
+public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @XmlTransient
-    private Key key;
+    private String id;
 
-    private String email;
+    @Load
+    private Ref<GoogleUser> googleUser;
 
-    private String googleId;
-
-    @Temporal(value = TemporalType.TIMESTAMP)
     private Date creationDate = new Date();
 
-    @OneToMany(mappedBy = "user")
-    private Set<Device> devices = new HashSet<>();
+    private String refreshToken;
 
-    @OneToMany
-    private Set<Car> cars = new HashSet<>();
-
-    @Transient
-    private String authToken;
-
-    public Key getKey() {
-        return key;
+    public String getId() {
+        return id;
     }
 
-    public void setKey(Key key) {
-        this.key = key;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getGoogleId() {
-        return googleId;
-    }
-
-    public void setGoogleId(String googleId) {
-        this.googleId = googleId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Date getCreationDate() {
@@ -75,41 +39,36 @@ public class User implements Serializable {
         this.creationDate = creationDate;
     }
 
-    public Set<Device> getDevices() {
-        return devices;
+    public String getRefreshToken() {
+        return refreshToken;
     }
 
-    public void setDevices(Set<Device> devices) {
-        this.devices = devices;
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
-    public Set<Car> getCars() {
-        return cars;
+    public GoogleUser getGoogleUser() {
+        return googleUser.get();
     }
 
-    public void setCars(Set<Car> cars) {
-        this.cars = cars;
-    }
-
-    public String getAuthToken() {
-        return authToken;
-    }
-
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
+    public void setGoogleUser(GoogleUser googleUser) {
+        this.googleUser = Ref.create(googleUser);
     }
 
     @Override
-    public String toString() {
-        return "User{" +
-                "key=" + key +
-                ", email=" + email +
-                ", googleId='" + googleId + '\'' +
-                '}';
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (id != null ? !id.equals(user.id) : user.id != null) return false;
+
+        return true;
     }
 
-    public static Key createGoogleUserKey(String googleId) {
-        return KeyFactory.createKey(User.class.getSimpleName(), "G" + googleId);
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
-
 }
