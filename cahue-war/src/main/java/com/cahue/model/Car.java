@@ -3,12 +3,15 @@ package com.cahue.model;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.datanucleus.annotations.Unowned;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import static javax.persistence.GenerationType.IDENTITY;
 
 
 /**
@@ -24,22 +27,12 @@ public class Car {
         car.user = user;
         car.bluetoothAddress = btID;
         car.name = name;
-        car.generateId();
-        car.updateKey();
         return car;
     }
 
-    public void generateId(){
-        this.id = UUID.randomUUID().toString();
-    }
-
-    public void updateKey() {
-        this.key = KeyFactory.createKey(this.user.getKey(), this.getClass().getSimpleName(), UUID.randomUUID().toString());
-    }
-
-    private Key key;
 
     @Id
+    @GeneratedValue(strategy = IDENTITY)
     private String id;
 
     private String bluetoothAddress;
@@ -51,16 +44,6 @@ public class Car {
 
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date creationDate = new Date();
-
-    private List<Key> relatedUsers;
-
-    public Key getKey() {
-        return key;
-    }
-
-    public void setKey(Key key) {
-        this.key = key;
-    }
 
     public String getId() {
         return id;
@@ -102,14 +85,14 @@ public class Car {
 
         Car car = (Car) o;
 
-        if (key != null ? !key.equals(car.key) : car.key != null) return false;
+        if (id != null ? !id.equals(car.id) : car.id != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return key != null ? key.hashCode() : 0;
+        return id != null ? id.hashCode() : 0;
     }
 
 }

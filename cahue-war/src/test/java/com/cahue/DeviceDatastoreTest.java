@@ -70,7 +70,7 @@ public class DeviceDatastoreTest {
         userService.register(em, registrationBean);
 
         User user = new User();
-        user.setKey(User.createGoogleUserKey("randomKey"));
+        user.setId("randomKey");
         user.setEmail("bla@bla.com");
 
         Device device = Device.createDevice("bla", user);
@@ -84,7 +84,7 @@ public class DeviceDatastoreTest {
         List<User> list = em.createQuery("select u from User u", User.class).getResultList();
         assertEquals(list.size(), 1);
 
-        User retrievedUser = em.find(User.class, user.getKey());
+        User retrievedUser = em.find(User.class, user.getId());
         assertEquals(1, retrievedUser.getDevices().size());
         for (Device d : retrievedUser.getDevices()) {
             assertEquals(d, device);

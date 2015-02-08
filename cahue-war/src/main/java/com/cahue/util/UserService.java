@@ -77,8 +77,8 @@ public class UserService {
             String authToken = UUID.randomUUID().toString();
 
             // store the token
-            DataStore<Key> dataStore = getTokenDataStore();
-            dataStore.set(authToken, user.getKey());
+            DataStore<String> dataStore = getTokenDataStore();
+            dataStore.set(authToken, user.getId());
 
             // store the token as a transient property in the user so it can be returned to the client
             user.setAuthToken(authToken);
@@ -94,17 +94,17 @@ public class UserService {
 
     public User retrieveUser(EntityManager em, final String authToken) {
         try {
-            DataStore<Key> dataStore = getTokenDataStore();
-            Key userKey = dataStore.get(authToken);
+            DataStore<String> dataStore = getTokenDataStore();
+            String userKey = dataStore.get(authToken);
             return userKey == null ? null : em.find(User.class, userKey);
-        }  catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             throw new WebApplicationException(e);
         }
     }
 
-    private DataStore<Key> getTokenDataStore() throws IOException {
-            return AppEngineDataStoreFactory.getDefaultInstance().getDataStore(AUTH_TOKENS_DATASTORE);
+    private DataStore<String> getTokenDataStore() throws IOException {
+        return AppEngineDataStoreFactory.getDefaultInstance().getDataStore(AUTH_TOKENS_DATASTORE);
     }
 
     /**
@@ -148,8 +148,8 @@ public class UserService {
                 /**
                  * Try to retrieve the user via the google id
                  */
-                key = User.createGoogleUserKey(googleId);
-                user = em.find(User.class, key);
+                // TODO: should look up by google id field not id
+                user = em.find(User.class, googleId);
 
                 /**
                  * If it's still null we create it
@@ -177,7 +177,6 @@ public class UserService {
 
             User user = new User();
             String googleId = person.getId();
-            user.setKey(User.createGoogleUserKey(googleId));
             user.setGoogleId(googleId);
             user.setEmail(person.getEmail());
 

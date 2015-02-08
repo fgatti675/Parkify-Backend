@@ -19,17 +19,13 @@ public class Device {
     public static Device createDevice(String regId, User user) {
         Device device = new Device();
         device.user = user;
-        device.key = KeyFactory.createKey(user.getKey(), device.getClass().getSimpleName(), regId);
         device.regId = regId;
         return device;
     }
 
-    private Device(){}
+    public Device(){}
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Key key;
-
     private String regId;
 
     @ManyToOne
@@ -59,14 +55,14 @@ public class Device {
 
         Device device = (Device) o;
 
-        if (key != null ? !key.equals(device.key) : device.key != null) return false;
+        if (regId != null ? !regId.equals(device.regId) : device.regId != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return key != null ? key.hashCode() : 0;
+        return regId != null ? regId.hashCode() : 0;
     }
 
     @Override

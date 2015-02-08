@@ -2,6 +2,8 @@ package com.cahue.model;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.datanucleus.annotations.Unowned;
+import org.eclipse.persistence.annotations.JoinFetchType;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
@@ -24,8 +26,7 @@ public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @XmlTransient
-    private Key key;
+    private String id;
 
     private String email;
 
@@ -34,21 +35,23 @@ public class User implements Serializable {
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date creationDate = new Date();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Device> devices = new HashSet<>();
 
-    @OneToMany
+    @Unowned
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Car> cars = new HashSet<>();
 
     @Transient
     private String authToken;
 
-    public Key getKey() {
-        return key;
+    @XmlTransient
+    public String getId() {
+        return id;
     }
 
-    public void setKey(Key key) {
-        this.key = key;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -102,14 +105,10 @@ public class User implements Serializable {
     @Override
     public String toString() {
         return "User{" +
-                "key=" + key +
+                "id=" + id +
                 ", email=" + email +
                 ", googleId='" + googleId + '\'' +
                 '}';
-    }
-
-    public static Key createGoogleUserKey(String googleId) {
-        return KeyFactory.createKey(User.class.getSimpleName(), "G" + googleId);
     }
 
 }

@@ -58,7 +58,7 @@ public class UserServiceTest {
         EntityManager em = dataSource.createDatastoreEntityManager();
 
         User user = new User();
-        user.setKey(User.createGoogleUserKey("randomKey"));
+        user.setId("randomKey");
         user.setEmail("bla@bla.com");
 
         Car car = new Car();
@@ -72,7 +72,7 @@ public class UserServiceTest {
         List<User> list = em.createQuery("select u from User u", User.class).getResultList();
         assertEquals(list.size(), 1);
 
-        User x = em.find(User.class, user.getKey());
+        User x = em.find(User.class, user.getId());
         for (Car c : x.getCars()) {
             assertEquals(c, car);
         }
