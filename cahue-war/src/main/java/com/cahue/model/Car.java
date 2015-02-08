@@ -8,8 +8,6 @@ import javax.annotation.Nullable;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
 
-import static com.cahue.persistence.OfyService.ofy;
-
 
 /**
  * Car linked to a User.
@@ -50,6 +48,11 @@ public class Car {
 
     public String getBluetoothAddress() {
         return bluetoothAddress;
+    }
+
+    @XmlTransient
+    public Date getCreationDate() {
+        return creationDate;
     }
 
     @XmlTransient

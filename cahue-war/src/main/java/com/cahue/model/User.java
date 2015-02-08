@@ -4,6 +4,7 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.*;
 
 /**
@@ -14,7 +15,7 @@ import java.util.*;
 public class User {
 
     @Id
-    private String id;
+    private Long id;
 
     @Load
     private Ref<GoogleUser> googleUser;
@@ -23,11 +24,11 @@ public class User {
 
     private String refreshToken;
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -39,6 +40,7 @@ public class User {
         this.creationDate = creationDate;
     }
 
+    @XmlTransient
     public String getRefreshToken() {
         return refreshToken;
     }
@@ -62,13 +64,13 @@ public class User {
 
         User user = (User) o;
 
-        if (id != null ? !id.equals(user.id) : user.id != null) return false;
+        if (id != user.id) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return (int) (id ^ (id >>> 32));
     }
 }

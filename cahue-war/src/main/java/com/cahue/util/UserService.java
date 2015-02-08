@@ -1,35 +1,34 @@
 package com.cahue.util;
 
-import com.cahue.model.*;
+import com.cahue.model.AuthToken;
+import com.cahue.model.Device;
+import com.cahue.model.GoogleUser;
+import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 import com.cahue.resources.InvalidTokenException;
-import com.google.api.client.extensions.appengine.datastore.AppEngineDataStoreFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.DataStore;
 import com.google.api.services.oauth2.Oauth2;
 import com.google.api.services.oauth2.model.Userinfoplus;
 import com.google.api.services.plus.Plus;
 import com.google.api.services.plus.model.Person;
-import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.objectify.Key;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.cahue.persistence.OfyService.ofy;
+import static com.googlecode.objectify.ObjectifyService.ofy;
+
 
 /**
  * Created by Francesco on 18/01/2015.
@@ -82,6 +81,7 @@ public class UserService {
 
         // store the token as a transient property in the user so it can be returned to the client
         result.setAuthToken(authToken);
+        result.setRefreshToken(user.getRefreshToken());
 
         return result;
     }
@@ -185,13 +185,14 @@ public class UserService {
         googleUser.setEmail(person.getEmail());
 
         user.setGoogleUser(googleUser);
-        googleUser.setUser(user);
+        ofy().save().entity(user).now();
 
-        ofy().save().entities(user, googleUser).now();
+        googleUser.setUser(user);
+        ofy().save().entity(googleUser).now();
 
         logger.fine("Created new googleUser: " + googleUser);
-        return user;
 
+        return user;
     }
 
     private Userinfoplus getUserInfoPlus(GoogleCredential credential) throws IOException {

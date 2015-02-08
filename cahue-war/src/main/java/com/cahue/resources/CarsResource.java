@@ -19,7 +19,7 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
  * @author Francesco
  */
 @Path("/cars")
-public class Cars {
+public class CarsResource {
 
     Logger logger = Logger.getLogger(getClass().getName());
 
@@ -74,7 +74,7 @@ public class Cars {
 
 
     public List<Car> retrieveUserCars(User user) {
-        return OfyService.ofy().load().type(Car.class).ancestor(user).list();
+        return ofy().load().type(Car.class).ancestor(user).list();
     }
 
 

@@ -5,6 +5,7 @@ import com.cahue.persistence.MySQLPersistence;
 import com.cahue.persistence.OfyService;
 import com.cahue.persistence.SpotsIndex;
 import com.cahue.gcm.GCMSender;
+import com.cahue.resources.CarsResource;
 import com.cahue.util.UserService;
 import com.google.inject.servlet.ServletModule;
 import com.googlecode.objectify.ObjectifyFilter;
@@ -20,6 +21,7 @@ public class ProductionModule extends ServletModule {
 
         bind(MySQLDataSource.class);
         bind(SpotsIndex.class).to(MySQLPersistence.class);
+        bind(CarsResource.class);
         bind(UserService.class);
         bind(GCMSender.class);
 

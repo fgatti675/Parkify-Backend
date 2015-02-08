@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
  * @author Francesco
  */
 @Path("/devices")
-public class Devices {
+public class DevicesResource {
 
     @Inject
     GCMSender sender;

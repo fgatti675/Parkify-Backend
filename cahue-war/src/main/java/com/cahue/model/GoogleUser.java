@@ -4,6 +4,7 @@ import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
 
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.*;
 
@@ -23,7 +24,6 @@ public class GoogleUser implements Serializable {
     @Id
     private String googleId;
 
-    @Parent
     private Ref<User> user;
 
     private String email;
@@ -44,6 +44,7 @@ public class GoogleUser implements Serializable {
         this.googleId = googleId;
     }
 
+    @XmlTransient
     public User getUser() {
         return user.get();
     }

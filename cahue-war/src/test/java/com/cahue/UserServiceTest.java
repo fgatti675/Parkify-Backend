@@ -2,6 +2,7 @@ package com.cahue;
 
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.ProductionModule;
+import com.cahue.model.GoogleUser;
 import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
@@ -22,6 +23,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -30,52 +34,23 @@ import static org.junit.Assert.assertEquals;
  * @author francesco
  */
 @RunWith(JukitoRunner.class)
-public class UserServiceTest {
+public class UserServiceTest extends BaseTest{
+
+
 
     @Inject
     UserService userService;
-
-    /**
-     * Overrides the common bindings from TestBase with the
-     * module that has test-specific bindings for Foo.
-     */
-    public static class Module extends JukitoModule {
-        protected void configureTest() {
-            install(Modules.override(new ProductionModule()).with(new TestModule()));
-        }
-    }
-
-    private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
-            new LocalDatastoreServiceTestConfig(),
-            new LocalMemcacheServiceTestConfig());
-
-    @BeforeClass
-    public static void setUpBeforeClass()
-    {
-        ObjectifyService.begin();
-        // Reset the Factory so that all translators work properly.
-        ObjectifyService.setFactory(new ObjectifyFactory());
-    }
-    @Before
-    public void setUp() {
-        helper.setUp();
-    }
-
-    @After
-    public void tearDown() {
-        AsyncCacheFilter.complete();
-        helper.tearDown();
-    }
 
     @Test
     public void registrationTest() {
         RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
         registrationRequestBean.setDeviceRegId("Test device");
-        registrationRequestBean.setGoogleAuthToken("ya29.FAEqcYwhewINFfqgMtRfiRBUT2x7OsL21JfpqruqYCucw7xB_dOHA-dHC8m7SHeyLk7O6X_VFqhxOA");
+        registrationRequestBean.setGoogleAuthToken(getGoogleAuthToken());
 
         RegistrationResult result = userService.register(registrationRequestBean);
         User user = result.getUser();
 
-        assertEquals(user.getGoogleUser().getEmail(), "empanadamental@gmail.com");
+        GoogleUser googleUser = user.getGoogleUser();
+        assertEquals(googleUser.getEmail(), "empanadamental@gmail.com");
     }
 }

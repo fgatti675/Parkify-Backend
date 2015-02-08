@@ -1,5 +1,6 @@
 package com.cahue.resources;
 
+import com.cahue.model.Car;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 import com.cahue.util.UserService;
@@ -9,6 +10,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -17,10 +19,13 @@ import java.util.logging.Logger;
  * @author francesco
  */
 @Path("/users")
-public class Users {
+public class UsersResource {
 
     @Inject
     UserService userService;
+
+    @Inject
+    CarsResource carsResource;
 
     Logger logger = Logger.getLogger(getClass().getName());
 
@@ -31,11 +36,13 @@ public class Users {
         if (registration == null)
             throw new WebApplicationException(
                     Response.status(Response.Status.BAD_REQUEST)
-                            .entity("A device registration ID must be set to register.")
+                            .entity("The registration request is not correct.")
                             .build());
 
         RegistrationResult result = userService.register(registration);
 
+        List<Car> cars = carsResource.retrieveUserCars(result.getUser());
+        result.setCars(cars);
         logger.info("Registered result: " + result.getUser());
 
         return result;

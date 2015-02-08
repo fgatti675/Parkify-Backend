@@ -4,14 +4,16 @@ import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
-import com.cahue.resources.Cars;
+import com.cahue.resources.CarsResource;
 import com.cahue.util.UserService;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.inject.Inject;
+import org.jukito.JukitoRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,33 +22,20 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class CarPersistenceTest {
+public class CarPersistenceTest extends BaseTest{
 
     @Inject
     UserService userService;
 
     @Inject
-    Cars cars;
-
-
-    private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-
-    @Before
-    public void setUp() {
-        helper.setUp();
-    }
-
-    @After
-    public void tearDown() {
-        helper.tearDown();
-    }
+    CarsResource carsResource;
 
     @Test
     public void test() {
 
         RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
         registrationRequestBean.setDeviceRegId("Test device");
-        registrationRequestBean.setGoogleAuthToken("ya29.FAEqcYwhewINFfqgMtRfiRBUT2x7OsL21JfpqruqYCucw7xB_dOHA-dHC8m7SHeyLk7O6X_VFqhxOA");
+        registrationRequestBean.setGoogleAuthToken(getGoogleAuthToken());
 
         RegistrationResult result = userService.register(registrationRequestBean);
         User user = result.getUser();
@@ -56,9 +45,12 @@ public class CarPersistenceTest {
         Car car = Car.createCar(user, "Car name", "Test BT address");
 
         List<Car> cars = Arrays.asList(car);
-        this.cars.save(cars, user);
+        this.carsResource.save(cars, user);
 
-        List<Car> retrievedCars = this.cars.retrieveUserCars(user);
+        List<Car> retrievedCars = this.carsResource.retrieveUserCars(user);
         assertThat(cars, is(retrievedCars));
+
+        result = userService.register(registrationRequestBean);
+        assertThat(cars, is(result.getCars()));
     }
 }
