@@ -8,7 +8,7 @@ import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
-import com.cahue.persistence.SpotsIndex;
+import com.cahue.persistence.MySQLIndex;
 import com.cahue.resources.CarsResource;
 import com.cahue.resources.SpotsResource;
 import com.cahue.util.UserService;
@@ -39,11 +39,9 @@ public class SpotsTest {
     public static class Module extends JukitoModule {
         protected void configureTest() {
             install(Modules.override(new ProductionModule()).with(new TestModule()));
+//            requestStaticInjection(MySQLIndex.class);
         }
     }
-
-    @Inject
-    SpotsIndex spotsIndex;
 
     @Inject
     TestHelper testHelper;

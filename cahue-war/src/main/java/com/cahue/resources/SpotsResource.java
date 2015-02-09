@@ -33,7 +33,7 @@ public class SpotsResource {
     Logger logger = Logger.getLogger(getClass().getName());
 
     @Inject
-    @Named(SpotsIndex.MySQL)
+//    @Named(SpotsIndex.MySQL)
     SpotsIndex spotsIndex;
 
     @Inject
