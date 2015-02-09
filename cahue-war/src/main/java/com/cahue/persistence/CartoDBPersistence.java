@@ -249,4 +249,9 @@ public class CartoDBPersistence implements SpotsIndex {
         return 0;
     }
 
+    @Override
+    public void clear() {
+
+    }
+
 }

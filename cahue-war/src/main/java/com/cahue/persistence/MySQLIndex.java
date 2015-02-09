@@ -95,4 +95,11 @@ public class MySQLIndex implements SpotsIndex {
 
         return deleted;
     }
+
+    public void clear(){
+        EntityManager em = dataSource.createRelationalEntityManager();
+        em.getTransaction().begin();
+        int deleted = em.createQuery("DELETE FROM ParkingSpot p").executeUpdate();
+        em.getTransaction().commit();
+    }
 }

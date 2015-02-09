@@ -26,4 +26,6 @@ public interface SpotsIndex {
     void put(ParkingSpot spot);
 
     int deleteBefore(Date date);
+
+    void clear();
 }

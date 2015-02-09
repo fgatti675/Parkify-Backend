@@ -11,7 +11,7 @@ public class TestModule extends ServletModule {
 
 	@Override
 	protected void configureServlets() {
-//        bind(MySQLDataSource.class).to(TestDataSource.class);
+        bind(MySQLDataSource.class).to(TestDataSource.class);
         bind(SpotsIndex.class).to(MySQLIndex.class);
         bind(TestHelper.class);
         bind(SpotsResource.class);

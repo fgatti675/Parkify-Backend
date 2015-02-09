@@ -22,7 +22,7 @@ public class GCMSender {
     /**
      * Google Api key for accessing data not associated with an account
      */
-    public static final String GOOGLE_API_KEY = "AIzaSyCsqv-HW3DNxV8wsTyFqFu8ucS9gDhD9vw";
+    public static final String GOOGLE_API_KEY = "AIzaSyDbQbpQJDM0HoNDEstvLZI2y4HD0Pw4GzM";
 
     private static final Logger log = Logger.getLogger(GCMSender.class.getName());
 

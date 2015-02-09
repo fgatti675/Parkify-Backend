@@ -1,5 +1,6 @@
 package com.cahue.resources;
 
+import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.persistence.OfyService;
@@ -23,8 +24,8 @@ public class CarsResource {
 
     Logger logger = Logger.getLogger(getClass().getName());
 
-//    @Inject
-//    GCMSender sender;
+    @Inject
+    GCMSender sender;
 
     @Inject
     UserService userService;

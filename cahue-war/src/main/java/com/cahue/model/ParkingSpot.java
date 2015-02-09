@@ -4,10 +4,12 @@ import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
 
 import javax.xml.bind.annotation.XmlTransient;
+import java.beans.Transient;
 import java.util.Date;
 
 @Cache
 @Entity
+@javax.persistence.Entity
 public class ParkingSpot {
 
     private Date time = new Date();
@@ -27,6 +29,7 @@ public class ParkingSpot {
     }
 
     @XmlTransient
+    @javax.persistence.Id
     public Long getId() {
 		return id;
 	}
@@ -59,14 +62,16 @@ public class ParkingSpot {
         this.accuracy = accuracy;
     }
 
+    @javax.persistence.Temporal(value = javax.persistence.TemporalType.TIMESTAMP)
+    public Date getTime() {
+        return time;
+    }
+
     public void setTime(Date time) {
         this.time = time;
     }
 
-    public Date getTime() {
-		return time;
-	}
-
+    @javax.persistence.Transient
     public Car getCar() {
         return car.get();
     }
