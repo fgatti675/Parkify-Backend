@@ -24,9 +24,6 @@ public class UsersResource {
     @Inject
     UserService userService;
 
-    @Inject
-    CarsResource carsResource;
-
     Logger logger = Logger.getLogger(getClass().getName());
 
     @POST
@@ -40,10 +37,6 @@ public class UsersResource {
                             .build());
 
         RegistrationResult result = userService.register(registration);
-
-        List<Car> cars = carsResource.retrieveUserCars(result.getUser());
-        result.setCars(cars);
-        logger.info("Registered result: " + result.getUser());
 
         return result;
     }

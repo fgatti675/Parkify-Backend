@@ -1,7 +1,7 @@
 package com.cahue.config.guice;
 
 import com.cahue.persistence.MySQLDataSource;
-import com.cahue.persistence.MySQLPersistence;
+import com.cahue.persistence.MySQLIndex;
 import com.cahue.persistence.OfyService;
 import com.cahue.persistence.SpotsIndex;
 import com.cahue.gcm.GCMSender;
@@ -20,7 +20,7 @@ public class ProductionModule extends ServletModule {
         requestStaticInjection(OfyService.class);
 
         bind(MySQLDataSource.class);
-        bind(SpotsIndex.class).to(MySQLPersistence.class);
+        bind(SpotsIndex.class).to(MySQLIndex.class);
         bind(CarsResource.class);
         bind(UserService.class);
         bind(GCMSender.class);

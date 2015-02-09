@@ -18,13 +18,6 @@ import java.util.Date;
 @Entity
 public class Car {
 
-    public static Car createCar(User user, String name, @Nullable String btID) {
-        Car car = new Car();
-        car.user = Ref.create(user);
-        car.bluetoothAddress = btID;
-        car.name = name;
-        return car;
-    }
 
     @Id
     private String id;
@@ -42,12 +35,24 @@ public class Car {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getBluetoothAddress() {
         return bluetoothAddress;
+    }
+
+    public void setBluetoothAddress(String bluetoothAddress) {
+        this.bluetoothAddress = bluetoothAddress;
     }
 
     @XmlTransient
@@ -58,6 +63,10 @@ public class Car {
     @XmlTransient
     public User getUser() {
         return user.get();
+    }
+
+    public void setUser(User user) {
+        this.user = Ref.create(user);
     }
 
     @Override

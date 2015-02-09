@@ -1,6 +1,5 @@
 package com.cahue.model;
 
-import com.google.appengine.api.datastore.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
 
@@ -85,5 +84,29 @@ public class ParkingSpot {
                 ", accuracy=" + accuracy +
                 ", time=" + time +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ParkingSpot that = (ParkingSpot) o;
+
+        if (accuracy != null ? !accuracy.equals(that.accuracy) : that.accuracy != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (latitude != null ? !latitude.equals(that.latitude) : that.latitude != null) return false;
+        if (longitude != null ? !longitude.equals(that.longitude) : that.longitude != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (longitude != null ? longitude.hashCode() : 0);
+        result = 31 * result + (latitude != null ? latitude.hashCode() : 0);
+        result = 31 * result + (accuracy != null ? accuracy.hashCode() : 0);
+        return result;
     }
 }

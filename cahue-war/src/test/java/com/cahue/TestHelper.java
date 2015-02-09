@@ -21,19 +21,9 @@ import java.io.IOException;
  * Created by Francesco on 08/02/2015.
  */
 @RunWith(JukitoRunner.class)
-public class BaseTest {
+public class TestHelper {
 
     Closeable session;
-
-    /**
-     * Overrides the common bindings from TestBase with the
-     * module that has test-specific bindings for Foo.
-     */
-    public static class Module extends JukitoModule {
-        protected void configureTest() {
-            install(Modules.override(new ProductionModule()).with(new TestModule()));
-        }
-    }
 
     private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
             new LocalDatastoreServiceTestConfig(),
@@ -55,7 +45,7 @@ public class BaseTest {
 
     // TODO
     protected String getGoogleAuthToken(){
-        return "ya29.FAEkOikhiGg3pth8zWne3cjm2sXNFmXzPn_rAORmuhA5A0dAhBlXfGM2ppgFFlaWxCN0HlwhFheSxg";
+        return "ya29.FAGjfUIZbMw1AiLxBl9IjoziRQal3IRQ11MeQUQ2-EmB18IJGsD2DzNKq3rE6kjhncKnNlv0x8PupQ";
     }
 
 }

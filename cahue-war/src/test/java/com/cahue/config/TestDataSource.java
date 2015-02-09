@@ -19,7 +19,7 @@ public class TestDataSource extends MySQLDataSource {
     private EntityManagerFactory mysqlFactory;
 
     public TestDataSource() {
-        mysqlFactory = Persistence.createEntityManagerFactory("test-mysql");
+        mysqlFactory = Persistence.createEntityManagerFactory("mysql");
     }
 
     @Override

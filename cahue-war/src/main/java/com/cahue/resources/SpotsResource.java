@@ -6,10 +6,8 @@ import com.cahue.model.transfer.QueryResult;
 import com.cahue.persistence.SpotsIndex;
 import com.cahue.util.UserService;
 import com.google.inject.name.Named;
-import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -76,16 +74,23 @@ public class SpotsResource {
             logger.fine("User not found");
         }
 
+        return store(parkingSpot);
+    }
+
+    /**
+     * Store the parking spot both in the datastore and the index
+     *
+     * @param parkingSpot
+     * @return
+     */
+    public ParkingSpot store(ParkingSpot parkingSpot) {
 
         parkingSpot.setTime(new Date());
 
         /**
          * Save in datastore
          */
-        Key<ParkingSpot> key = ofy().save().entity(parkingSpot).now();
-
-        // TODO: needed?
-//        parkingSpot.setId(key.getId());
+        ofy().save().entity(parkingSpot).now();
 
         /**
          * Put in index database

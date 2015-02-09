@@ -1,11 +1,9 @@
 package com.cahue.util;
 
-import com.cahue.model.AuthToken;
-import com.cahue.model.Device;
-import com.cahue.model.GoogleUser;
-import com.cahue.model.User;
+import com.cahue.model.*;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
+import com.cahue.resources.CarsResource;
 import com.cahue.resources.InvalidTokenException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
@@ -20,9 +18,11 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.objectify.Key;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,7 +53,6 @@ public class UserService {
     public static final String IWECO_AUTH_HEADER = "Authorization";
     public static final String GOOGLE_AUTH_HEADER = "GoogleAuth";
 
-
     Logger logger = Logger.getLogger(getClass().getName());
 
     /**
@@ -82,6 +81,11 @@ public class UserService {
         // store the token as a transient property in the user so it can be returned to the client
         result.setAuthToken(authToken);
         result.setRefreshToken(user.getRefreshToken());
+
+        // set cars
+        List<Car> cars = ofy().load().type(Car.class).ancestor(user).list();
+        result.setCars(cars);
+        logger.info("Registered result: " + result.getUser());
 
         return result;
     }

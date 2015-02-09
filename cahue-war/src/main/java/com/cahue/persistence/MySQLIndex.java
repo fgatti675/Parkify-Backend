@@ -15,7 +15,7 @@ import java.util.Locale;
  *
  * @author francesco
  */
-public class MySQLPersistence implements SpotsIndex {
+public class MySQLIndex implements SpotsIndex {
 
     private static final int MAX_RESULTS = 200;
 

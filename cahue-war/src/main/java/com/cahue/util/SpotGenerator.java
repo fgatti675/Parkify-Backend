@@ -2,9 +2,7 @@ package com.cahue.util;
 
 
 import com.cahue.model.ParkingSpot;
-import com.cahue.config.guice.ProductionModule;
-import com.cahue.persistence.MySQLPersistence;
-import com.google.inject.util.Modules;
+import com.cahue.persistence.MySQLIndex;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -18,7 +16,7 @@ import java.util.Random;
 public class SpotGenerator {
 
     @Inject
-    MySQLPersistence persistence = new MySQLPersistence();
+    MySQLIndex persistence = new MySQLIndex();
 
     public void generate() {
         System.out.println("Init");

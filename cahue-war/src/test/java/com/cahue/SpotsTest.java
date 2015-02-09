@@ -3,16 +3,17 @@ package com.cahue;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.ProductionModule;
 import com.cahue.model.Car;
-import com.cahue.model.GoogleUser;
+import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
+import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
+import com.cahue.persistence.SpotsIndex;
 import com.cahue.resources.CarsResource;
+import com.cahue.resources.SpotsResource;
 import com.cahue.util.UserService;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
-import com.googlecode.objectify.ObjectifyService;
-import com.googlecode.objectify.cache.AsyncCacheFilter;
 import org.jukito.JukitoModule;
 import org.jukito.JukitoRunner;
 import org.junit.After;
@@ -28,13 +29,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-/**
- * Date: 05.02.15
- *
- * @author francesco
- */
 @RunWith(JukitoRunner.class)
-public class UserServiceTest {
+public class SpotsTest {
 
     /**
      * Overrides the common bindings from TestBase with the
@@ -45,6 +41,9 @@ public class UserServiceTest {
             install(Modules.override(new ProductionModule()).with(new TestModule()));
         }
     }
+
+    @Inject
+    SpotsIndex spotsIndex;
 
     @Inject
     TestHelper testHelper;
@@ -61,6 +60,9 @@ public class UserServiceTest {
 
     @Inject
     UserService userService;
+
+    @Inject
+    SpotsResource spotsResource;
 
     @Inject
     CarsResource carsResource;
@@ -86,10 +88,28 @@ public class UserServiceTest {
         List<Car> cars = Arrays.asList(car);
         this.carsResource.save(cars, user);
 
-        List<Car> retrievedCars = this.carsResource.retrieveUserCars(user);
-        assertThat(cars, is(retrievedCars));
+        ParkingSpot ps1 = new ParkingSpot();
+        ps1.setCar(car);
+        ps1.setLatitude(10.0);
+        ps1.setLongitude(10.0);
+        ps1.setAccuracy(5.0F);
+        spotsResource.store(ps1);
 
-        result = userService.register(registrationRequestBean);
-        assertThat(cars, is(result.getCars()));
+        ParkingSpot ps2 = new ParkingSpot();
+        ps2.setCar(car);
+        ps2.setLatitude(5.0);
+        ps2.setLongitude(5.0);
+        ps2.setAccuracy(5.0F);
+        spotsResource.store(ps2);
+
+        ParkingSpot ps3 = new ParkingSpot();
+        ps3.setCar(car);
+        ps3.setLatitude(1000.0);
+        ps3.setLongitude(1000.0);
+        ps3.setAccuracy(5.0F);
+        spotsResource.store(ps3);
+
+        QueryResult area = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
+        assertThat(area.getSpots(), is(Arrays.asList(ps1, ps2)));
     }
 }
