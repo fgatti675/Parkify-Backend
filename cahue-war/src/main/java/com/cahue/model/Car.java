@@ -18,13 +18,22 @@ import java.util.Date;
 @Entity
 public class Car {
 
-
     @Id
     private String id;
 
     private String bluetoothAddress;
 
     private String name;
+
+    private int color;
+
+    private Double latitude;
+
+    private Double longitude;
+
+    private Float accuracy;
+
+    private Date time;
 
     @Parent
     private Ref<User> user;
@@ -53,6 +62,46 @@ public class Car {
 
     public void setBluetoothAddress(String bluetoothAddress) {
         this.bluetoothAddress = bluetoothAddress;
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public void setColor(int color) {
+        this.color = color;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Float getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(Float accuracy) {
+        this.accuracy = accuracy;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
     }
 
     @XmlTransient

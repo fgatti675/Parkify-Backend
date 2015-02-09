@@ -11,6 +11,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -50,26 +52,34 @@ public class CarsResource {
     @Consumes({MediaType.APPLICATION_JSON})
     public void save(List<Car> cars, @Context HttpHeaders headers) {
 
-            User user = userService.getFromHeaders(headers);
-            if (user != null) {
-                logger.fine("Found user: " + user.getGoogleUser().getEmail());
-            } else {
-                throw new WebApplicationException("Every car must have a name assigned");
-            }
+        User user = userService.getFromHeaders(headers);
+        if (user != null) {
+            logger.fine("Found user: " + user.getGoogleUser().getEmail());
+        } else {
+            throw new WebApplicationException("Auth info missing");
+        }
 
-            save(cars, user);
+        List<String> carIds = new ArrayList<>();
+        for(Car car: cars){
+            carIds.add(car.getId());
+        }
+
+        /**
+         * Check that the cars with those ids belong efectively to that user
+         */
+        Collection<Car> storedCars = ofy().load().type(Car.class).ids(carIds).values();
+        for(Car car: storedCars){
+            // check the car belongs to this user
+            if (!car.getUser().equals(user))
+                throw new WebApplicationException("This car doesn't belong to this user.");
+        }
+
+        // we checked everything so we can save
+        save(cars, user);
 
     }
 
     public void save(List<Car> cars, User user) {
-
-        for (Car car : cars) {
-
-            // check the car belongs to this user
-            if (!car.getUser().equals(user))
-                throw new WebApplicationException("This car doesn't belong to this user.");
-
-        }
         ofy().save().entities(cars).now();
     }
 

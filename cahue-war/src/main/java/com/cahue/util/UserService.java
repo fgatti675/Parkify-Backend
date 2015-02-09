@@ -230,7 +230,12 @@ public class UserService {
     public User getFromHeaders(HttpHeaders headers) {
 
         String authToken = headers.getHeaderString(IWECO_AUTH_HEADER);
-        User user = retrieveUser(authToken);
+
+        User user = null;
+
+        if (authToken != null){
+            user = retrieveUser(authToken);
+        }
 
         if (user == null) {
             String googleAuthToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);

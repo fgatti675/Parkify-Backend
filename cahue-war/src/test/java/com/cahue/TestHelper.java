@@ -45,7 +45,7 @@ public class TestHelper {
 
     // TODO
     protected String getGoogleAuthToken(){
-        return "ya29.FQFPjL9dXWwq0VgwfAbloJ8GBKOCOUILHZrAytaCvUPFqIVsFGCDdWn7iTWv79jxhSKEUfIjgi6zzA";
+        return "ya29.FQEyeK0SlSn6dszIx_kHoB2SzSt-iAtOzK2J8ELAT75KmNKA2A3uqJqaQeVXQcNEHlzcFvYE5Y31-Q";
     }
 
 }
