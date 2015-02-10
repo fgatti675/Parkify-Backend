@@ -18,11 +18,6 @@
 
     <repositories>
         <repository>
-            <id>javageomodel-repo</id>
-            <name>GeocellJava Repository</name>
-            <url>http://javageomodel.googlecode.com/svn/repository</url>
-        </repository>
-        <repository>
             <id>gcm-server-repository</id>
             <url>https://raw.githubusercontent.com/slorber/gcm-server-repository/master/releases/</url>
         </repository>
@@ -172,24 +167,19 @@
 
 
         <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-mapsengine</artifactId>
-            <version>exp2-rev14-1.19.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-servlet</artifactId>
-            <version>1.19.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client-appengine</artifactId>
             <version>1.19.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-oauth2</artifactId>
             <version>v2-rev84-1.19.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.19.0</version>
         </dependency>
 
 

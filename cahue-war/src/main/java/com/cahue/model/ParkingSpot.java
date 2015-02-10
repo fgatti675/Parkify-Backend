@@ -28,7 +28,6 @@ public class ParkingSpot {
     public ParkingSpot() {
     }
 
-    @XmlTransient
     @javax.persistence.Id
     public Long getId() {
 		return id;
@@ -71,6 +70,7 @@ public class ParkingSpot {
         this.time = time;
     }
 
+    @XmlTransient
     @javax.persistence.Transient
     public Car getCar() {
         return car.get();

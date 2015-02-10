@@ -1,6 +1,6 @@
 package com.cahue.config;
 
-import com.cahue.TestHelper;
+import com.cahue.resources.TestHelper;
 import com.cahue.persistence.MySQLDataSource;
 import com.cahue.persistence.MySQLIndex;
 import com.cahue.persistence.SpotsIndex;

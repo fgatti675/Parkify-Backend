@@ -1,4 +1,4 @@
-package com.cahue;
+package com.cahue.resources;
 
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.ProductionModule;
@@ -30,7 +30,6 @@ public class DeviceDatastoreTest {
 
     @Inject
     UserService userService;
-
 
     private final LocalServiceTestHelper helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
 

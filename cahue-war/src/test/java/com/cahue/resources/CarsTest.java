@@ -1,16 +1,11 @@
-package com.cahue;
+package com.cahue.resources;
 
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.ProductionModule;
 import com.cahue.model.Car;
-import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
-import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
-import com.cahue.persistence.SpotsIndex;
-import com.cahue.resources.CarsResource;
-import com.cahue.resources.SpotsResource;
 import com.cahue.util.UserService;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
@@ -19,7 +14,6 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.jukito.JukitoModule;
 import org.jukito.JukitoRunner;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +21,6 @@ import org.junit.runner.RunWith;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -84,7 +77,7 @@ public class CarsTest extends JerseyTest {
         RegistrationResult result = userService.register(registrationRequestBean);
         User user = result.getUser();
 
-        assertEquals(user.getGoogleUser().getEmail(), "empanadamental@gmail.com");
+        assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
 
         Car car = new Car();
         car.setId("ferfgerge");
