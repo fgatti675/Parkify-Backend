@@ -5,15 +5,18 @@ import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.persistence.OfyService;
 import com.cahue.util.UserService;
+import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
@@ -50,37 +53,45 @@ public class CarsResource {
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public void save(List<Car> cars, @Context HttpHeaders headers) {
+    public List<Car> save(List<Car> cars, @Context HttpHeaders headers) {
 
         User user = userService.getFromHeaders(headers);
         if (user != null) {
             logger.fine("Found user: " + user.getGoogleUser().getEmail());
         } else {
-            throw new WebApplicationException("Auth info missing");
+            logger.warning("Auth info missing: " + headers.getHeaderString(UserService.AUTH_HEADER));
+            throw new WebApplicationException(Response
+                    .status(Response.Status.FORBIDDEN)
+                    .entity("Auth info missing")
+                    .build());
         }
 
-        List<String> carIds = new ArrayList<>();
-        for(Car car: cars){
-            carIds.add(car.getId());
-        }
+        logger.info("Received cars: " + cars);
 
-        /**
-         * Check that the cars with those ids belong efectively to that user
-         */
-        Collection<Car> storedCars = ofy().load().type(Car.class).ids(carIds).values();
-        for(Car car: storedCars){
-            // check the car belongs to this user
-            if (!car.getUser().equals(user))
-                throw new WebApplicationException("This car doesn't belong to this user.");
-        }
-
-        // we checked everything so we can save
-        save(cars, user);
-
+        return save(cars, user);
     }
 
-    public void save(List<Car> cars, User user) {
-        ofy().save().entities(cars).now();
+    public List<Car> save(List<Car> cars, User owner) {
+
+        for (Car car : cars) car.setUser(owner);
+
+        List<Car> toBeSaved = new ArrayList<>();
+        List<Car> outdated = new ArrayList();
+
+        Map<Key<Car>, Car> storedCars = ofy().load().entities(cars);
+        for (Car car : cars) {
+            Car previous = storedCars.get(car.createKey());
+            /**
+             * New entry is older
+             */
+            if (previous.getTime() == null || car.getTime().after(previous.getTime())) toBeSaved.add(car);
+            /**
+             * Previous entry is older so new is outdated
+             */
+            else outdated.add(previous);
+        }
+        ofy().save().entities(toBeSaved).now();
+        return outdated;
     }
 
 

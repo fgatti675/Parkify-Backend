@@ -77,7 +77,7 @@ public class UserServiceTest {
         car.setId("ferfgerge");
         car.setName("Car name");
         car.setUser(user);
-        car.setBluetoothAddress("Test BT address");
+        car.setBtAddress("Test BT address");
 
         List<Car> cars = Arrays.asList(car);
         this.carsResource.save(cars, user);

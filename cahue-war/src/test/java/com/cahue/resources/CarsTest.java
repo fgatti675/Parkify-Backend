@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -31,6 +32,8 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(JukitoRunner.class)
 public class CarsTest extends JerseyTest {
+
+    Logger logger = Logger.getLogger(getClass().getName());
 
     /**
      * Overrides the common bindings from TestBase with the
@@ -52,12 +55,12 @@ public class CarsTest extends JerseyTest {
     TestHelper testHelper;
 
     @Before
-    public void setUp() {
+    public void before() {
         testHelper.setUp();
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void after() throws IOException {
         testHelper.tearDown();
     }
 
@@ -83,15 +86,16 @@ public class CarsTest extends JerseyTest {
         car.setId("ferfgerge");
         car.setName("Car name");
         car.setUser(user);
-        car.setBluetoothAddress("Test BT address");
+        car.setBtAddress("Test BT address");
 
         List<Car> cars = Arrays.asList(car);
 
-        Entity<List<Car>> userEntity = Entity.entity(cars, MediaType.APPLICATION_JSON_TYPE);
+        Entity<List<Car>> carsEntity = Entity.entity(cars, MediaType.APPLICATION_JSON);
+
         target("cars")
                 .request()
                 .header("Authentication", result.getAuthToken())
-                .post(userEntity); //Here we send POST request
+                .post(carsEntity); //Here we send POST request
 
         assertThat(carsResource.retrieveUserCars(user), is(cars));
 

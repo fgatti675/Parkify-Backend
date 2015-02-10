@@ -21,6 +21,7 @@ import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -35,9 +36,10 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
  */
 public class UserService {
 
-    public static final int TOKEN_EXPIRATION_MS = 365 * 24 * 60 * 60 * 1000;
 
-    private static final String APPLICATION_NAME = "Cahue";
+    private static final String APPLICATION_NAME = "iweco";
+    private static final int API_VERSION = 1;
+
     private static final String SECRET = "ABph75AciNZOw0dlgD3E_JK3";
 
     public static final void main(String[] args) throws Exception {
@@ -50,7 +52,7 @@ public class UserService {
 
     public static final String AUTH_TOKENS_MEMCACHE = "AUTH_TOKENS_MEMCACHE";
 
-    public static final String IWECO_AUTH_HEADER = "Authorization";
+    public static final String AUTH_HEADER = "Authentication";
     public static final String GOOGLE_AUTH_HEADER = "GoogleAuth";
 
     Logger logger = Logger.getLogger(getClass().getName());
@@ -93,9 +95,9 @@ public class UserService {
     private void storeAuthToken(User user, String authTokenString) {
         AuthToken token = new AuthToken();
         token.setUser(user);
-        Date date = new Date();
-        date.setTime(date.getTime() + TOKEN_EXPIRATION_MS);
-        token.setExpirationDate(date);
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.YEAR, 1);
+        token.setExpirationDate(c.getTime());
         token.setToken(authTokenString);
         ofy().save().entity(token);
         MemcacheService cache = getAuthTokensMemcacheService();
@@ -112,7 +114,7 @@ public class UserService {
         /**
          * If in memcache return by ID
          */
-        String userId = (String) getAuthTokensMemcacheService().get(authTokenValue);
+        Long userId = (Long) getAuthTokensMemcacheService().get(authTokenValue);
         if (userId != null) {
             return ofy().load().type(User.class).id(userId).now();
         }
@@ -229,11 +231,11 @@ public class UserService {
      */
     public User getFromHeaders(HttpHeaders headers) {
 
-        String authToken = headers.getHeaderString(IWECO_AUTH_HEADER);
+        String authToken = headers.getHeaderString(AUTH_HEADER);
 
         User user = null;
 
-        if (authToken != null){
+        if (authToken != null) {
             user = retrieveUser(authToken);
         }
 
@@ -259,6 +261,7 @@ public class UserService {
     private String generateToken() {
         String key = UUID.randomUUID().toString().toUpperCase() +
                 "|" + APPLICATION_NAME +
+                "|" + API_VERSION +
                 "|" + new Date().getTime();
 
         // TODO: can be initialized somewhere else

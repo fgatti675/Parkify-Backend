@@ -1,6 +1,7 @@
 package com.cahue.model;
 
 
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
 
@@ -21,7 +22,7 @@ public class Car {
     @Id
     private String id;
 
-    private String bluetoothAddress;
+    private String btAddress;
 
     private String name;
 
@@ -37,8 +38,6 @@ public class Car {
 
     @Parent
     private Ref<User> user;
-
-    private Date creationDate = new Date();
 
     public String getId() {
         return id;
@@ -56,12 +55,12 @@ public class Car {
         this.name = name;
     }
 
-    public String getBluetoothAddress() {
-        return bluetoothAddress;
+    public String getBtAddress() {
+        return btAddress;
     }
 
-    public void setBluetoothAddress(String bluetoothAddress) {
-        this.bluetoothAddress = bluetoothAddress;
+    public void setBtAddress(String btAddress) {
+        this.btAddress = btAddress;
     }
 
     public int getColor() {
@@ -105,17 +104,16 @@ public class Car {
     }
 
     @XmlTransient
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    @XmlTransient
     public User getUser() {
         return user.get();
     }
 
     public void setUser(User user) {
         this.user = Ref.create(user);
+    }
+
+    public Key<Car> createKey() {
+        return Key.create(user.getKey(), Car.class, id);
     }
 
     @Override
@@ -135,4 +133,17 @@ public class Car {
         return id != null ? id.hashCode() : 0;
     }
 
+    @Override
+    public String toString() {
+        return "Car{" +
+                "id='" + id + '\'' +
+                ", btAddress='" + btAddress + '\'' +
+                ", name='" + name + '\'' +
+                ", color=" + color +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", accuracy=" + accuracy +
+                ", time=" + time +
+                '}';
+    }
 }

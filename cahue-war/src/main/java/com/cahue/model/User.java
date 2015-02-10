@@ -57,6 +57,10 @@ public class User {
         this.googleUser = Ref.create(googleUser);
     }
 
+    public Key<User> createKey() {
+        return Key.create(User.class, id);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -78,6 +82,7 @@ public class User {
     public String toString() {
         return "User{" +
                 "id=" + id +
+                ", googleUser=" + googleUser +
                 ", creationDate=" + creationDate +
                 ", refreshToken='" + refreshToken + '\'' +
                 '}';

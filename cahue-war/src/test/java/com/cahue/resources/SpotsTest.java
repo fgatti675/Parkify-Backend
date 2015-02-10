@@ -76,13 +76,12 @@ public class SpotsTest {
         RegistrationResult result = userService.register(registrationRequestBean);
         User user = result.getUser();
 
-        assertEquals(user.getGoogleUser().getEmail(), "empanadamental@gmail.com");
+        assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
 
         Car car = new Car();
         car.setId("ferfgerge");
         car.setName("Car name");
-        car.setUser(user);
-        car.setBluetoothAddress("Test BT address");
+        car.setBtAddress("Test BT address");
 
         List<Car> cars = Arrays.asList(car);
         this.carsResource.save(cars, user);
