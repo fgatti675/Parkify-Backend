@@ -26,7 +26,7 @@ public class Car {
 
     private String name;
 
-    private int color;
+    private Integer color;
 
     private Double latitude;
 
@@ -65,11 +65,11 @@ public class Car {
         this.btAddress = btAddress;
     }
 
-    public int getColor() {
+    public Integer getColor() {
         return color;
     }
 
-    public void setColor(int color) {
+    public void setColor(Integer color) {
         this.color = color;
     }
 

@@ -5,7 +5,6 @@ import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
 import com.cahue.persistence.SpotsIndex;
 import com.cahue.util.UserService;
-import com.google.inject.name.Named;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -26,14 +25,13 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 public class SpotsResource {
 
     /**
-     * Threshold for storing parking spots
+     * Accuracy threshold for storing parking spots, in meters
      */
-    private final static int ACCURACY_LIMIT_M = 25;
+    private final static int MINIMUM_SPOT_ACCURACY = 25;
 
     Logger logger = Logger.getLogger(getClass().getName());
 
     @Inject
-//    @Named(SpotsIndex.MySQL)
     SpotsIndex spotsIndex;
 
     @Inject
@@ -61,9 +59,12 @@ public class SpotsResource {
     @Consumes({MediaType.APPLICATION_JSON})
     public ParkingSpot put(ParkingSpot parkingSpot, @Context HttpHeaders headers) {
 
-        if (parkingSpot.getAccuracy() > ACCURACY_LIMIT_M) {
+        if (parkingSpot.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
             logger.fine("Spot received but too inaccurate : " + parkingSpot.getAccuracy() + " m.");
-            return null;
+            throw new WebApplicationException(Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("Minimum accuracy is: " + MINIMUM_SPOT_ACCURACY)
+                    .build());
         }
 
         User user = userService.getFromHeaders(headers);
