@@ -71,7 +71,7 @@ public class UserServiceTest {
         RegistrationResult result = userService.register(registrationRequestBean);
         User user = result.getUser();
 
-        assertEquals(user.getGoogleUser().getEmail(), "empanadamental@gmail.com");
+        assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
 
         Car car = new Car();
         car.setId("ferfgerge");

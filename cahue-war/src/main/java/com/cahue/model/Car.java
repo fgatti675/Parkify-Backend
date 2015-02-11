@@ -36,6 +36,8 @@ public class Car {
 
     private Date time;
 
+    private Date lastModified = new Date();
+
     @Parent
     private Ref<User> user;
 
@@ -103,6 +105,14 @@ public class Car {
         this.time = time;
     }
 
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
+    }
+
     @XmlTransient
     public User getUser() {
         return user.get();
@@ -143,6 +153,7 @@ public class Car {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", accuracy=" + accuracy +
+                ", lastModified=" + lastModified +
                 ", time=" + time +
                 '}';
     }
