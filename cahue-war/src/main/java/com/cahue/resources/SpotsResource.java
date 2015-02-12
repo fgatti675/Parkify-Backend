@@ -69,13 +69,13 @@ public class SpotsResource {
                     .build());
         }
 
-        User user = userService.getFromHeaders(headers);
-        if (user != null) {
-            logger.fine("Found user: " + user.getGoogleUser().getEmail());
-        } else {
-            // TODO: this will eventually need to crash
-            logger.fine("User not found");
-        }
+            User user = userService.getFromHeaders(headers);
+            if (user != null) {
+                logger.fine("Found user: " + user.getGoogleUser().getEmail());
+            } else {
+                // TODO: this will eventually need to crash
+                logger.fine("User not found");
+            }
 
         return store(parkingSpot);
     }

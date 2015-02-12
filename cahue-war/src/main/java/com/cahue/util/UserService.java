@@ -3,8 +3,6 @@ package com.cahue.util;
 import com.cahue.model.*;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
-import com.cahue.resources.CarsResource;
-import com.cahue.resources.InvalidTokenException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -18,7 +16,6 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.objectify.Key;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
-import javax.inject.Inject;
 import javax.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.Calendar;
@@ -35,7 +32,6 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
  * Created by Francesco on 18/01/2015.
  */
 public class UserService {
-
 
     private static final String APPLICATION_NAME = "iweco";
     private static final int API_VERSION = 1;
@@ -150,7 +146,7 @@ public class UserService {
                 Userinfoplus person = getUserInfoPlus(credential);
 
                 if (person == null) {
-                    logger.log(Level.SEVERE, "Token failed to be exchanged for a real Google person.");
+                    logger.log(Level.SEVERE, "Google Auth token failed to be exchanged for a real Google person.");
                     return null;
                 }
 
@@ -209,7 +205,8 @@ public class UserService {
 
             return userInfoService.userinfo().get().execute();
         } catch (GoogleJsonResponseException e) {
-            throw new InvalidTokenException(e.getStatusCode(), e.getDetails().getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
 
