@@ -2,6 +2,7 @@ package com.cahue.resources;
 
 import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
+import com.cahue.model.Device;
 import com.cahue.model.User;
 import com.cahue.persistence.OfyService;
 import com.cahue.util.AuthenticationException;
@@ -85,7 +86,13 @@ public class CarsResource {
 
         save(cars, user);
 
-        return retrieveUserCars(user);
+        List<Car> retrievedCars = retrieveUserCars(user);
+
+        List<Device> devices = userService.getDevices(user);
+        // TODO: remove the device this request was created from
+        sender.notifyCarsUpdate(devices, cars);
+
+        return retrievedCars;
     }
 
     public void save(List<Car> cars, User owner) {
