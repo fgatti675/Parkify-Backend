@@ -25,10 +25,12 @@ import java.util.List;
 /**
  * Created by Francesco on 08/02/2015.
  */
-@RunWith(JukitoRunner.class)
 public class TestHelper {
 
     public static final String EMAIL_ADDRESS = "582791978228-kl51c8scvc1ombariffo8bsnf25qf7st@developer.gserviceaccount.com";
+
+    JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    HttpTransport httpTransport = new NetHttpTransport();
 
     private static final List<String> SCOPES = Arrays.asList(
             "email",
@@ -55,10 +57,7 @@ public class TestHelper {
         session = null;
     }
 
-    // TODO
     protected String getGoogleAuthToken(){
-        JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-        HttpTransport httpTransport = new NetHttpTransport();
         try {
 
             ClassLoader classLoader = getClass().getClassLoader();

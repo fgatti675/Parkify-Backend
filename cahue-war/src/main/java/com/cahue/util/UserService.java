@@ -222,6 +222,12 @@ public class UserService {
         return plus.people().get("me").execute();
     }
 
+    /**
+     * Gets all registered devices.
+     */
+    public List<Device> getDevices(User user) {
+        return ofy().load().type(Device.class).ancestor(user).list();
+    }
 
     /**
      * Get the user based on the HTTP headers. It may create a new User.

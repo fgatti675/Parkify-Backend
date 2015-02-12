@@ -1,5 +1,6 @@
 package com.cahue.config.guice;
 
+import com.cahue.gcm.MessageFactory;
 import com.cahue.persistence.MySQLDataSource;
 import com.cahue.persistence.MySQLIndex;
 import com.cahue.persistence.OfyService;
@@ -24,6 +25,7 @@ public class ProductionModule extends ServletModule {
         bind(CarsResource.class);
         bind(UserService.class);
         bind(GCMSender.class);
+        bind(MessageFactory.class);
 
         filter("/*").through(ObjectifyFilter.class);
 
