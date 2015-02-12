@@ -2,6 +2,7 @@ package com.cahue.gcm;
 
 import com.cahue.model.Car;
 import com.google.android.gcm.server.Message;
+import org.eclipse.persistence.jaxb.JAXBContextFactory;
 
 import javax.inject.Singleton;
 import javax.xml.bind.JAXBContext;
@@ -29,28 +30,18 @@ public class MessageFactory {
      */
     public static final String CARS = "CARS";
 
-    /**
-     * Tell a user that they have been invited to a game and by who.
-     *
-     * @return
-     */
-    public Message getSayHelloMessage() {
-        return new Message.Builder()
-//                .collapseKey(GAME_INVITATION)
-                .addData("TEST_KEY", "Hi from your really cool server")
-                .build();
-    }
 
     public Message getCarsUpdateMessage(List<Car> cars) {
         return new Message.Builder()
                 .collapseKey(CARS_UPDATE)
-                .addData(CARS, "Hi from your really cool server")
+                .addData(CARS, marshallCars(cars))
                 .build();
     }
 
     public String marshallCars(List<Car> cars) {
         try {
-            JAXBContext jc = JAXBContext.newInstance(Car.class);
+            JAXBContext jc = JAXBContextFactory.createContext(new Class[]{Car.class}, null);
+
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.setProperty("eclipselink.media-type", "application/json");

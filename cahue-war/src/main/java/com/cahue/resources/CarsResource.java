@@ -54,9 +54,9 @@ public class CarsResource {
     }
 
     @DELETE
-    @Path("/{car}")
+    @Path("/{carId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response delete(@PathParam(value = "car") String carId, @Context HttpHeaders headers) {
+    public Response delete(@PathParam(value = "carId") String carId, @Context HttpHeaders headers) {
 
         User user = userService.getFromHeaders(headers);
         if (user != null) {

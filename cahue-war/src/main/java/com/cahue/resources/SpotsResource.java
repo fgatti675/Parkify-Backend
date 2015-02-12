@@ -59,6 +59,8 @@ public class SpotsResource {
     @Consumes({MediaType.APPLICATION_JSON})
     public ParkingSpot put(ParkingSpot parkingSpot, @Context HttpHeaders headers) {
 
+        logger.fine("Received spot : " + parkingSpot);
+
         if (parkingSpot.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
             logger.fine("Spot received but too inaccurate : " + parkingSpot.getAccuracy() + " m.");
             throw new WebApplicationException(Response

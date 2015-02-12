@@ -23,7 +23,7 @@ public class Device {
         return device;
     }
 
-    private Device(){}
+    public Device(){}
 
     @Id
     private String regId;
