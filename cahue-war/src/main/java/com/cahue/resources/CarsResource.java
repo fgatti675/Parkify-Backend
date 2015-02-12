@@ -4,6 +4,7 @@ import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.persistence.OfyService;
+import com.cahue.util.AuthenticationException;
 import com.cahue.util.UserService;
 import com.googlecode.objectify.Key;
 
@@ -35,7 +36,6 @@ public class CarsResource {
     @Inject
     UserService userService;
 
-
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     public List<Car> retrieve(@Context HttpHeaders headers) {
@@ -44,11 +44,29 @@ public class CarsResource {
         if (user != null) {
             logger.fine("Found user: " + user.getGoogleUser().getEmail());
         } else {
-            throw new WebApplicationException("Every car must have a name assigned");
+            logger.warning("Auth info missing: " + headers.getHeaderString(UserService.AUTH_HEADER));
+            throw new AuthenticationException();
         }
 
         return retrieveUserCars(user);
 
+    }
+
+    @DELETE
+    @Path("/{car}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response delete(@PathParam(value = "car") String carId, @Context HttpHeaders headers) {
+
+        User user = userService.getFromHeaders(headers);
+        if (user != null) {
+            logger.fine("Found user: " + user.getGoogleUser().getEmail());
+        } else {
+            logger.warning("Auth info missing: " + headers.getHeaderString(UserService.AUTH_HEADER));
+            throw new AuthenticationException();
+        }
+
+        ofy().delete().type(Car.class).parent(user).id(carId).now();
+        return Response.ok().entity(carId).build();
     }
 
     @POST
@@ -60,18 +78,23 @@ public class CarsResource {
             logger.fine("Found user: " + user.getGoogleUser().getEmail());
         } else {
             logger.warning("Auth info missing: " + headers.getHeaderString(UserService.AUTH_HEADER));
-            throw new WebApplicationException(Response
-                    .status(Response.Status.FORBIDDEN)
-                    .entity("Auth info missing")
-                    .build());
+            throw new AuthenticationException();
         }
 
         logger.info("Received cars: " + cars);
 
-        return save(cars, user);
+        save(cars, user);
+
+        return retrieveUserCars(user);
     }
 
-    public List<Car> save(List<Car> cars, User owner) {
+    public void save(List<Car> cars, User owner) {
+        for (Car car : cars) car.setUser(owner);
+        ofy().save().entities(cars).now();
+    }
+
+    @Deprecated
+    public List<Car> saveAndGetOutdated(List<Car> cars, User owner) {
 
         for (Car car : cars) car.setUser(owner);
 
@@ -98,18 +121,4 @@ public class CarsResource {
     public List<Car> retrieveUserCars(User user) {
         return ofy().load().type(Car.class).ancestor(user).list();
     }
-
-
-//    @POST
-//    @Path("/send")
-//    public void send() {
-//        EntityManager em = dataSource.createDatastoreEntityManager();
-//        for (Device device : em.createQuery("SELECT d from Device d", Device.class).getResultList()) {
-//            try {
-//                sender.sendGCMUpdate(device, MessageFactory.getSayHelloMessage());
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 }
