@@ -6,7 +6,6 @@ import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
-import com.cahue.util.UserService;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
 import org.jukito.JukitoModule;
@@ -56,7 +55,7 @@ public class UserServiceTest {
     }
 
     @Inject
-    UserService userService;
+    UsersResource usersResource;
 
     @Inject
     CarsResource carsResource;
@@ -68,7 +67,7 @@ public class UserServiceTest {
         registrationRequestBean.setDeviceRegId("Test device");
         registrationRequestBean.setGoogleAuthToken(testHelper.getGoogleAuthToken());
 
-        RegistrationResult result = userService.register(registrationRequestBean);
+        RegistrationResult result = usersResource.register(registrationRequestBean);
         User user = result.getUser();
 
         assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
@@ -85,7 +84,7 @@ public class UserServiceTest {
         List<Car> retrievedCars = this.carsResource.retrieveUserCars(user);
         assertThat(cars, is(retrievedCars));
 
-        result = userService.register(registrationRequestBean);
+        result = usersResource.register(registrationRequestBean);
         assertThat(cars, is(result.getCars()));
     }
 }

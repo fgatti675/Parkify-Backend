@@ -4,9 +4,8 @@ import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.Device;
 import com.cahue.model.User;
-import com.cahue.persistence.OfyService;
-import com.cahue.util.AuthenticationException;
-import com.cahue.util.UserService;
+import com.cahue.auth.AuthenticationException;
+import com.cahue.auth.UserService;
 import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
@@ -16,7 +15,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -39,15 +37,9 @@ public class CarsResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public List<Car> retrieve(@Context HttpHeaders headers) {
+    public List<Car> retrieve() {
 
-        User user = userService.getFromHeaders(headers);
-        if (user != null) {
-            logger.fine("Found user: " + user.getGoogleUser().getEmail());
-        } else {
-            logger.warning("Auth info missing: " + headers.getHeaderString(UserService.AUTH_HEADER));
-            throw new AuthenticationException();
-        }
+        User user = userService.getLoggedUser();
 
         return retrieveUserCars(user);
 
@@ -58,13 +50,7 @@ public class CarsResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response delete(@PathParam(value = "carId") String carId, @Context HttpHeaders headers) {
 
-        User user = userService.getFromHeaders(headers);
-        if (user != null) {
-            logger.fine("Found user: " + user.getGoogleUser().getEmail());
-        } else {
-            logger.warning("Auth info missing: " + headers.getHeaderString(UserService.AUTH_HEADER));
-            throw new AuthenticationException();
-        }
+        User user = userService.getLoggedUser();
 
         ofy().delete().type(Car.class).parent(user).id(carId).now();
         return Response.ok().entity(carId).build();
@@ -74,13 +60,7 @@ public class CarsResource {
     @Consumes({MediaType.APPLICATION_JSON})
     public List<Car> save(List<Car> cars, @Context HttpHeaders headers) {
 
-        User user = userService.getFromHeaders(headers);
-        if (user != null) {
-            logger.fine("Found user: " + user.getGoogleUser().getEmail());
-        } else {
-            logger.warning("Auth info missing: " + headers.getHeaderString(UserService.AUTH_HEADER));
-            throw new AuthenticationException();
-        }
+        User user = userService.getLoggedUser();
 
         logger.info("Received cars: " + cars);
 

@@ -7,7 +7,7 @@ import com.cahue.persistence.OfyService;
 import com.cahue.persistence.SpotsIndex;
 import com.cahue.gcm.GCMSender;
 import com.cahue.resources.CarsResource;
-import com.cahue.util.UserService;
+import com.cahue.auth.UserService;
 import com.google.inject.servlet.ServletModule;
 import com.googlecode.objectify.ObjectifyFilter;
 

@@ -1,10 +1,12 @@
 package com.cahue.resources;
 
+import com.cahue.auth.AuthenticationException;
+import com.cahue.auth.AuthenticationService;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
 import com.cahue.persistence.SpotsIndex;
-import com.cahue.util.UserService;
+import com.cahue.auth.UserService;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -59,7 +61,6 @@ public class SpotsResource {
     @Consumes({MediaType.APPLICATION_JSON})
     public ParkingSpot put(ParkingSpot parkingSpot, @Context HttpHeaders headers) {
 
-        logger.fine("Received spot : " + parkingSpot);
 
         if (parkingSpot.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
             logger.fine("Spot received but too inaccurate : " + parkingSpot.getAccuracy() + " m.");
@@ -69,13 +70,14 @@ public class SpotsResource {
                     .build());
         }
 
-            User user = userService.getFromHeaders(headers);
-            if (user != null) {
-                logger.fine("Found user: " + user.getGoogleUser().getEmail());
-            } else {
-                // TODO: this will eventually need to crash
-                logger.fine("User not found");
-            }
+
+        User user = null;
+        try {
+            user = userService.getLoggedUser();
+        } catch (AuthenticationException e) {
+            // TODO: ok by now
+        }
+        parkingSpot.getCar().setUser(user);
 
         return store(parkingSpot);
     }

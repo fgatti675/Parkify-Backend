@@ -9,7 +9,6 @@ import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 import com.cahue.persistence.SpotsIndex;
-import com.cahue.util.UserService;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
 import org.jukito.JukitoModule;
@@ -55,7 +54,7 @@ public class SpotsTest {
     }
 
     @Inject
-    UserService userService;
+    UsersResource usersResource;
 
     @Inject
     SpotsIndex spotsIndex;
@@ -73,7 +72,7 @@ public class SpotsTest {
         registrationRequestBean.setDeviceRegId("Test device");
         registrationRequestBean.setGoogleAuthToken(testHelper.getGoogleAuthToken());
 
-        RegistrationResult result = userService.register(registrationRequestBean);
+        RegistrationResult result = usersResource.register(registrationRequestBean);
         User user = result.getUser();
 
         assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);

@@ -6,7 +6,6 @@ import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
-import com.cahue.util.UserService;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -65,7 +64,7 @@ public class CarsTest extends JerseyTest {
     }
 
     @Inject
-    UserService userService;
+    UsersResource usersResource;
 
     @Inject
     CarsResource carsResource;
@@ -77,7 +76,7 @@ public class CarsTest extends JerseyTest {
         registrationRequestBean.setDeviceRegId("Test device");
         registrationRequestBean.setGoogleAuthToken(testHelper.getGoogleAuthToken());
 
-        RegistrationResult result = userService.register(registrationRequestBean);
+        RegistrationResult result = usersResource.register(registrationRequestBean);
         User user = result.getUser();
 
         assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);

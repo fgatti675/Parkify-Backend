@@ -1,8 +1,8 @@
-package com.cahue.util;
+package com.cahue.auth;
 
-import com.cahue.model.*;
-import com.cahue.model.transfer.RegistrationRequestBean;
-import com.cahue.model.transfer.RegistrationResult;
+import com.cahue.model.AuthToken;
+import com.cahue.model.GoogleUser;
+import com.cahue.model.User;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -16,79 +16,40 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.objectify.Key;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
+import javax.inject.Singleton;
 import javax.ws.rs.core.HttpHeaders;
+
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
-
 /**
- * Created by Francesco on 18/01/2015.
+ * Created by Francesco on 13/02/2015.
  */
-public class UserService {
+@Singleton
+public class AuthenticationService {
 
     private static final String APPLICATION_NAME = "iweco";
     private static final int API_VERSION = 1;
 
     private static final String SECRET = "ABph75AciNZOw0dlgD3E_JK3";
 
-    public static final void main(String[] args) throws Exception {
-        UserService usersResource = new UserService();
-        usersResource.retrieveGoogleUser("ya29._ABph75AciNZOw0dlgD3EUDJK3BtaNR9fXJwNWCJ-OJrJ8KyUn9PY4B7BhnVAr41Xs4_04iCJ3loCQ");
-    }
+    public static final String AUTH_HEADER = "Authorization";
+    public static final String GOOGLE_AUTH_HEADER = "GoogleAuth";
 
     private static final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     public static final String AUTH_TOKENS_MEMCACHE = "AUTH_TOKENS_MEMCACHE";
 
-    public static final String AUTH_HEADER = "Authorization";
-    public static final String GOOGLE_AUTH_HEADER = "GoogleAuth";
-
     Logger logger = Logger.getLogger(getClass().getName());
 
-    /**
-     * Register a new user from a {@link com.cahue.model.transfer.RegistrationRequestBean}
-     *
-     * @param registration
-     * @return
-     */
-    public RegistrationResult register(RegistrationRequestBean registration) {
-
-        RegistrationResult result = new RegistrationResult();
-
-        // create or retrieve an existing Google user
-        User user = retrieveGoogleUser(registration.getGoogleAuthToken());
-        result.setUser(user);
-
-        // register the device
-        registerDevice(registration.getDeviceRegId(), user);
-
-        // create new Auth Token
-        String authToken = generateToken();
-
-        // store the token
-        storeAuthToken(user, authToken);
-
-        // store the token as a transient property in the user so it can be returned to the client
-        result.setAuthToken(authToken);
-        result.setRefreshToken(user.getRefreshToken());
-
-        // set cars
-        List<Car> cars = ofy().load().type(Car.class).ancestor(user).list();
-        result.setCars(cars);
-        logger.info("Registered result: " + result.getUser());
-
-        return result;
-    }
-
-    private void storeAuthToken(User user, String authTokenString) {
+    public void storeAuthToken(User user, String authTokenString) {
         AuthToken token = new AuthToken();
         token.setUser(user);
         Calendar c = Calendar.getInstance();
@@ -98,10 +59,6 @@ public class UserService {
         ofy().save().entity(token);
         MemcacheService cache = getAuthTokensMemcacheService();
         cache.put(authTokenString, user.getId());
-    }
-
-    private MemcacheService getAuthTokensMemcacheService() {
-        return MemcacheServiceFactory.getMemcacheService(AUTH_TOKENS_MEMCACHE);
     }
 
 
@@ -122,6 +79,35 @@ public class UserService {
             AuthToken authToken = ofy().load().type(AuthToken.class).id(authTokenValue).now();
             return authToken.getUser();
         }
+    }
+
+    /**
+     * Get the user based on the HTTP headers. It may create a new User.
+     *
+     * @param headers
+     * @return
+     */
+    public User getFromHeaders(HttpHeaders headers) {
+
+        String authToken = headers.getHeaderString(AUTH_HEADER);
+
+        User user = null;
+
+        if (authToken != null) {
+            user = retrieveUser(authToken);
+        }
+
+        if (user == null) {
+            String googleAuthToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);
+            user = googleAuthToken == null ? null : retrieveGoogleUser(googleAuthToken);
+        }
+
+        return user;
+    }
+
+
+    private MemcacheService getAuthTokensMemcacheService() {
+        return MemcacheServiceFactory.getMemcacheService(AUTH_TOKENS_MEMCACHE);
     }
 
     /**
@@ -176,7 +162,6 @@ public class UserService {
 
     }
 
-
     public User createUserFromGoogleAccount(Userinfoplus person) {
 
         User user = new User();
@@ -219,49 +204,7 @@ public class UserService {
         return plus.people().get("me").execute();
     }
 
-    /**
-     * Gets all registered devices.
-     */
-    public List<Device> getDevices(User user) {
-        return ofy().load().type(Device.class).ancestor(user).list();
-    }
-
-    /**
-     * Get the user based on the HTTP headers. It may create a new User.
-     *
-     * @param headers
-     * @return
-     */
-    public User getFromHeaders(HttpHeaders headers) {
-
-        String authToken = headers.getHeaderString(AUTH_HEADER);
-
-        User user = null;
-
-        if (authToken != null) {
-            user = retrieveUser(authToken);
-        }
-
-        if (user == null) {
-            String googleAuthToken = headers.getHeaderString(GOOGLE_AUTH_HEADER);
-            user = googleAuthToken == null ? null : retrieveGoogleUser(googleAuthToken);
-        }
-
-        return user;
-    }
-
-    /**
-     * Register a new device and assign it to a user
-     *
-     * @param deviceRegistrationId
-     * @param user
-     */
-    private void registerDevice(String deviceRegistrationId, User user) {
-        Device device = Device.createDevice(deviceRegistrationId, user);
-        ofy().save().entity(device).now();
-    }
-
-    private String generateToken() {
+    public String generateToken() {
         String key = UUID.randomUUID().toString().toUpperCase() +
                 "|" + APPLICATION_NAME +
                 "|" + API_VERSION +
@@ -274,4 +217,5 @@ public class UserService {
         // this is the authentication token user will send in order to use the web service
         return jasypt.encrypt(key);
     }
+
 }
