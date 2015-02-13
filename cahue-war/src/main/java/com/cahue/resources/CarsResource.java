@@ -88,11 +88,15 @@ public class CarsResource {
 
         List<Car> retrievedCars = retrieveUserCars(user);
 
-        List<Device> devices = userService.getDevices(user);
-        // TODO: remove the device this request was created from
-        sender.notifyCarsUpdate(devices, cars);
+        notifyDevices(cars, user, headers.getHeaderString(UserService.DEVICE_HEADER));
 
         return retrievedCars;
+    }
+
+    private void notifyDevices(List<Car> cars, User user, String senderRegId) {
+        List<Device> devices = userService.getDevices(user);
+        if(senderRegId != null) devices.remove(senderRegId);
+        sender.notifyCarsUpdate(devices, cars);
     }
 
     public void save(List<Car> cars, User owner) {
