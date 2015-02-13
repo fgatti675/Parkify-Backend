@@ -28,6 +28,7 @@ public class ProductionModule extends ServletModule {
         bind(MessageFactory.class);
 
         filter("/*").through(ObjectifyFilter.class);
+//        filterRegex("^((?!/authorize).)*$").through(PortSecurityFilter.class);
 
         bind(ObjectifyFilter.class).in(Singleton.class);
 

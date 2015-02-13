@@ -94,7 +94,7 @@ public class CarsTest extends JerseyTest {
 
         target("cars")
                 .request()
-                .header("Authentication", result.getAuthToken())
+                .header("Authorization", result.getAuthToken())
                 .post(carsEntity); //Here we send POST request
 
         assertThat(carsResource.retrieveUserCars(user), is(cars));

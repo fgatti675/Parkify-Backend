@@ -48,7 +48,7 @@ public class UserService {
 
     public static final String AUTH_TOKENS_MEMCACHE = "AUTH_TOKENS_MEMCACHE";
 
-    public static final String AUTH_HEADER = "Authentication";
+    public static final String AUTH_HEADER = "Authorization";
     public static final String GOOGLE_AUTH_HEADER = "GoogleAuth";
 
     Logger logger = Logger.getLogger(getClass().getName());
