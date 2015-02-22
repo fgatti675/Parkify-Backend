@@ -1,6 +1,6 @@
 package com.cahue.resources;
 
-import com.cahue.auth.AuthenticationService;
+import com.cahue.auth.UserAuthenticationService;
 import com.cahue.model.Car;
 import com.cahue.model.Device;
 import com.cahue.model.User;
@@ -27,7 +27,7 @@ public class UsersResource {
 
 
     @Inject
-    AuthenticationService authenticationService;
+    UserAuthenticationService userAuthenticationService;
 
     Logger logger = Logger.getLogger(getClass().getName());
 
@@ -58,17 +58,17 @@ public class UsersResource {
         RegistrationResult result = new RegistrationResult();
 
         // create or retrieve an existing Google user
-        User user = authenticationService.retrieveGoogleUser(registration.getGoogleAuthToken());
+        User user = userAuthenticationService.retrieveGoogleUser(registration.getGoogleAuthToken());
         result.setUser(user);
 
         // register the device
         registerDevice(registration.getDeviceRegId(), user);
 
         // create new Auth Token
-        String authToken = authenticationService.generateToken();
+        String authToken = userAuthenticationService.generateToken();
 
         // store the token
-        authenticationService.storeAuthToken(user, authToken);
+        userAuthenticationService.storeAuthToken(user, authToken);
 
         // store the token as a transient property in the user so it can be returned to the client
         result.setAuthToken(authToken);

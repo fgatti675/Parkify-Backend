@@ -1,7 +1,9 @@
 package com.cahue.resources;
 
+import com.cahue.auth.UserAuthenticationService;
+import com.cahue.auth.UserService;
 import com.cahue.config.TestModule;
-import com.cahue.config.guice.ProductionModule;
+import com.cahue.config.guice.BusinessModule;
 import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationRequestBean;
@@ -22,6 +24,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Date: 05.02.15
@@ -37,7 +40,7 @@ public class UserServiceTest {
      */
     public static class Module extends JukitoModule {
         protected void configureTest() {
-            install(Modules.override(new ProductionModule()).with(new TestModule()));
+            install(Modules.override(new BusinessModule()).with(new TestModule()));
         }
     }
 
@@ -55,10 +58,23 @@ public class UserServiceTest {
     }
 
     @Inject
+    UserAuthenticationService authService;
+
+    @Inject
     UsersResource usersResource;
 
     @Inject
+    UserService userService;
+
+    @Inject
     CarsResource carsResource;
+
+
+    @Test
+    public void tokenTest() {
+        String token = authService.generateToken();
+        assertTrue(authService.validateToken(token));
+    }
 
     @Test
     public void test() {
@@ -69,6 +85,7 @@ public class UserServiceTest {
 
         RegistrationResult result = usersResource.register(registrationRequestBean);
         User user = result.getUser();
+        userService.setCurrentUser(user);
 
         assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
 
@@ -78,13 +95,13 @@ public class UserServiceTest {
         car.setUser(user);
         car.setBtAddress("Test BT address");
 
-        List<Car> cars = Arrays.asList(car);
-        this.carsResource.save(cars, user);
+        this.carsResource.save(car, user);
 
-        List<Car> retrievedCars = this.carsResource.retrieveUserCars(user);
-        assertThat(cars, is(retrievedCars));
+        List<Car> retrievedCars = userService.retrieveUserCars();
+        assertThat(Arrays.asList(car), is(retrievedCars));
 
         result = usersResource.register(registrationRequestBean);
-        assertThat(cars, is(result.getCars()));
+        assertThat(Arrays.asList(car), is(result.getCars()));
+
     }
 }

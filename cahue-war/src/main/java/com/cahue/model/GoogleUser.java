@@ -56,7 +56,7 @@ public class GoogleUser implements Serializable {
     @Override
     public String toString() {
         return "GoogleUser{" +
-                ", email=" + email +
+                "email=" + email +
                 ", googleId='" + googleId + '\'' +
                 '}';
     }

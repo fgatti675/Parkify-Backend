@@ -1,7 +1,8 @@
 package com.cahue.resources;
 
+import com.cahue.auth.UserService;
 import com.cahue.config.TestModule;
-import com.cahue.config.guice.ProductionModule;
+import com.cahue.config.guice.BusinessModule;
 import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationRequestBean;
@@ -40,7 +41,7 @@ public class CarsTest extends JerseyTest {
      */
     public static class Module extends JukitoModule {
         protected void configureTest() {
-            install(Modules.override(new ProductionModule()).with(new TestModule()));
+            install(Modules.override(new BusinessModule()).with(new TestModule()));
         }
     }
 
@@ -48,7 +49,6 @@ public class CarsTest extends JerseyTest {
     protected Application configure() {
         return new ResourceConfig(CarsResource.class);
     }
-
 
     @Inject
     TestHelper testHelper;
@@ -67,7 +67,7 @@ public class CarsTest extends JerseyTest {
     UsersResource usersResource;
 
     @Inject
-    CarsResource carsResource;
+    UserService userService;
 
     @Test
     public void addCarsTest() {
@@ -78,6 +78,7 @@ public class CarsTest extends JerseyTest {
 
         RegistrationResult result = usersResource.register(registrationRequestBean);
         User user = result.getUser();
+        userService.setCurrentUser(user);
 
         assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
 
@@ -87,16 +88,15 @@ public class CarsTest extends JerseyTest {
         car.setUser(user);
         car.setBtAddress("Test BT address");
 
-        List<Car> cars = Arrays.asList(car);
 
-        Entity<List<Car>> carsEntity = Entity.entity(cars, MediaType.APPLICATION_JSON);
+        Entity<Car> carsEntity = Entity.entity(car, MediaType.APPLICATION_JSON);
 
         target("cars")
                 .request()
                 .header("Authorization", result.getAuthToken())
                 .post(carsEntity); //Here we send POST request
 
-        assertThat(carsResource.retrieveUserCars(user), is(cars));
+        assertEquals(userService.retrieveUserCars().iterator().next(), car);
 
     }
 }

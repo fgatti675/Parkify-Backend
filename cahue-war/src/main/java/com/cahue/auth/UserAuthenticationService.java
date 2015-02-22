@@ -16,7 +16,6 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.objectify.Key;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
-import javax.inject.Singleton;
 import javax.ws.rs.core.HttpHeaders;
 
 import java.io.IOException;
@@ -25,14 +24,14 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
 /**
  * Created by Francesco on 13/02/2015.
  */
-@Singleton
-public class AuthenticationService {
+public class UserAuthenticationService {
 
     private static final String APPLICATION_NAME = "iweco";
     private static final int API_VERSION = 1;
@@ -47,7 +46,14 @@ public class AuthenticationService {
 
     public static final String AUTH_TOKENS_MEMCACHE = "AUTH_TOKENS_MEMCACHE";
 
+    private StandardPBEStringEncryptor jasypt;
+
     Logger logger = Logger.getLogger(getClass().getName());
+
+    public UserAuthenticationService() {
+        jasypt = new StandardPBEStringEncryptor();
+        jasypt.setPassword(SECRET);
+    }
 
     public void storeAuthToken(User user, String authTokenString) {
         AuthToken token = new AuthToken();
@@ -204,18 +210,26 @@ public class AuthenticationService {
         return plus.people().get("me").execute();
     }
 
+    Pattern tokenPattern =
+            Pattern.compile(".+" +
+                    "|" + APPLICATION_NAME +
+                    "|" + "\\d+" +
+                    "|" + ".+");
+
     public String generateToken() {
         String key = UUID.randomUUID().toString().toUpperCase() +
                 "|" + APPLICATION_NAME +
                 "|" + API_VERSION +
                 "|" + new Date().getTime();
 
-        // TODO: can be initialized somewhere else
-        StandardPBEStringEncryptor jasypt = new StandardPBEStringEncryptor();
-        jasypt.setPassword(SECRET);
 
         // this is the authentication token user will send in order to use the web service
         return jasypt.encrypt(key);
+    }
+
+    public boolean validateToken(String userToken) {
+        if (userToken == null) return false;
+        return tokenPattern.matcher(userToken).matches();
     }
 
 }

@@ -1,12 +1,13 @@
 package com.cahue.resources;
 
 import com.cahue.auth.AuthenticationException;
-import com.cahue.auth.AuthenticationService;
+import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
 import com.cahue.persistence.SpotsIndex;
 import com.cahue.auth.UserService;
+import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -61,7 +62,6 @@ public class SpotsResource {
     @Consumes({MediaType.APPLICATION_JSON})
     public ParkingSpot put(ParkingSpot parkingSpot, @Context HttpHeaders headers) {
 
-
         if (parkingSpot.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
             logger.fine("Spot received but too inaccurate : " + parkingSpot.getAccuracy() + " m.");
             throw new WebApplicationException(Response
@@ -70,16 +70,27 @@ public class SpotsResource {
                     .build());
         }
 
-
         User user = null;
         try {
-            user = userService.getLoggedUser();
+            user = userService.getCurrentUser();
+            logger.fine(user.getGoogleUser().toString());
         } catch (AuthenticationException e) {
             // TODO: ok by now
         }
-        parkingSpot.getCar().setUser(user);
 
-        return store(parkingSpot);
+        Car car = parkingSpot.getCar();
+        if (car != null) {
+            logger.fine("Car : " + car);
+            car.setUser(user);
+            parkingSpot.setCar(car);
+        }
+
+        Key<ParkingSpot> psKey = store(parkingSpot);
+
+        ParkingSpot stored = ofy().load().key(psKey).now();
+        logger.fine("Stored : " + stored);
+
+        return parkingSpot;
     }
 
     /**
@@ -88,14 +99,14 @@ public class SpotsResource {
      * @param parkingSpot
      * @return
      */
-    public ParkingSpot store(ParkingSpot parkingSpot) {
+    public Key<ParkingSpot> store(ParkingSpot parkingSpot) {
 
         parkingSpot.setTime(new Date());
 
         /**
          * Save in datastore
          */
-        ofy().save().entity(parkingSpot).now();
+        Key<ParkingSpot> key = ofy().save().entity(parkingSpot).now();
 
         /**
          * Put in index database
@@ -104,7 +115,7 @@ public class SpotsResource {
 
         logger.fine(parkingSpot.toString());
 
-        return parkingSpot;
+        return key;
     }
 
     @GET

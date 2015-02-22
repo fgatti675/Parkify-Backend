@@ -23,9 +23,6 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 @Singleton
 public class GCMSender {
 
-    @Inject
-    MessageFactory messageFactory;
-
     /**
      * Google Api key for accessing data not associated with an account
      */
@@ -34,10 +31,6 @@ public class GCMSender {
     private static final Logger log = Logger.getLogger(GCMSender.class.getName());
 
     private Sender sender = new Sender(GOOGLE_API_KEY);
-
-    public void notifyCarsUpdate(List<Device> devices, List<Car> cars){
-        sendGCMMultiUpdate(devices, messageFactory.getCarsUpdateMessage(cars));
-    }
 
     /**
      * Unregisters a device.
@@ -58,7 +51,7 @@ public class GCMSender {
      * @return
      * @throws java.io.IOException
      */
-    private void sendGCMUpdate(Device device, Message message) throws IOException {
+    public void sendGCMUpdate(Device device, Message message) throws IOException {
         String registrationId = device.getRegId();
 
         Result result = sender.send(message, registrationId, 5);
@@ -84,7 +77,7 @@ public class GCMSender {
             updateRegistration(registrationId, canonicalRegistrationId);
     }
 
-    private void sendGCMMultiUpdate(Collection<Device> devices, Message message) {
+    public void sendGCMMultiUpdate(Collection<Device> devices, Message message) {
         MulticastResult multicastResult;
 
         List<String> regIds = new ArrayList<String>();

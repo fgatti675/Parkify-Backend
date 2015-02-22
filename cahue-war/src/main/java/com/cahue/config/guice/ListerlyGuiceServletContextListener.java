@@ -9,7 +9,7 @@ public class ListerlyGuiceServletContextListener extends
 
 	@Override
 	protected Injector getInjector() {
-		return Guice.createInjector(new ProductionModule());
+		return Guice.createInjector(new ProductionServletModule(), new BusinessModule());
 	}
 
 }

@@ -8,6 +8,15 @@
     </listener>
 
     <filter>
+        <filter-name>ObjectifyFilter</filter-name>
+        <filter-class>com.googlecode.objectify.ObjectifyFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ObjectifyFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
         <filter-name>guiceFilter</filter-name>
         <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
     </filter>
@@ -35,15 +44,14 @@
     </filter-mapping>
 
 
-
     <!--<security-constraint>-->
-        <!--<web-resource-collection>-->
-            <!--<web-resource-name>cron</web-resource-name>-->
-            <!--<url-pattern>/cleanIndex/*</url-pattern>-->
-        <!--</web-resource-collection>-->
-        <!--<auth-constraint>-->
-            <!--<role-name>admin</role-name>-->
-        <!--</auth-constraint>-->
+    <!--<web-resource-collection>-->
+    <!--<web-resource-name>cron</web-resource-name>-->
+    <!--<url-pattern>/cleanIndex/*</url-pattern>-->
+    <!--</web-resource-collection>-->
+    <!--<auth-constraint>-->
+    <!--<role-name>admin</role-name>-->
+    <!--</auth-constraint>-->
     <!--</security-constraint>-->
 
 </web-app>

@@ -1,8 +1,8 @@
 package com.cahue.resources;
 
 import com.cahue.config.TestModule;
-import com.cahue.config.guice.ProductionModule;
-import com.cahue.gcm.MessageFactory;
+import com.cahue.config.guice.BusinessModule;
+import com.cahue.gcm.GCMMessageFactory;
 import com.cahue.model.Car;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
@@ -14,13 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 @RunWith(JukitoRunner.class)
 public class DevicesTest {
@@ -33,7 +27,7 @@ public class DevicesTest {
      */
     public static class Module extends JukitoModule {
         protected void configureTest() {
-            install(Modules.override(new ProductionModule()).with(new TestModule()));
+            install(Modules.override(new BusinessModule()).with(new TestModule()));
         }
     }
 
@@ -52,7 +46,7 @@ public class DevicesTest {
     }
 
     @Inject
-    MessageFactory messageFactory;
+    GCMMessageFactory messageFactory;
 
 
     @Test
@@ -63,9 +57,7 @@ public class DevicesTest {
         car.setName("Car name");
         car.setBtAddress("Test BT address");
 
-        List<Car> cars = Arrays.asList(car);
-
-        logger.info(messageFactory.marshallCars(cars));
+        logger.info(messageFactory.marshallCar(car));
 
     }
 }

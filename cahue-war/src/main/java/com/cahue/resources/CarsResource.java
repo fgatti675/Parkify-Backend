@@ -1,10 +1,10 @@
 package com.cahue.resources;
 
+import com.cahue.gcm.GCMMessageFactory;
 import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.Device;
 import com.cahue.model.User;
-import com.cahue.auth.AuthenticationException;
 import com.cahue.auth.UserService;
 import com.googlecode.objectify.Key;
 
@@ -33,16 +33,15 @@ public class CarsResource {
     GCMSender sender;
 
     @Inject
+    GCMMessageFactory messageFactory;
+
+    @Inject
     UserService userService;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     public List<Car> retrieve() {
-
-        User user = userService.getLoggedUser();
-
-        return retrieveUserCars(user);
-
+        return userService.retrieveUserCars();
     }
 
     @DELETE
@@ -50,34 +49,36 @@ public class CarsResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response delete(@PathParam(value = "carId") String carId, @Context HttpHeaders headers) {
 
-        User user = userService.getLoggedUser();
+        User user = userService.getCurrentUser();
 
         ofy().delete().type(Car.class).parent(user).id(carId).now();
+
+
+        List<Device> devices = userService.getUserDevicesButCurrent();
+        sender.sendGCMMultiUpdate(devices, messageFactory.getCarDeletedMessage(carId));
+
         return Response.ok().entity(carId).build();
     }
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public List<Car> save(List<Car> cars, @Context HttpHeaders headers) {
+    public Car save(Car car, @Context HttpHeaders headers) {
 
-        User user = userService.getLoggedUser();
+        User user = userService.getCurrentUser();
 
-        logger.info("Received cars: " + cars);
+        logger.info("Received car: " + car);
 
-        save(cars, user);
+        save(car, user);
 
-        List<Car> retrievedCars = retrieveUserCars(user);
+        List<Device> devices = userService.getUserDevicesButCurrent();
+        sender.sendGCMMultiUpdate(devices, messageFactory.getCarUpdateMessage(car));
 
-        List<Device> devices = userService.getDevices(user);
-        // TODO: remove the device this request was created from
-        sender.notifyCarsUpdate(devices, cars);
-
-        return retrievedCars;
+        return car;
     }
 
-    public void save(List<Car> cars, User owner) {
-        for (Car car : cars) car.setUser(owner);
-        ofy().save().entities(cars).now();
+    public void save(Car car, User owner) {
+        car.setUser(owner);
+        ofy().save().entity(car).now();
     }
 
     @Deprecated
@@ -105,7 +106,4 @@ public class CarsResource {
     }
 
 
-    public List<Car> retrieveUserCars(User user) {
-        return ofy().load().type(Car.class).ancestor(user).list();
-    }
 }

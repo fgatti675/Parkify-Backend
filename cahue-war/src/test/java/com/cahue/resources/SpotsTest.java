@@ -1,7 +1,7 @@
 package com.cahue.resources;
 
 import com.cahue.config.TestModule;
-import com.cahue.config.guice.ProductionModule;
+import com.cahue.config.guice.BusinessModule;
 import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
@@ -19,9 +19,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
+import static com.googlecode.objectify.ObjectifyService.ofy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -35,7 +38,7 @@ public class SpotsTest {
      */
     public static class Module extends JukitoModule {
         protected void configureTest() {
-            install(Modules.override(new ProductionModule()).with(new TestModule()));
+            install(Modules.override(new BusinessModule()).with(new TestModule()));
         }
     }
 
@@ -82,8 +85,7 @@ public class SpotsTest {
         car.setName("Car name");
         car.setBtAddress("Test BT address");
 
-        List<Car> cars = Arrays.asList(car);
-        this.carsResource.save(cars, user);
+        this.carsResource.save(car, user);
 
         ParkingSpot ps1 = new ParkingSpot();
         ps1.setCar(car);
@@ -108,5 +110,18 @@ public class SpotsTest {
 
         QueryResult area = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
         assertThat(area.getSpots(), is(Arrays.asList(ps1, ps2)));
+
+
+        Collection<ParkingSpot> values = ofy().load().type(ParkingSpot.class).ids(Arrays.asList(
+                ps1.getId(),
+                ps2.getId(),
+                ps3.getId()
+        )).values();
+
+        List<ParkingSpot> actual = new ArrayList(values);
+        List<ParkingSpot> value = Arrays.asList(ps1, ps2, ps3);
+        assertThat(actual, is(value));
     }
+
+
 }

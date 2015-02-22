@@ -2,10 +2,13 @@ package com.cahue.model;
 
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
-import com.googlecode.objectify.annotation.*;
+import com.googlecode.objectify.annotation.Cache;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Load;
 
 import javax.xml.bind.annotation.XmlTransient;
-import java.util.*;
+import java.util.Date;
 
 /**
  * Created by Francesco on 07/02/2015.
