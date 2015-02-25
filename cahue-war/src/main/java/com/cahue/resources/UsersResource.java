@@ -8,9 +8,7 @@ import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 
 import javax.inject.Inject;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.logging.Logger;
@@ -24,7 +22,6 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
  */
 @Path("/users")
 public class UsersResource {
-
 
     @Inject
     UserAuthenticationService userAuthenticationService;
@@ -46,6 +43,27 @@ public class UsersResource {
         return result;
     }
 
+    @GET
+    @Path("/refresh")
+    public String refresh(@QueryParam("user") Long userId, @QueryParam("refreshToken") String refreshToken) {
+
+        User user = ofy().load().type(User.class).id(userId).now();
+
+        if (user == null)
+            throw new WebApplicationException(
+                    Response.status(Response.Status.NOT_FOUND)
+                            .entity("User not found.")
+                            .build());
+
+        if (!user.getRefreshToken().equals(refreshToken))
+            throw new WebApplicationException(
+                    Response.status(Response.Status.UNAUTHORIZED)
+                            .entity("Wrong refresh token")
+                            .build());
+
+        return createAuthToken(user);
+    }
+
 
     /**
      * Register a new user from a {@link com.cahue.model.transfer.RegistrationRequestBean}
@@ -64,11 +82,8 @@ public class UsersResource {
         // register the device
         registerDevice(registration.getDeviceRegId(), user);
 
-        // create new Auth Token
-        String authToken = userAuthenticationService.generateToken();
-
-        // store the token
-        userAuthenticationService.storeAuthToken(user, authToken);
+        // generate a new auth token for the user
+        String authToken = createAuthToken(user);
 
         // store the token as a transient property in the user so it can be returned to the client
         result.setAuthToken(authToken);
@@ -82,6 +97,22 @@ public class UsersResource {
         return result;
     }
 
+
+    /**
+     * Create and store an auth token for a user
+     *
+     * @param user
+     * @return
+     */
+    private String createAuthToken(User user) {
+        // create new Auth Token
+        String authToken = userAuthenticationService.generateToken();
+
+        // store the token
+        userAuthenticationService.storeAuthToken(user, authToken);
+        return authToken;
+    }
+
     /**
      * Register a new device and assign it to a user
      *
@@ -92,7 +123,6 @@ public class UsersResource {
         Device device = Device.createDevice(deviceRegistrationId, user);
         ofy().save().entity(device).now();
     }
-
 
 
 }

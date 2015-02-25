@@ -15,6 +15,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -47,12 +48,11 @@ public class CarsResource {
     @DELETE
     @Path("/{carId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response delete(@PathParam(value = "carId") String carId, @Context HttpHeaders headers) {
+    public Response delete(@PathParam(value = "carId") String carId) {
 
         User user = userService.getCurrentUser();
 
         ofy().delete().type(Car.class).parent(user).id(carId).now();
-
 
         List<Device> devices = userService.getUserDevicesButCurrent();
         sender.sendGCMMultiUpdate(devices, messageFactory.getCarDeletedMessage(carId));
@@ -62,11 +62,13 @@ public class CarsResource {
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public Car save(Car car, @Context HttpHeaders headers) {
+    public Car save(Car car) {
 
         User user = userService.getCurrentUser();
 
         logger.info("Received car: " + car);
+
+        car.setLastModified(new Date());
 
         save(car, user);
 

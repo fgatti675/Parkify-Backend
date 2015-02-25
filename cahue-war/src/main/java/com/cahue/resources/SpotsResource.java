@@ -12,7 +12,6 @@ import com.googlecode.objectify.Key;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
@@ -60,7 +59,7 @@ public class SpotsResource {
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public ParkingSpot put(ParkingSpot parkingSpot, @Context HttpHeaders headers) {
+    public ParkingSpot put(ParkingSpot parkingSpot) {
 
         if (parkingSpot.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
             logger.fine("Spot received but too inaccurate : " + parkingSpot.getAccuracy() + " m.");
