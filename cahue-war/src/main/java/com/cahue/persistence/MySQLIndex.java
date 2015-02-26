@@ -15,12 +15,12 @@ import java.util.Locale;
  *
  * @author francesco
  */
-public class MySQLPersistence implements Persistence {
+public class MySQLIndex implements SpotsIndex {
 
     private static final int MAX_RESULTS = 200;
 
     @Inject
-    DataSource dataSource;
+    MySQLDataSource dataSource;
 
     @Override
     public QueryResult queryNearest(Double latitude, Double longitude, int nearest) {
@@ -94,5 +94,12 @@ public class MySQLPersistence implements Persistence {
         em.getTransaction().commit();
 
         return deleted;
+    }
+
+    public void clear(){
+        EntityManager em = dataSource.createRelationalEntityManager();
+        em.getTransaction().begin();
+        int deleted = em.createQuery("DELETE FROM ParkingSpot p").executeUpdate();
+        em.getTransaction().commit();
     }
 }

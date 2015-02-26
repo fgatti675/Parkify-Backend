@@ -1,34 +1,35 @@
 package com.cahue.model;
 
-import com.google.appengine.api.datastore.Key;
+import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.Cache;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Index;
 
-import javax.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
+@Cache
 @Entity
+@javax.persistence.Entity
 public class ParkingSpot {
+
+    private Date time = new Date();
+
+    @Id
+    private Long id;
+
+    @Index
+    private Ref<Car> car;
 
     private Double longitude;
     private Double latitude;
     private Float accuracy;
 
-    @Temporal(value = TemporalType.TIMESTAMP)
-    private Date time = new Date();
-
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private Long id;
-
     public ParkingSpot() {
     }
 
-    @ManyToOne (fetch = FetchType.LAZY)
-    private Car car;
-
-    @XmlTransient
+    @javax.persistence.Id
     public Long getId() {
 		return id;
 	}
@@ -61,20 +62,24 @@ public class ParkingSpot {
         this.accuracy = accuracy;
     }
 
+    @javax.persistence.Temporal(value = javax.persistence.TemporalType.TIMESTAMP)
+    public Date getTime() {
+        return time;
+    }
+
     public void setTime(Date time) {
         this.time = time;
     }
 
-    public Date getTime() {
-		return time;
-	}
-
+    @XmlTransient
+    @javax.persistence.Transient
     public Car getCar() {
-        return car;
+        if(car == null) return null;
+        return car.get();
     }
 
     public void setCar(Car car) {
-        this.car = car;
+        this.car = Ref.create(car);
     }
 
     @Override
@@ -86,5 +91,22 @@ public class ParkingSpot {
                 ", accuracy=" + accuracy +
                 ", time=" + time +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ParkingSpot that = (ParkingSpot) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

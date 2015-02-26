@@ -10,11 +10,10 @@ import java.util.Date;
  *
  * @author francesco
  */
-public interface Persistence {
+public interface SpotsIndex {
 
     public final static String CartoDB = "CartoDB";
     public final static String MySQL = "MySQL";
-
 
     QueryResult queryNearest(Double latitude, Double longitude, int nearest);
 
@@ -27,4 +26,6 @@ public interface Persistence {
     void put(ParkingSpot spot);
 
     int deleteBefore(Date date);
+
+    void clear();
 }

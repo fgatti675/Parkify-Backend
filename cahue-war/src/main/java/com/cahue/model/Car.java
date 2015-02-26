@@ -1,17 +1,15 @@
 package com.cahue.model;
 
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.datanucleus.annotations.Unowned;
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.Cache;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Parent;
 
-import javax.annotation.Nullable;
-import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import static javax.persistence.GenerationType.IDENTITY;
 
 
 /**
@@ -19,31 +17,34 @@ import static javax.persistence.GenerationType.IDENTITY;
  *
  * @author Francesco
  */
+@Cache
 @Entity
 public class Car {
 
-    public static Car createCar(User user, String name, @Nullable String btID) {
-        Car car = new Car();
-        car.user = user;
-        car.bluetoothAddress = btID;
-        car.name = name;
-        return car;
-    }
-
-
     @Id
-    @GeneratedValue(strategy = IDENTITY)
     private String id;
 
-    private String bluetoothAddress;
+    private String btAddress;
 
     private String name;
 
-    @ManyToOne
-    private User user;
+    private Integer color;
 
-    @Temporal(value = TemporalType.TIMESTAMP)
-    private Date creationDate = new Date();
+    private Double latitude;
+
+    private Double longitude;
+
+    private Float accuracy;
+
+    /**
+     * Parking time
+     */
+    private Date time;
+
+    private Date lastModified;
+
+    @Parent
+    private Ref<User> user;
 
     public String getId() {
         return id;
@@ -61,22 +62,74 @@ public class Car {
         this.name = name;
     }
 
-    public String getBluetoothAddress() {
-        return bluetoothAddress;
+    public String getBtAddress() {
+        return btAddress;
     }
 
-    public void setBluetoothAddress(String bluetoothAddress) {
-        this.bluetoothAddress = bluetoothAddress;
+    public void setBtAddress(String btAddress) {
+        this.btAddress = btAddress;
     }
 
+    public Integer getColor() {
+        return color;
+    }
+
+    public void setColor(Integer color) {
+        this.color = color;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+
+    public Float getAccuracy() {
+        return accuracy;
+    }
+
+    public void setAccuracy(Float accuracy) {
+        this.accuracy = accuracy;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
+    }
+
+    public Date getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(Date lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    @XmlTransient
     public User getUser() {
-        return user;
+        return user.get();
     }
 
     public void setUser(User user) {
-        this.user = user;
+        this.user = Ref.create(user);
     }
 
+    public Key<Car> createKey() {
+        return Key.create(user.getKey(), Car.class, id);
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -95,4 +148,17 @@ public class Car {
         return id != null ? id.hashCode() : 0;
     }
 
+    @Override
+    public String toString() {
+        return "Car{" +
+                "id='" + id + '\'' +
+                ", btAddress='" + btAddress + '\'' +
+                ", name='" + name + '\'' +
+                ", color=" + color +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", accuracy=" + accuracy +
+                ", time=" + time +
+                '}';
+    }
 }

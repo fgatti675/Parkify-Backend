@@ -1,22 +1,24 @@
 package com.cahue.resources;
 
+import com.cahue.auth.AuthenticationException;
+import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
-import com.cahue.persistence.DataSource;
-import com.cahue.persistence.Persistence;
-import com.cahue.util.UserService;
-import com.google.inject.name.Named;
+import com.cahue.persistence.SpotsIndex;
+import com.cahue.auth.UserService;
+import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Date;
 import java.util.logging.Logger;
+
+import static com.googlecode.objectify.ObjectifyService.ofy;
+
 
 /**
  * Created by Francesco on 07/09/2014.
@@ -25,22 +27,17 @@ import java.util.logging.Logger;
 public class SpotsResource {
 
     /**
-     * Threshold for storing parking spots
+     * Accuracy threshold for storing parking spots, in meters
      */
-    private final static int ACCURACY_LIMIT_M = 25;
+    private final static int MINIMUM_SPOT_ACCURACY = 25;
 
     Logger logger = Logger.getLogger(getClass().getName());
 
     @Inject
-    DataSource dataSource;
-
-    @Inject
-    @Named(Persistence.MySQL)
-    Persistence persistence;
+    SpotsIndex spotsIndex;
 
     @Inject
     UserService userService;
-
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -53,7 +50,7 @@ public class SpotsResource {
         if (southwestLatitude == null || southwestLongitude == null || northeastLatitude == null || northeastLongitude == null)
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
 
-        return persistence.queryArea(southwestLatitude, southwestLongitude, northeastLatitude, northeastLongitude);
+        return spotsIndex.queryArea(southwestLatitude, southwestLongitude, northeastLatitude, northeastLongitude);
     }
 
 
@@ -62,47 +59,62 @@ public class SpotsResource {
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public ParkingSpot put(ParkingSpot parkingSpot, @Context HttpHeaders headers) {
+    public ParkingSpot put(ParkingSpot parkingSpot) {
 
-        if (parkingSpot.getAccuracy() > ACCURACY_LIMIT_M) {
+        if (parkingSpot.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
             logger.fine("Spot received but too inaccurate : " + parkingSpot.getAccuracy() + " m.");
-            return null;
+            throw new WebApplicationException(Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("Minimum accuracy is: " + MINIMUM_SPOT_ACCURACY)
+                    .build());
         }
 
-        EntityManager em = dataSource.createDatastoreEntityManager();
-
+        User user = null;
         try {
-            User user = userService.getFromHeaders(em, headers);
-            if (user != null) {
-                logger.fine("Found user: " + user.getEmail());
-            } else {
-                // TODO: this will eventually need to crash
-                logger.fine("User not found");
-            }
-
-
-            parkingSpot.setTime(new Date());
-
-            /**
-             * Save in datastore
-             */
-            em.getTransaction().begin();
-            em.persist(parkingSpot);  // sets the id
-            em.getTransaction().commit();
-
-            /**
-             * Put in index database
-             */
-            persistence.put(parkingSpot);
-
-            logger.fine(parkingSpot.toString());
-
-        } catch (InvalidTokenException e) {
-            logger.warning("Invalid Token");
-        } finally {
-            em.close();
+            user = userService.getCurrentUser();
+            logger.fine(user.getGoogleUser().toString());
+        } catch (AuthenticationException e) {
+            // TODO: ok by now
         }
+
+        Car car = parkingSpot.getCar();
+        if (car != null) {
+            logger.fine("Car : " + car);
+            car.setUser(user);
+            parkingSpot.setCar(car);
+        }
+
+        Key<ParkingSpot> psKey = store(parkingSpot);
+
+        ParkingSpot stored = ofy().load().key(psKey).now();
+        logger.fine("Stored : " + stored);
+
         return parkingSpot;
+    }
+
+    /**
+     * Store the parking spot both in the datastore and the index
+     *
+     * @param parkingSpot
+     * @return
+     */
+    public Key<ParkingSpot> store(ParkingSpot parkingSpot) {
+
+        parkingSpot.setTime(new Date());
+
+        /**
+         * Save in datastore
+         */
+        Key<ParkingSpot> key = ofy().save().entity(parkingSpot).now();
+
+        /**
+         * Put in index database
+         */
+        spotsIndex.put(parkingSpot);
+
+        logger.fine(parkingSpot.toString());
+
+        return key;
     }
 
     @GET
@@ -117,7 +129,7 @@ public class SpotsResource {
         if (latitude == null || longitude == null || count == null)
             throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).build());
 
-        return persistence.queryNearest(latitude, longitude, count);
+        return spotsIndex.queryNearest(latitude, longitude, count);
     }
 
     @GET

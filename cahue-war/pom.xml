@@ -9,7 +9,7 @@
     <artifactId>cahue-war</artifactId>
 
     <properties>
-        <appengine.app.version>12-war</appengine.app.version>
+        <appengine.app.version>15-war</appengine.app.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>2.12</jersey.version>
         <guice.version>4.0-beta4</guice.version>
@@ -17,11 +17,6 @@
     </properties>
 
     <repositories>
-        <repository>
-            <id>javageomodel-repo</id>
-            <name>GeocellJava Repository</name>
-            <url>http://javageomodel.googlecode.com/svn/repository</url>
-        </repository>
         <repository>
             <id>gcm-server-repository</id>
             <url>https://raw.githubusercontent.com/slorber/gcm-server-repository/master/releases/</url>
@@ -115,6 +110,11 @@
             <artifactId>guice-bridge</artifactId>
             <version>2.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker-gae</artifactId>
+            <version>2.3.20</version>
+        </dependency>
 
 
         <dependency>
@@ -122,12 +122,17 @@
             <artifactId>org.eclipse.persistence.moxy</artifactId>
             <version>${eclipselink.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.jpa</artifactId>
             <version>${eclipselink.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.1.0.Final</version>
+        </dependency>
+
 
         <dependency>
             <groupId>mysql</groupId>
@@ -135,44 +140,13 @@
             <version>5.1.34</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker-gae</artifactId>
-            <version>2.3.20</version>
-        </dependency>
-
-        <!-- JPA 2.0 for GAE -->
-        <dependency>
-            <groupId>org.datanucleus</groupId>
-            <version>3.0.6</version>
-            <artifactId>datanucleus-api-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.appengine.orm</groupId>
-            <artifactId>datanucleus-appengine</artifactId>
-            <version>2.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.datanucleus</groupId>
-            <artifactId>datanucleus-core</artifactId>
-            <version>3.0.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-jpa_2.0_spec</artifactId>
-            <version>1.0</version>
-        </dependency>
 
         <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-fusiontables</artifactId>
-            <version>v1-rev52-1.19.0</version>
+            <groupId>com.googlecode.objectify</groupId>
+            <artifactId>objectify</artifactId>
+            <version>5.1.5</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-drive</artifactId>
-            <version>v2-rev145-1.19.0</version>
-        </dependency>
+
 
         <dependency>
             <groupId>com.google.http-client</groupId>
@@ -188,24 +162,19 @@
 
 
         <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-mapsengine</artifactId>
-            <version>exp2-rev14-1.19.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-servlet</artifactId>
-            <version>1.19.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client-appengine</artifactId>
             <version>1.19.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-oauth2</artifactId>
             <version>v2-rev84-1.19.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.19.0</version>
         </dependency>
 
 
@@ -214,13 +183,6 @@
             <artifactId>cartodb-java-client</artifactId>
             <version>1.0.1</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>5.1.0.Final</version>
-        </dependency>
-
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -233,23 +195,23 @@
             <version>1.19.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.igniterealtime.smack</groupId>
-            <artifactId>smack-core</artifactId>
-            <version>4.0.6</version>
-        </dependency>
-
         <!-- GCM -->
         <dependency>
             <groupId>com.google.android.gcm</groupId>
             <artifactId>gcm-server</artifactId>
             <version>1.0.2</version>
         </dependency>
-
         <dependency>
             <groupId>javax.el</groupId>
             <artifactId>javax.el-api</artifactId>
             <version>2.2.4</version>
+        </dependency>
+
+        <!-- Auth -->
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>1.9.0</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -283,7 +245,12 @@
             <version>1.4.1</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+            <version>2.15</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -326,40 +293,16 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
-
             <plugin>
-                <groupId>org.datanucleus</groupId>
-                <artifactId>maven-datanucleus-plugin</artifactId>
-                <version>3.0.2</version>
-
+                <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <api>JPA</api>
-                    <persistenceUnitName>datanucleus</persistenceUnitName>
-                    <verbose>true</verbose>
-                    <fork>false</fork>   <!-- Solve windows line too long error -->
+                    <systemProperties>
+                        <property>
+                            <name>java.util.logging.config.file</name>
+                            <value>src/test/resources/logging.properties</value>
+                        </property>
+                    </systemProperties>
                 </configuration>
-
-                <dependencies>
-                    <dependency>
-                        <groupId>org.datanucleus</groupId>
-                        <version>3.0.6</version>
-                        <artifactId>datanucleus-api-jpa</artifactId>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.datanucleus</groupId>
-                        <artifactId>datanucleus-core</artifactId>
-                        <version>3.0.6</version>
-                    </dependency>
-                </dependencies>
-
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>enhance</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

@@ -18,6 +18,7 @@ public class JerseyConfiguration extends ResourceConfig {
 
     @Inject
     public JerseyConfiguration(ServiceLocator serviceLocator, ServletContext servletContext) {
+
     	log.info("Creating JerseyConfiguration");
         packages("com.cahue.resources");
 
@@ -29,6 +30,7 @@ public class JerseyConfiguration extends ResourceConfig {
         GuiceBridge.getGuiceBridge().initializeGuiceBridge(serviceLocator);
         GuiceIntoHK2Bridge guiceBridge = serviceLocator.getService(GuiceIntoHK2Bridge.class);
         guiceBridge.bridgeGuiceInjector((Injector) servletContext.getAttribute(Injector.class.getName()));
+
     }
 
 }

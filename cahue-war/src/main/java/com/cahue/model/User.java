@@ -1,73 +1,38 @@
 package com.cahue.model;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.datanucleus.annotations.Unowned;
-import org.eclipse.persistence.annotations.JoinFetchType;
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.Cache;
+import com.googlecode.objectify.annotation.Entity;
+import com.googlecode.objectify.annotation.Id;
+import com.googlecode.objectify.annotation.Load;
 
-import javax.persistence.*;
 import javax.xml.bind.annotation.XmlTransient;
-import java.io.Serializable;
-import java.util.*;
-
-import static javax.persistence.GenerationType.IDENTITY;
+import java.util.Date;
 
 /**
- * Date: 14.01.15
- *
- * @author francesco
+ * Created by Francesco on 07/02/2015.
  */
-@NamedQuery(name = "User.findByGoogleId", query = "select u from User u where u.googleId = :googleId")
+@Cache
 @Entity
-public class User implements Serializable {
-
-    public User() {
-    }
+public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
 
-    private String email;
+    @Load
+    private Ref<GoogleUser> googleUser;
 
-    private String googleId;
-
-    @Temporal(value = TemporalType.TIMESTAMP)
     private Date creationDate = new Date();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<Device> devices = new HashSet<>();
+    private String refreshToken;
 
-    @Unowned
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<Car> cars = new HashSet<>();
-
-    @Transient
-    private String authToken;
-
-    @XmlTransient
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getGoogleId() {
-        return googleId;
-    }
-
-    public void setGoogleId(String googleId) {
-        this.googleId = googleId;
     }
 
     public Date getCreationDate() {
@@ -78,37 +43,51 @@ public class User implements Serializable {
         this.creationDate = creationDate;
     }
 
-    public Set<Device> getDevices() {
-        return devices;
+    @XmlTransient
+    public String getRefreshToken() {
+        return refreshToken;
     }
 
-    public void setDevices(Set<Device> devices) {
-        this.devices = devices;
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
-    public Set<Car> getCars() {
-        return cars;
+    public GoogleUser getGoogleUser() {
+        return googleUser.get();
     }
 
-    public void setCars(Set<Car> cars) {
-        this.cars = cars;
+    public void setGoogleUser(GoogleUser googleUser) {
+        this.googleUser = Ref.create(googleUser);
     }
 
-    public String getAuthToken() {
-        return authToken;
+    public Key<User> createKey() {
+        return Key.create(User.class, id);
     }
 
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        if (id != null ? !id.equals(user.id) : user.id != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", email=" + email +
-                ", googleId='" + googleId + '\'' +
+                ", googleUser=" + googleUser +
+                ", creationDate=" + creationDate +
+                ", refreshToken='" + refreshToken + '\'' +
                 '}';
     }
-
 }

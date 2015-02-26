@@ -2,7 +2,6 @@ package com.cahue.persistence;
 
 import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.ParkingSpot;
-import com.cahue.persistence.Persistence;
 import com.cartodb.CartoDBClientIF;
 import com.cartodb.CartoDBException;
 import com.cartodb.impl.ApiKeyCartoDBClient;
@@ -31,7 +30,7 @@ import java.util.logging.Logger;
  *
  * @author francesco
  */
-public class CartoDBPersistence implements Persistence {
+public class CartoDBPersistence implements SpotsIndex {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final SimpleDateFormat resultDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -52,7 +51,7 @@ public class CartoDBPersistence implements Persistence {
 
 
     public static final void main(String[] args) throws Exception {
-        Persistence persistence = new CartoDBPersistence();
+        SpotsIndex spotsIndex = new CartoDBPersistence();
         Calendar calendar = Calendar.getInstance();
 //        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - 3);
 
@@ -63,8 +62,8 @@ public class CartoDBPersistence implements Persistence {
         spot.setLongitude(0D);
         spot.setTime(new Date());
 
-        persistence.put(spot);
-        System.out.println(persistence.queryArea(-1D, -1D, 1D, 1D));
+        spotsIndex.put(spot);
+        System.out.println(spotsIndex.queryArea(-1D, -1D, 1D, 1D));
 
 //        int count = cartoDBIndex.deleteBefore(time);
     }
@@ -248,6 +247,11 @@ public class CartoDBPersistence implements Persistence {
         }
 
         return 0;
+    }
+
+    @Override
+    public void clear() {
+
     }
 
 }

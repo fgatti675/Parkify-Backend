@@ -1,23 +1,26 @@
 package com.cahue.resources;
 
-import com.cahue.gcm.MessageFactory;
+import com.cahue.gcm.GCMMessageFactory;
+import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.Device;
 import com.cahue.model.User;
-import com.cahue.persistence.DataSource;
-import com.cahue.util.UserService;
+import com.cahue.auth.UserService;
+import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.logging.Logger;
+
+import static com.googlecode.objectify.ObjectifyService.ofy;
 
 /**
  * @author Francesco
@@ -27,87 +30,82 @@ public class CarsResource {
 
     Logger logger = Logger.getLogger(getClass().getName());
 
-//    @Inject
-//    GCMSender sender;
+    @Inject
+    GCMSender sender;
+
+    @Inject
+    GCMMessageFactory messageFactory;
 
     @Inject
     UserService userService;
 
-    @Inject
-    DataSource dataSource;
-
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Set<Car> retrieve(@Context HttpHeaders headers) {
+    public List<Car> retrieve() {
+        return userService.retrieveUserCars();
+    }
 
-        EntityManager em = dataSource.createDatastoreEntityManager();
+    @DELETE
+    @Path("/{carId}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response delete(@PathParam(value = "carId") String carId) {
 
-        try {
+        User user = userService.getCurrentUser();
 
-            User user = userService.getFromHeaders(em, headers);
-            if (user != null) {
-                logger.fine("Found user: " + user.getEmail());
-            } else {
-                throw new WebApplicationException("Every car must have a name assigned");
-            }
+        ofy().delete().type(Car.class).parent(user).id(carId).now();
 
-            return user.getCars();
+        List<Device> devices = userService.getUserDevicesButCurrent();
+        sender.sendGCMMultiUpdate(devices, messageFactory.getCarDeletedMessage(carId));
 
-        }  finally {
-            em.close();
-        }
+        return Response.ok().entity(carId).build();
     }
 
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public void save(List<Car> cars, @Context HttpHeaders headers) {
-        EntityManager em = dataSource.createDatastoreEntityManager();
+    public Car save(Car car) {
 
-        try {
+        User user = userService.getCurrentUser();
 
-            User user = userService.getFromHeaders(em, headers);
-            if (user != null) {
-                logger.fine("Found user: " + user.getEmail());
-            } else {
-                throw new WebApplicationException("Every car must have a name assigned");
-            }
+        logger.info("Received car: " + car);
 
-            save(em, cars, user);
+        car.setLastModified(new Date());
 
-        } finally {
-            em.close();
-        }
+        save(car, user);
+
+        List<Device> devices = userService.getUserDevicesButCurrent();
+        sender.sendGCMMultiUpdate(devices, messageFactory.getCarUpdateMessage(car));
+
+        return car;
     }
 
-    public void save(EntityManager em, List<Car> cars, User user) {
-        em.getTransaction().begin();
+    public void save(Car car, User owner) {
+        car.setUser(owner);
+        ofy().save().entity(car).now();
+    }
 
+    @Deprecated
+    public List<Car> saveAndGetOutdated(List<Car> cars, User owner) {
+
+        for (Car car : cars) car.setUser(owner);
+
+        List<Car> toBeSaved = new ArrayList<>();
+        List<Car> outdated = new ArrayList();
+
+        Map<Key<Car>, Car> storedCars = ofy().load().entities(cars);
         for (Car car : cars) {
-
-            // check the car belongs to this user
-            if (!car.getUser().equals(user))
-                throw new WebApplicationException("This car doesn't belong to this user.");
-
-            car.setUser(user);
-            user.getCars().add(car);
-
-            em.merge(car);
+            Car previous = storedCars.get(car.createKey());
+            /**
+             * New entry is older
+             */
+            if (previous.getTime() == null || car.getTime().after(previous.getTime())) toBeSaved.add(car);
+            /**
+             * Previous entry is older so new is outdated
+             */
+            else outdated.add(previous);
         }
-
-        em.getTransaction().commit();
+        ofy().save().entities(toBeSaved).now();
+        return outdated;
     }
 
 
-//    @POST
-//    @Path("/send")
-//    public void send() {
-//        EntityManager em = dataSource.createDatastoreEntityManager();
-//        for (Device device : em.createQuery("SELECT d from Device d", Device.class).getResultList()) {
-//            try {
-//                sender.sendGCMUpdate(device, MessageFactory.getSayHelloMessage());
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
 }

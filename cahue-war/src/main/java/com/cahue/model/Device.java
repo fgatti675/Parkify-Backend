@@ -1,11 +1,10 @@
 package com.cahue.model;
 
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-import org.eclipse.persistence.oxm.annotations.XmlInverseReference;
+import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.*;
 
-import javax.persistence.*;
+import javax.xml.bind.annotation.XmlTransient;
 
 
 /**
@@ -13,12 +12,13 @@ import javax.persistence.*;
  *
  * @author Francesco
  */
+@Cache
 @Entity
 public class Device {
 
     public static Device createDevice(String regId, User user) {
         Device device = new Device();
-        device.user = user;
+        device.user = Ref.create(user);
         device.regId = regId;
         return device;
     }
@@ -28,8 +28,8 @@ public class Device {
     @Id
     private String regId;
 
-    @ManyToOne
-    private User user;
+    @Parent
+    private Ref<User> user;
 
     public String getRegId() {
         return regId;
@@ -39,13 +39,9 @@ public class Device {
         this.regId = regId;
     }
 
-    @XmlInverseReference(mappedBy="devices")
+    @XmlTransient
     public User getUser() {
-        return user;
-    }
-
-    private void setUser(User user) {
-        this.user = user;
+        return user.get();
     }
 
     @Override

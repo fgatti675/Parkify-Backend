@@ -1,6 +1,6 @@
 package com.cahue.config;
 
-import com.cahue.persistence.DataSource;
+import com.cahue.persistence.MySQLDataSource;
 import com.google.appengine.api.utils.SystemProperty;
 
 import javax.persistence.EntityManager;
@@ -14,17 +14,12 @@ import java.util.Map;
  *
  * @author francesco
  */
-public class TestDataSource implements DataSource {
+public class TestDataSource extends MySQLDataSource {
 
     private EntityManagerFactory mysqlFactory;
 
     public TestDataSource() {
         mysqlFactory = Persistence.createEntityManagerFactory("test-mysql");
-    }
-
-    @Override
-    public EntityManager createDatastoreEntityManager() {
-        throw new UnsupportedOperationException("Not implemented for tests.");
     }
 
     @Override

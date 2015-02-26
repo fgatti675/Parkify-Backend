@@ -1,6 +1,6 @@
 package com.cahue.resources;
 
-import com.cahue.persistence.Persistence;
+import com.cahue.persistence.SpotsIndex;
 import com.google.inject.name.Named;
 
 import javax.inject.Inject;
@@ -29,8 +29,8 @@ public class IndexCronResource {
     private static Date lastTimeout;
 
     @Inject
-    @Named(Persistence.MySQL)
-    Persistence persistence;
+    @Named(SpotsIndex.MySQL)
+    SpotsIndex spotsIndex;
 
     @GET
     @Path("/cleanStale")
@@ -41,7 +41,7 @@ public class IndexCronResource {
 
         Date time = calendar.getTime();
 
-        int deletedCount = persistence.deleteBefore(time);
+        int deletedCount = spotsIndex.deleteBefore(time);
         logger.fine(String.format("Deleted %d entries from spots index", deletedCount));
 
         return Response.ok().build();
