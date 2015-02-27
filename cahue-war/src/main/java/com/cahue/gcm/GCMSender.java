@@ -51,12 +51,12 @@ public class GCMSender {
      * @return
      * @throws java.io.IOException
      */
-    public void sendGCMUpdate(Device device, Message message) throws IOException {
+    public void sendGCMUpdate(User user, Device device, Message message) throws IOException {
         String registrationId = device.getRegId();
 
         Result result = sender.send(message, registrationId, 5);
 
-        if (result.getMessageId() == null){
+        if (result.getMessageId() == null) {
 
             String error = result.getErrorCodeName();
             if (error.equals(Constants.ERROR_NOT_REGISTERED)) {
@@ -74,10 +74,10 @@ public class GCMSender {
 
         // Update reg id if there was a change
         if (canonicalRegistrationId != null)
-            updateRegistration(registrationId, canonicalRegistrationId);
+            updateRegistration(user, registrationId, canonicalRegistrationId);
     }
 
-    public void sendGCMMultiUpdate(Collection<Device> devices, Message message) {
+    public void sendGCMMultiUpdate(User user, Collection<Device> devices, Message message) {
         MulticastResult multicastResult;
 
         List<String> regIds = new ArrayList<String>();
@@ -108,7 +108,7 @@ public class GCMSender {
                 if (canonicalRegId != null) {
                     // same devices has more than on registration id: update it
                     log.info("canonicalRegId " + canonicalRegId);
-                    updateRegistration(regId, canonicalRegId);
+                    updateRegistration(user, regId, canonicalRegId);
                 }
             } else {
                 String error = result.getErrorCodeName();
@@ -126,12 +126,10 @@ public class GCMSender {
     /**
      * Updates the registration id of a device.
      */
-    private void updateRegistration(String oldId, String newId) {
+    private void updateRegistration(User user, String oldId, String newId) {
         log.info("Updating " + oldId + " to " + newId);
-        Device oldDevice = ofy().load().type(Device.class).id(oldId).now();
-        User user = oldDevice.getUser();
+        ofy().delete().type(Device.class).parent(user).id(oldId).now();
         Device device = Device.createDevice(newId, user);
         ofy().save().entity(device).now();
-        ofy().clear();
     }
 }

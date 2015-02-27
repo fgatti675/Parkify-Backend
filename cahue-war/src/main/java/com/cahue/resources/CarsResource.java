@@ -55,7 +55,7 @@ public class CarsResource {
         ofy().delete().type(Car.class).parent(user).id(carId).now();
 
         List<Device> devices = userService.getUserDevicesButCurrent();
-        sender.sendGCMMultiUpdate(devices, messageFactory.getCarDeletedMessage(carId));
+        sender.sendGCMMultiUpdate(user, devices, messageFactory.getCarDeletedMessage(carId));
 
         return Response.ok().entity(carId).build();
     }
@@ -73,7 +73,7 @@ public class CarsResource {
         save(car, user);
 
         List<Device> devices = userService.getUserDevicesButCurrent();
-        sender.sendGCMMultiUpdate(devices, messageFactory.getCarUpdateMessage(car));
+        sender.sendGCMMultiUpdate(user, devices, messageFactory.getCarUpdateMessage(car));
 
         return car;
     }
