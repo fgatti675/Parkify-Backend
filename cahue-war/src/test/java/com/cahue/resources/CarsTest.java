@@ -3,11 +3,14 @@ package com.cahue.resources;
 import com.cahue.auth.UserService;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.BusinessModule;
+import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -21,9 +24,11 @@ import org.junit.runner.RunWith;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -69,6 +74,9 @@ public class CarsTest extends JerseyTest {
     @Inject
     UserService userService;
 
+    @Inject
+    GCMSender gcmSender;
+
     @Test
     public void addCarsTest() {
 
@@ -91,10 +99,12 @@ public class CarsTest extends JerseyTest {
 
         Entity<Car> carsEntity = Entity.entity(car, MediaType.APPLICATION_JSON);
 
-        target("cars")
+        Response response = target("cars")
                 .request()
                 .header("Authorization", result.getAuthToken())
-                .post(carsEntity); //Here we send POST request
+                .post(carsEntity);//Here we send POST request
+
+        logger.log(Level.INFO, "Response : " + response.getStatus());
 
         assertEquals(userService.retrieveUserCars().iterator().next(), car);
 

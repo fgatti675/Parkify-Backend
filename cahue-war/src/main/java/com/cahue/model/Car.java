@@ -3,10 +3,7 @@ package com.cahue.model;
 
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
-import com.googlecode.objectify.annotation.Cache;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Parent;
+import com.googlecode.objectify.annotation.*;
 
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
@@ -26,6 +23,7 @@ public class Car {
 
     private String btAddress;
 
+    @Index
     private String name;
 
     private Integer color;
@@ -41,6 +39,7 @@ public class Car {
      */
     private Date time;
 
+    @Index
     private Date lastModified;
 
     @Parent

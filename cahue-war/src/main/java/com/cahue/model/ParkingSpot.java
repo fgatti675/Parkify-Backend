@@ -14,6 +14,7 @@ import java.util.Date;
 @javax.persistence.Entity
 public class ParkingSpot {
 
+    @Index
     private Date time = new Date();
 
     @Id
@@ -25,6 +26,8 @@ public class ParkingSpot {
     private Double longitude;
     private Double latitude;
     private Float accuracy;
+
+    private Date expiryTime;
 
     public ParkingSpot() {
     }
@@ -80,6 +83,15 @@ public class ParkingSpot {
 
     public void setCar(Car car) {
         this.car = Ref.create(car);
+    }
+
+    @javax.persistence.Temporal(value = javax.persistence.TemporalType.TIMESTAMP)
+    public Date getExpiryTime() {
+        return expiryTime;
+    }
+
+    public void setExpiryTime(Date expiryTime) {
+        this.expiryTime = expiryTime;
     }
 
     @Override

@@ -14,6 +14,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Logger;
 
@@ -25,6 +26,8 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
  */
 @Path("/spots")
 public class SpotsResource {
+
+    private final Integer SPOT_TIMEOUT_H = 2; // 2 hours
 
     /**
      * Accuracy threshold for storing parking spots, in meters
@@ -100,7 +103,10 @@ public class SpotsResource {
      */
     public Key<ParkingSpot> store(ParkingSpot parkingSpot) {
 
-        parkingSpot.setTime(new Date());
+        Calendar calendar = Calendar.getInstance();
+        parkingSpot.setTime(calendar.getTime());
+        calendar.add(Calendar.HOUR, -SPOT_TIMEOUT_H);
+        parkingSpot.setExpiryTime(calendar.getTime());
 
         /**
          * Save in datastore
