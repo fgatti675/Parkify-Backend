@@ -6,6 +6,7 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
 
@@ -27,6 +28,7 @@ public class ParkingSpot {
     private Double latitude;
     private Float accuracy;
 
+    @Transient
     private Date expiryTime;
 
     public ParkingSpot() {
@@ -34,12 +36,12 @@ public class ParkingSpot {
 
     @javax.persistence.Id
     public Long getId() {
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Double getLongitude() {
         return longitude;
@@ -77,7 +79,7 @@ public class ParkingSpot {
     @XmlTransient
     @javax.persistence.Transient
     public Car getCar() {
-        if(car == null) return null;
+        if (car == null) return null;
         return car.get();
     }
 

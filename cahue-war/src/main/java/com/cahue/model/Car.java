@@ -28,16 +28,7 @@ public class Car {
 
     private Integer color;
 
-    private Double latitude;
-
-    private Double longitude;
-
-    private Float accuracy;
-
-    /**
-     * Parking time
-     */
-    private Date time;
+    private Ref<ParkingSpot> spot;
 
     @Index
     private Date lastModified;
@@ -77,38 +68,6 @@ public class Car {
         this.color = color;
     }
 
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-
-    public Float getAccuracy() {
-        return accuracy;
-    }
-
-    public void setAccuracy(Float accuracy) {
-        this.accuracy = accuracy;
-    }
-
-    public Date getTime() {
-        return time;
-    }
-
-    public void setTime(Date time) {
-        this.time = time;
-    }
-
     public Date getLastModified() {
         return lastModified;
     }
@@ -124,6 +83,18 @@ public class Car {
 
     public void setUser(User user) {
         this.user = Ref.create(user);
+    }
+
+    public ParkingSpot getSpot() {
+        if (spot == null) return null;
+        return spot.get();
+    }
+
+    public void setSpot(ParkingSpot spot) {
+        if (spot == null)
+            this.spot = null;
+        else
+            this.spot = Ref.create(spot);
     }
 
     public Key<Car> createKey() {
@@ -154,10 +125,7 @@ public class Car {
                 ", btAddress='" + btAddress + '\'' +
                 ", name='" + name + '\'' +
                 ", color=" + color +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", accuracy=" + accuracy +
-                ", time=" + time +
+                ", spot=" + spot +
                 '}';
     }
 }

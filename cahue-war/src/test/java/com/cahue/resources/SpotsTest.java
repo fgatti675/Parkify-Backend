@@ -85,7 +85,7 @@ public class SpotsTest {
         car.setName("Car name");
         car.setBtAddress("Test BT address");
 
-        this.carsResource.save(car, user);
+        this.carsResource.save(car, null, user);
 
         ParkingSpot ps1 = new ParkingSpot();
         ps1.setCar(car);

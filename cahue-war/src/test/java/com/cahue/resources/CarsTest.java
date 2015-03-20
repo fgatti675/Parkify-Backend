@@ -6,11 +6,14 @@ import com.cahue.config.guice.BusinessModule;
 import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.User;
+import com.cahue.model.transfer.CarTransfer;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
+import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -26,14 +29,11 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 @RunWith(JukitoRunner.class)
 public class CarsTest extends JerseyTest {
@@ -52,7 +52,13 @@ public class CarsTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-        return new ResourceConfig(CarsResource.class);
+
+        // TODO: Not working
+
+        Injector inj = Guice.createInjector(Modules.override(new BusinessModule()).with(new TestModule()));
+        ResourceConfig resourceConfig = new ResourceConfig(CarsResource.class);
+        inj.injectMembers(resourceConfig);
+        return resourceConfig;
     }
 
     @Inject
@@ -84,8 +90,8 @@ public class CarsTest extends JerseyTest {
         registrationRequestBean.setDeviceRegId("Test device");
         registrationRequestBean.setGoogleAuthToken(testHelper.getGoogleAuthToken());
 
-        RegistrationResult result = usersResource.register(registrationRequestBean);
-        User user = result.getUser();
+        RegistrationResult regResult = usersResource.register(registrationRequestBean);
+        User user = regResult.getUser();
         userService.setCurrentUser(user);
 
         assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
@@ -96,17 +102,18 @@ public class CarsTest extends JerseyTest {
         car.setUser(user);
         car.setBtAddress("Test BT address");
 
-
-        Entity<Car> carsEntity = Entity.entity(car, MediaType.APPLICATION_JSON);
+        Entity<CarTransfer> carsEntity = Entity.entity(new CarTransfer(car), MediaType.APPLICATION_JSON);
 
         Response response = target("cars")
                 .request()
-                .header("Authorization", result.getAuthToken())
-                .post(carsEntity);//Here we send POST request
+                .header("Authorization", regResult.getAuthToken())
+                .post(carsEntity); //Here we send POST request
+        Object entity = response.getEntity();
 
         logger.log(Level.INFO, "Response : " + response.getStatus());
 
-        assertEquals(userService.retrieveUserCars().iterator().next(), car);
+        List<Car> userCars = userService.retrieveUserCars();
+        assertEquals(userCars.iterator().next(), car);
 
     }
 }

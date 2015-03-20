@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Logger.getLogger;
 
 public class JerseyConfiguration extends ResourceConfig {
+
     private final Logger log = getLogger(getClass().getName());
 
     @Inject

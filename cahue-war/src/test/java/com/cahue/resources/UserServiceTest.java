@@ -95,7 +95,7 @@ public class UserServiceTest {
         car.setUser(user);
         car.setBtAddress("Test BT address");
 
-        this.carsResource.save(car, user);
+        this.carsResource.save(car, null, user);
 
         List<Car> retrievedCars = userService.retrieveUserCars();
         assertThat(Arrays.asList(car), is(retrievedCars));
