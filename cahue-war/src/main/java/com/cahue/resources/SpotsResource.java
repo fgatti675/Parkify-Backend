@@ -1,21 +1,20 @@
 package com.cahue.resources;
 
 import com.cahue.auth.AuthenticationException;
+import com.cahue.index.ParkingSpotIndexEntry;
 import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
-import com.cahue.persistence.SpotsIndex;
+import com.cahue.index.SpotsIndex;
 import com.cahue.auth.UserService;
 import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.logging.Logger;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
@@ -26,8 +25,6 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
  */
 @Path("/spots")
 public class SpotsResource {
-
-    private final Integer SPOT_TIMEOUT_H = 2; // 2 hours
 
     /**
      * Accuracy threshold for storing parking spots, in meters
@@ -105,8 +102,6 @@ public class SpotsResource {
 
         Calendar calendar = Calendar.getInstance();
         parkingSpot.setTime(calendar.getTime());
-        calendar.add(Calendar.HOUR, -SPOT_TIMEOUT_H);
-        parkingSpot.setExpiryTime(calendar.getTime());
 
         /**
          * Save in datastore
@@ -116,7 +111,10 @@ public class SpotsResource {
         /**
          * Put in index database
          */
-        spotsIndex.put(parkingSpot);
+        ParkingSpotIndexEntry indexEntry = new ParkingSpotIndexEntry(parkingSpot);
+        calendar.add(Calendar.HOUR, SpotsIndex.SPOT_TIMEOUT_H);
+        indexEntry.setExpiryTime(calendar.getTime());
+        spotsIndex.put(indexEntry);
 
         logger.fine(parkingSpot.toString());
 

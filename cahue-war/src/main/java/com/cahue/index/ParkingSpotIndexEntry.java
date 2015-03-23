@@ -1,34 +1,39 @@
-package com.cahue.model;
+package com.cahue.index;
 
-import com.googlecode.objectify.Ref;
-import com.googlecode.objectify.annotation.Cache;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
+import com.cahue.model.ParkingSpot;
 
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
-@Cache
-@Entity
-public class ParkingSpot {
+@XmlRootElement
+@javax.persistence.Table(name = "PARKINGSPOT")
+@javax.persistence.Entity
+public class ParkingSpotIndexEntry {
 
-    @Index
     private Date time = new Date();
 
-    @Id
     private Long id;
-
-    @Index
-    private Ref<Car> car;
 
     private Double longitude;
     private Double latitude;
     private Float accuracy;
 
-    public ParkingSpot() {
+    private Date expiryTime;
+
+    public ParkingSpotIndexEntry() {
     }
 
+    public ParkingSpotIndexEntry(ParkingSpot original) {
+        time = original.getTime();
+        id = original.getId();
+        longitude = original.getLongitude();
+        latitude = original.getLatitude();
+        accuracy = original.getAccuracy();
+    }
+
+
+
+    @javax.persistence.Id
     public Long getId() {
 		return id;
 	}
@@ -61,6 +66,7 @@ public class ParkingSpot {
         this.accuracy = accuracy;
     }
 
+    @javax.persistence.Temporal(value = javax.persistence.TemporalType.TIMESTAMP)
     public Date getTime() {
         return time;
     }
@@ -69,19 +75,18 @@ public class ParkingSpot {
         this.time = time;
     }
 
-    @XmlTransient
-    public Car getCar() {
-        if(car == null) return null;
-        return car.get();
+    @javax.persistence.Temporal(value = javax.persistence.TemporalType.TIMESTAMP)
+    public Date getExpiryTime() {
+        return expiryTime;
     }
 
-    public void setCar(Car car) {
-        this.car = Ref.create(car);
+    public void setExpiryTime(Date expiryTime) {
+        this.expiryTime = expiryTime;
     }
 
     @Override
     public String toString() {
-        return "ParkingSpot{" +
+        return "ParkingSpotIndexEntry{" +
                 "id=" + id +
                 ", longitude=" + longitude +
                 ", latitude=" + latitude +
@@ -95,7 +100,7 @@ public class ParkingSpot {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ParkingSpot that = (ParkingSpot) o;
+        ParkingSpotIndexEntry that = (ParkingSpotIndexEntry) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
 

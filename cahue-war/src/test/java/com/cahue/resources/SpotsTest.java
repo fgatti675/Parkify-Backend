@@ -2,13 +2,14 @@ package com.cahue.resources;
 
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.BusinessModule;
+import com.cahue.index.ParkingSpotIndexEntry;
 import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
-import com.cahue.persistence.SpotsIndex;
+import com.cahue.index.SpotsIndex;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
 import org.jukito.JukitoModule;
@@ -71,14 +72,8 @@ public class SpotsTest {
     @Test
     public void test() {
 
-        RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
-        registrationRequestBean.setDeviceRegId("Test device");
-        registrationRequestBean.setGoogleAuthToken(testHelper.getGoogleAuthToken());
-
-        RegistrationResult result = usersResource.register(registrationRequestBean);
+        RegistrationResult result = testHelper.registerUser();
         User user = result.getUser();
-
-        assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
 
         Car car = new Car();
         car.setId("ferfgerge");
@@ -108,8 +103,12 @@ public class SpotsTest {
         ps3.setAccuracy(5.0F);
         spotsResource.store(ps3);
 
+        List expectedResult = new ArrayList();
+        expectedResult.add(new ParkingSpotIndexEntry(ps1));
+        expectedResult.add(new ParkingSpotIndexEntry(ps2));
+
         QueryResult area = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
-        assertThat(area.getSpots(), is(Arrays.asList(ps1, ps2)));
+        assertThat(area.getSpots(), is(expectedResult));
 
 
         Collection<ParkingSpot> values = ofy().load().type(ParkingSpot.class).ids(Arrays.asList(

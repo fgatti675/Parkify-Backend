@@ -1,5 +1,7 @@
-package com.cahue.persistence;
+package com.cahue.index;
 
+import com.cahue.index.ParkingSpotIndexEntry;
+import com.cahue.index.SpotsIndex;
 import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.ParkingSpot;
 import com.cartodb.CartoDBClientIF;
@@ -30,7 +32,7 @@ import java.util.logging.Logger;
  *
  * @author francesco
  */
-public class CartoDBPersistence implements SpotsIndex {
+public class CartoDBIndex implements SpotsIndex {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final SimpleDateFormat resultDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -50,25 +52,25 @@ public class CartoDBPersistence implements SpotsIndex {
     CartoDBClientIF cartoDBClient;
 
 
-    public static final void main(String[] args) throws Exception {
-        SpotsIndex spotsIndex = new CartoDBPersistence();
-        Calendar calendar = Calendar.getInstance();
-//        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - 3);
+//    public static final void main(String[] args) throws Exception {
+//        SpotsIndex spotsIndex = new CartoDBPersistence();
+//        Calendar calendar = Calendar.getInstance();
+////        calendar.set(Calendar.HOUR, calendar.get(Calendar.HOUR) - 3);
+//
+//        Date time = calendar.getTime();
+//        ParkingSpot spot = new ParkingSpot();
+////        spot.setId(1L);
+//        spot.setLatitude(0D);
+//        spot.setLongitude(0D);
+//        spot.setTime(new Date());
+//
+//        spotsIndex.put(spot);
+//        System.out.println(spotsIndex.queryArea(-1D, -1D, 1D, 1D));
+//
+////        int count = cartoDBIndex.expireStale(time);
+//    }
 
-        Date time = calendar.getTime();
-        ParkingSpot spot = new ParkingSpot();
-//        spot.setId(1L);
-        spot.setLatitude(0D);
-        spot.setLongitude(0D);
-        spot.setTime(new Date());
-
-        spotsIndex.put(spot);
-        System.out.println(spotsIndex.queryArea(-1D, -1D, 1D, 1D));
-
-//        int count = cartoDBIndex.deleteBefore(time);
-    }
-
-    public CartoDBPersistence() {
+    public CartoDBIndex() {
 
         try {
             cartoDBClient = new ApiKeyCartoDBClient(ACCOUNT_NAME, API_KEY);
@@ -125,7 +127,7 @@ public class CartoDBPersistence implements SpotsIndex {
 
     private QueryResult retrieve(String sql) {
 
-        List<ParkingSpot> spots = new ArrayList<>();
+        List<ParkingSpotIndexEntry> spots = new ArrayList<>();
         QueryResult result = new QueryResult();
 
         String sqlString = sql;
@@ -149,7 +151,7 @@ public class CartoDBPersistence implements SpotsIndex {
                     double lat = coordinates.getDouble(1);
                     double lon = coordinates.getDouble(0);
 
-                    ParkingSpot spot = new ParkingSpot();
+                    ParkingSpotIndexEntry spot = new ParkingSpotIndexEntry();
 //                    spot.setId(Long.parseLong(id));
                     spot.setLatitude(lat);
                     spot.setLongitude(lon);
@@ -206,7 +208,7 @@ public class CartoDBPersistence implements SpotsIndex {
     }
 
     @Override
-    public void put(ParkingSpot spot) {
+    public void put(ParkingSpotIndexEntry spot) {
 
         String sqlString = String.format(
                 Locale.ENGLISH,
@@ -227,15 +229,12 @@ public class CartoDBPersistence implements SpotsIndex {
     }
 
     @Override
-    public int deleteBefore(Date date) {
+    public int expireStale() {
 
         String sqlString = String.format(
                 Locale.ENGLISH,
-                "DELETE FROM %s WHERE created_at < '%s'",
-//                "DELETE FROM %s WHERE (NOW() - INTERVAL '1 day') < created_at",
-
-                getTableId(),
-                dateFormat.format(date)
+                "DELETE FROM %s WHERE expiry_date < NOW()",
+                getTableId()
         );
         logger.finer(sqlString);
 

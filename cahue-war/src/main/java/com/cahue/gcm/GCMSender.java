@@ -78,6 +78,10 @@ public class GCMSender {
     }
 
     public void sendGCMMultiUpdate(User user, Collection<Device> devices, Message message) {
+
+        if (devices.isEmpty())
+            return;
+
         MulticastResult multicastResult;
 
         List<String> regIds = new ArrayList<String>();

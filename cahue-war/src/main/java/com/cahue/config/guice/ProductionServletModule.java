@@ -1,5 +1,6 @@
 package com.cahue.config.guice;
 
+import com.cahue.auth.AuthenticationFilter;
 import com.google.inject.servlet.ServletModule;
 import com.googlecode.objectify.ObjectifyFilter;
 

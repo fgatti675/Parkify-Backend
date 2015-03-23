@@ -1,8 +1,9 @@
 package com.cahue.util;
 
 
+import com.cahue.index.ParkingSpotIndexEntry;
 import com.cahue.model.ParkingSpot;
-import com.cahue.persistence.MySQLIndex;
+import com.cahue.index.MySQLIndex;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -29,7 +30,7 @@ public class SpotGenerator {
             spot.setLongitude(r.nextDouble() * 360 - 180);
             spot.setAccuracy(r.nextFloat() * 12);
             spot.setTime(new Date());
-            persistence.put(spot);
+            persistence.put(new ParkingSpotIndexEntry(spot));
             if (i % 1000 == 0) {
                 System.out.println(i + " / " + amount);
             }

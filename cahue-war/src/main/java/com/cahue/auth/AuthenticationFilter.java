@@ -1,4 +1,4 @@
-package com.cahue.config.guice;
+package com.cahue.auth;
 
 import com.cahue.auth.UserAuthenticationService;
 import com.cahue.auth.UserService;

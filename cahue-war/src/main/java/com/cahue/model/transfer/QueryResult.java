@@ -1,5 +1,6 @@
 package com.cahue.model.transfer;
 
+import com.cahue.index.ParkingSpotIndexEntry;
 import com.cahue.model.ParkingSpot;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class QueryResult {
      */
     boolean moreResults = false;
 
-    List<ParkingSpot> spots;
+    List<ParkingSpotIndexEntry> spots;
 
     public boolean isMoreResults() {
         return moreResults;
@@ -29,11 +30,11 @@ public class QueryResult {
         this.moreResults = moreResults;
     }
 
-    public List<ParkingSpot> getSpots() {
+    public List<ParkingSpotIndexEntry> getSpots() {
         return spots;
     }
 
-    public void setSpots(List<ParkingSpot> spots) {
+    public void setSpots(List<ParkingSpotIndexEntry> spots) {
         this.spots = spots;
     }
 

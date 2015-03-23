@@ -45,6 +45,18 @@ public class UserServiceTest {
     }
 
     @Inject
+    UserAuthenticationService authService;
+
+    @Inject
+    CarsResource carsResource;
+
+    @Inject
+    UsersResource usersResource;
+
+    @Inject
+    UserService userService;
+
+    @Inject
     TestHelper testHelper;
 
     @Before
@@ -57,19 +69,6 @@ public class UserServiceTest {
         testHelper.tearDown();
     }
 
-    @Inject
-    UserAuthenticationService authService;
-
-    @Inject
-    UsersResource usersResource;
-
-    @Inject
-    UserService userService;
-
-    @Inject
-    CarsResource carsResource;
-
-
     @Test
     public void tokenTest() {
         String token = authService.generateToken();
@@ -79,15 +78,8 @@ public class UserServiceTest {
     @Test
     public void test() {
 
-        RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
-        registrationRequestBean.setDeviceRegId("Test device");
-        registrationRequestBean.setGoogleAuthToken(testHelper.getGoogleAuthToken());
-
-        RegistrationResult result = usersResource.register(registrationRequestBean);
+        RegistrationResult result = testHelper.registerUser();
         User user = result.getUser();
-        userService.setCurrentUser(user);
-
-        assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
 
         Car car = new Car();
         car.setId("ferfgerge");
@@ -100,7 +92,7 @@ public class UserServiceTest {
         List<Car> retrievedCars = userService.retrieveUserCars();
         assertThat(Arrays.asList(car), is(retrievedCars));
 
-        result = usersResource.register(registrationRequestBean);
+        result = testHelper.registerUser();
         assertThat(Arrays.asList(car), is(result.getCars()));
 
     }

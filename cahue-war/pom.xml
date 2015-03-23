@@ -9,10 +9,10 @@
     <artifactId>cahue-war</artifactId>
 
     <properties>
-        <appengine.app.version>15-war</appengine.app.version>
+        <appengine.app.version>16-war</appengine.app.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jersey.version>2.12</jersey.version>
-        <guice.version>4.0-beta4</guice.version>
+        <jersey.version>2.17</jersey.version>
+        <guice.version>4.0-beta5</guice.version>
         <eclipselink.version>2.5.2</eclipselink.version>
     </properties>
 
@@ -249,6 +249,12 @@
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
             <version>2.15</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.unitils</groupId>
+            <artifactId>unitils-core</artifactId>
+            <version>3.4.2</version>
             <scope>test</scope>
         </dependency>
 

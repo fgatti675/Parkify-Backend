@@ -1,6 +1,6 @@
 package com.cahue.resources;
 
-import com.cahue.persistence.SpotsIndex;
+import com.cahue.index.SpotsIndex;
 import com.google.inject.name.Named;
 
 import javax.inject.Inject;
@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 @Path("/index")
 public class IndexCronResource {
 
-    private final Integer SPOT_TIMEOUT_H = 2; // 2 hours
 
     Logger logger = Logger.getLogger(getClass().getName());
 
@@ -36,12 +35,7 @@ public class IndexCronResource {
     @Path("/cleanStale")
     public synchronized Response cleanIndex() {
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, -SPOT_TIMEOUT_H);
-
-        Date time = calendar.getTime();
-
-        int deletedCount = spotsIndex.deleteBefore(time);
+        int deletedCount = spotsIndex.expireStale();
         logger.fine(String.format("Deleted %d entries from spots index", deletedCount));
 
         return Response.ok().build();

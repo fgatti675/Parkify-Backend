@@ -1,5 +1,9 @@
 package com.cahue.resources;
 
+import com.cahue.auth.UserService;
+import com.cahue.model.User;
+import com.cahue.model.transfer.RegistrationRequestBean;
+import com.cahue.model.transfer.RegistrationResult;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -8,6 +12,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalMemcacheServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
+import com.google.inject.Inject;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cache.AsyncCacheFilter;
 import org.jukito.JukitoRunner;
@@ -21,6 +26,8 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Francesco on 08/02/2015.
@@ -42,6 +49,15 @@ public class TestHelper {
             new LocalDatastoreServiceTestConfig(),
             new LocalMemcacheServiceTestConfig());
 
+    @Inject
+    UsersResource usersResource;
+
+    UserService userService;
+
+    @Inject
+    public TestHelper(UserService userService) {
+        this.userService = userService;
+    }
 
     @Before
     public void setUp() {
@@ -57,7 +73,20 @@ public class TestHelper {
         session = null;
     }
 
-    protected String getGoogleAuthToken(){
+    public RegistrationResult registerUser() {
+        RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
+        registrationRequestBean.setDeviceRegId("Test device");
+        registrationRequestBean.setGoogleAuthToken(getGoogleAuthToken());
+
+        RegistrationResult result = usersResource.register(registrationRequestBean);
+        User user = result.getUser();
+        userService.setCurrentUser(user);
+
+        assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
+        return result;
+    }
+
+    protected String getGoogleAuthToken() {
         try {
 
             ClassLoader classLoader = getClass().getClassLoader();
@@ -74,7 +103,7 @@ public class TestHelper {
 
             return credential.getAccessToken();
 
-        } catch (GeneralSecurityException |IOException e) {
+        } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }

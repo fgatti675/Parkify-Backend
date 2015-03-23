@@ -1,7 +1,8 @@
-package com.cahue.persistence;
+package com.cahue.index;
 
 import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.ParkingSpot;
+import com.cahue.persistence.MySQLDataSource;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -57,7 +58,7 @@ public class MySQLIndex implements SpotsIndex {
                 northeastLatitude,
                 MAX_RESULTS
         );
-        List resultList = em.createNativeQuery(sql, ParkingSpot.class).getResultList();
+        List resultList = em.createNativeQuery(sql, ParkingSpotIndexEntry.class).getResultList();
 
         QueryResult result = new QueryResult();
         result.setSpots(resultList);
@@ -66,7 +67,7 @@ public class MySQLIndex implements SpotsIndex {
     }
 
     @Override
-    public void put(ParkingSpot spot) {
+    public void put(ParkingSpotIndexEntry spot) {
 
         EntityManager em = dataSource.createRelationalEntityManager();
 
@@ -86,11 +87,11 @@ public class MySQLIndex implements SpotsIndex {
     }
 
     @Override
-    public int deleteBefore(Date date) {
+    public int expireStale() {
 
         EntityManager em = dataSource.createRelationalEntityManager();
         em.getTransaction().begin();
-        int deleted = em.createQuery("DELETE FROM ParkingSpot p WHERE p.time < :time ").setParameter("time", date).executeUpdate();
+        int deleted = em.createQuery("DELETE FROM ParkingSpotIndexEntry p WHERE p.expiryTime < CURRENT_TIMESTAMP").executeUpdate();
         em.getTransaction().commit();
 
         return deleted;
@@ -99,7 +100,7 @@ public class MySQLIndex implements SpotsIndex {
     public void clear(){
         EntityManager em = dataSource.createRelationalEntityManager();
         em.getTransaction().begin();
-        int deleted = em.createQuery("DELETE FROM ParkingSpot p").executeUpdate();
+        int deleted = em.createQuery("DELETE FROM ParkingSpotIndexEntry p").executeUpdate();
         em.getTransaction().commit();
     }
 }

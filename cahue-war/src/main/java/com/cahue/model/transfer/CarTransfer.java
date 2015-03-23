@@ -48,6 +48,7 @@ public class CarTransfer {
             latitude = spot.getLatitude();
             longitude = spot.getLongitude();
             accuracy = spot.getAccuracy();
+            time = spot.getTime();
         }
     }
     public Car getCar() {
@@ -66,6 +67,7 @@ public class CarTransfer {
             spot.setLatitude(latitude);
             spot.setLongitude(longitude);
             spot.setAccuracy(accuracy);
+            spot.setTime(time);
             return spot;
         } else {
             return null;
@@ -149,4 +151,37 @@ public class CarTransfer {
         this.time = time;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CarTransfer that = (CarTransfer) o;
+
+        if (accuracy != null ? !accuracy.equals(that.accuracy) : that.accuracy != null) return false;
+        if (btAddress != null ? !btAddress.equals(that.btAddress) : that.btAddress != null) return false;
+        if (color != null ? !color.equals(that.color) : that.color != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (latitude != null ? !latitude.equals(that.latitude) : that.latitude != null) return false;
+        if (longitude != null ? !longitude.equals(that.longitude) : that.longitude != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (spotId != null ? !spotId.equals(that.spotId) : that.spotId != null) return false;
+        if (time != null ? !time.equals(that.time) : that.time != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (btAddress != null ? btAddress.hashCode() : 0);
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (color != null ? color.hashCode() : 0);
+        result = 31 * result + (spotId != null ? spotId.hashCode() : 0);
+        result = 31 * result + (latitude != null ? latitude.hashCode() : 0);
+        result = 31 * result + (longitude != null ? longitude.hashCode() : 0);
+        result = 31 * result + (accuracy != null ? accuracy.hashCode() : 0);
+        result = 31 * result + (time != null ? time.hashCode() : 0);
+        return result;
+    }
 }

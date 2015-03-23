@@ -28,6 +28,7 @@ public class Car {
 
     private Integer color;
 
+    @Index
     private Ref<ParkingSpot> spot;
 
     @Index

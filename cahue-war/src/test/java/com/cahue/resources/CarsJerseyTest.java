@@ -3,17 +3,19 @@ package com.cahue.resources;
 import com.cahue.auth.UserService;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.BusinessModule;
-import com.cahue.config.guice.ProductionServletModule;
-import com.cahue.gcm.GCMMessageFactory;
 import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
-import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.CarTransfer;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
+import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
+import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.jukito.JukitoModule;
@@ -22,24 +24,22 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.unitils.reflectionassert.ReflectionAssert;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 @RunWith(JukitoRunner.class)
-public class CarsTest {
+public class CarsJerseyTest extends JerseyTest {
 
     Logger logger = Logger.getLogger(getClass().getName());
 
@@ -51,6 +51,16 @@ public class CarsTest {
         protected void configureTest() {
             install(Modules.override(new BusinessModule()).with(new TestModule()));
         }
+    }
+
+    @Override
+    protected Application configure() {
+
+        // TODO: Not working
+        Injector inj = Guice.createInjector(Modules.override(new BusinessModule()).with(new TestModule()));
+        ResourceConfig resourceConfig = new ResourceConfig(CarsResource.class);
+        inj.injectMembers(resourceConfig);
+        return resourceConfig;
     }
 
     @Inject
@@ -67,39 +77,45 @@ public class CarsTest {
     }
 
     @Inject
+    UsersResource usersResource;
+
+    @Inject
     UserService userService;
 
     @Inject
-    CarsResource carsResource;
+    GCMSender gcmSender;
 
     @Test
     public void addCarsTest() {
 
-        RegistrationResult result = testHelper.registerUser();
-        User user = result.getUser();
+        RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
+        registrationRequestBean.setDeviceRegId("Test device");
+        registrationRequestBean.setGoogleAuthToken(testHelper.getGoogleAuthToken());
+
+        RegistrationResult regResult = usersResource.register(registrationRequestBean);
+        User user = regResult.getUser();
+        userService.setCurrentUser(user);
+
+        assertEquals(user.getGoogleUser().getEmail(), TestHelper.EMAIL_ADDRESS);
 
         Car car = new Car();
         car.setId("ferfgerge");
         car.setName("Car name");
         car.setUser(user);
         car.setBtAddress("Test BT address");
-        car.setColor(-468682546);
 
-        carsResource.save(new CarTransfer(car));
-        assertThat(userService.retrieveUserCars(), is(Arrays.asList(car)));
+        Entity<CarTransfer> carsEntity = Entity.entity(new CarTransfer(car), MediaType.APPLICATION_JSON);
 
-        ParkingSpot spot = new ParkingSpot();
-        spot.setId(1234L);
-        spot.setTime(new Date());
-        spot.setLatitude(10.0);
-        spot.setLongitude(10.0);
-        spot.setAccuracy(10F);
-        spot.setCar(car);
+        Response response = target("cars")
+                .request()
+                .header("Authorization", regResult.getAuthToken())
+                .post(carsEntity); //Here we send POST request
+        Object entity = response.getEntity();
 
-        CarTransfer saved = carsResource.save(new CarTransfer(car, spot));
-        ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", saved);
-        assertEquals(car, saved.getCar());
-        assertEquals(spot, saved.getSpot());
+        logger.log(Level.INFO, "Response : " + response.getStatus());
+
+        List<Car> userCars = userService.retrieveUserCars();
+        assertEquals(userCars.iterator().next(), car);
 
     }
 }
