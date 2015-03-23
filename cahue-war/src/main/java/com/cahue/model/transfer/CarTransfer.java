@@ -30,6 +30,11 @@ public class CarTransfer {
 
     private Float accuracy;
 
+    /**
+     * Parking time
+     */
+    private Date time;
+
     public CarTransfer() {
     }
 
@@ -73,11 +78,6 @@ public class CarTransfer {
             return null;
         }
     }
-
-    /**
-     * Parking time
-     */
-    private Date time;
 
     public String getId() {
         return id;
