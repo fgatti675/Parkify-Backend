@@ -5,7 +5,9 @@ import com.cahue.auth.UserService;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.BusinessModule;
 import com.cahue.model.Car;
+import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
+import com.cahue.model.transfer.CarTransfer;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 import com.google.inject.Inject;
@@ -19,6 +21,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -87,13 +90,22 @@ public class UserServiceTest {
         car.setUser(user);
         car.setBtAddress("Test BT address");
 
-        this.carsResource.save(car, null, user);
+        ParkingSpot spot = new ParkingSpot();
+        spot.setId(1234L);
+        spot.setTime(new Date());
+        spot.setLatitude(10.0);
+        spot.setLongitude(10.0);
+        spot.setAccuracy(10F);
+        spot.setCar(car);
+        car.setSpot(spot);
+
+        this.carsResource.save(car, spot, user);
 
         List<Car> retrievedCars = userService.retrieveUserCars();
         assertThat(Arrays.asList(car), is(retrievedCars));
 
         result = testHelper.registerUser();
-        assertThat(Arrays.asList(car), is(result.getCars()));
+        assertThat(Arrays.asList(new CarTransfer(car)), is(result.getCars()));
 
     }
 }

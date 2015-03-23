@@ -4,12 +4,14 @@ import com.cahue.auth.UserAuthenticationService;
 import com.cahue.model.Car;
 import com.cahue.model.Device;
 import com.cahue.model.User;
+import com.cahue.model.transfer.CarTransfer;
 import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -91,7 +93,9 @@ public class UsersResource {
 
         // set cars
         List<Car> cars = ofy().load().type(Car.class).ancestor(user).list();
-        result.setCars(cars);
+        List<CarTransfer> carTransfers = new ArrayList<>();
+        for(Car car: cars) carTransfers.add(new CarTransfer(car));
+        result.setCars(carTransfers);
         logger.info("Registered result: " + result.getUser());
 
         return result;

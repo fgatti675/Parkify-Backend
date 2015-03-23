@@ -13,7 +13,7 @@ public class RegistrationResult {
 
     private User user;
 
-    private List<Car> cars;
+    private List<CarTransfer> cars;
 
     private String authToken;
 
@@ -27,11 +27,11 @@ public class RegistrationResult {
         this.user = user;
     }
 
-    public List<Car> getCars() {
+    public List<CarTransfer> getCars() {
         return cars;
     }
 
-    public void setCars(List<Car> cars) {
+    public void setCars(List<CarTransfer> cars) {
         this.cars = cars;
     }
 
