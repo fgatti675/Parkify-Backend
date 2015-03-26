@@ -56,7 +56,7 @@ public class CarTransfer {
             time = spot.getTime();
         }
     }
-    public Car getCar() {
+    public Car createCar() {
         Car car = new Car();
         car.setId(id);
         car.setBtAddress(btAddress);
@@ -65,7 +65,7 @@ public class CarTransfer {
         return car;
     }
 
-    public ParkingSpot getSpot() {
+    public ParkingSpot createSpot() {
         if (latitude != null && longitude != null) {
             ParkingSpot spot = new ParkingSpot();
             spot.setId(spotId);

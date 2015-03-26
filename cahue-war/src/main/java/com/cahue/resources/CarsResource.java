@@ -62,13 +62,14 @@ public class CarsResource {
     }
 
     @POST
+    @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
     public CarTransfer save(CarTransfer carTransfer) {
 
         User user = userService.getCurrentUser();
 
-        Car car = carTransfer.getCar();
-        ParkingSpot spot = carTransfer.getSpot();
+        Car car = carTransfer.createCar();
+        ParkingSpot spot = carTransfer.createSpot();
 
         logger.info("Received car: " + car);
 

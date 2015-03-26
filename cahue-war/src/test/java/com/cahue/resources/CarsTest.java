@@ -3,35 +3,24 @@ package com.cahue.resources;
 import com.cahue.auth.UserService;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.BusinessModule;
-import com.cahue.config.guice.ProductionServletModule;
-import com.cahue.gcm.GCMMessageFactory;
-import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.CarTransfer;
-import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.jukito.JukitoModule;
 import org.jukito.JukitoRunner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.unitils.reflectionassert.ReflectionAssert;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Logger;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -98,8 +87,8 @@ public class CarsTest {
 
         CarTransfer saved = carsResource.save(new CarTransfer(car, spot));
         ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", saved);
-        assertEquals(car, saved.getCar());
-        assertEquals(spot, saved.getSpot());
+        assertEquals(car, saved.createCar());
+        assertEquals(spot, saved.createSpot());
 
     }
 }

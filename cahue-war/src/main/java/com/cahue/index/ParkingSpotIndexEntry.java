@@ -20,6 +20,8 @@ public class ParkingSpotIndexEntry {
 
     private Date expiryTime;
 
+    private boolean future = false;
+
     public ParkingSpotIndexEntry() {
     }
 
@@ -31,7 +33,19 @@ public class ParkingSpotIndexEntry {
         accuracy = original.getAccuracy();
     }
 
-
+    /**
+     * Get the equivalent parking spot
+     * @return
+     */
+    public ParkingSpot createSpot() {
+        ParkingSpot spot = new ParkingSpot();
+        spot.setTime(time);
+        spot.setId(id);
+        spot.setLongitude(longitude);
+        spot.setLatitude(latitude);
+        spot.setAccuracy(accuracy);
+        return spot;
+    }
 
     @javax.persistence.Id
     public Long getId() {
@@ -82,6 +96,14 @@ public class ParkingSpotIndexEntry {
 
     public void setExpiryTime(Date expiryTime) {
         this.expiryTime = expiryTime;
+    }
+
+    public boolean isFuture() {
+        return future;
+    }
+
+    public void setFuture(boolean future) {
+        this.future = future;
     }
 
     @Override

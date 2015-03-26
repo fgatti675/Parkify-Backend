@@ -7,6 +7,8 @@ import com.cahue.persistence.MySQLDataSource;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -18,6 +20,8 @@ import java.util.Locale;
  */
 public class MySQLIndex implements SpotsIndex {
 
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
     private static final int MAX_RESULTS = 200;
 
     @Inject
@@ -28,9 +32,9 @@ public class MySQLIndex implements SpotsIndex {
         EntityManager em = dataSource.createRelationalEntityManager();
         String sql = String.format(
                 Locale.ENGLISH,
-                "SELECT ID, ACCURACY, TIME, X(SPOT) AS LONGITUDE, Y(SPOT) AS LATITUDE \n" +
-                        "FROM PARKINGSPOT " +
-                        "ORDER BY ST_DISTANCE(GEOMFROMTEXT('POINT(%f %f)', 4326), SPOT) LIMIT %d;",
+                "SELECT ID, ACCURACY, TIME, X(SPOT) AS LONGITUDE, Y(SPOT) AS LATITUDE" +
+                        " FROM PARKINGSPOT" +
+                        " ORDER BY ST_DISTANCE(GEOMFROMTEXT('POINT(%f %f)', 4326), SPOT) LIMIT %d;",
                 longitude,
                 latitude,
                 nearest
@@ -48,10 +52,10 @@ public class MySQLIndex implements SpotsIndex {
         EntityManager em = dataSource.createRelationalEntityManager();
         String sql = String.format(
                 Locale.ENGLISH,
-                "SELECT ID, ACCURACY, TIME, X(SPOT) AS LONGITUDE, Y(SPOT) AS LATITUDE " +
-                        "FROM PARKINGSPOT " +
-                        "WHERE ST_CONTAINS(ST_ENVELOPE(GEOMFROMTEXT('LINESTRING(%f %f,%f %f)', 4326)), SPOT) " +
-                        "LIMIT %d;",
+                "SELECT ID, ACCURACY, TIME, X(SPOT) AS LONGITUDE, Y(SPOT) AS LATITUDE, FUTURE, EXPIRYTIME" +
+                        " FROM PARKINGSPOT" +
+                        " WHERE ST_CONTAINS(ST_ENVELOPE(GEOMFROMTEXT('LINESTRING(%f %f,%f %f)', 4326)), SPOT)" +
+                        " LIMIT %d;",
                 southwestLongitude,
                 southwestLatitude,
                 northeastLongitude,
@@ -67,18 +71,21 @@ public class MySQLIndex implements SpotsIndex {
     }
 
     @Override
-    public void put(ParkingSpotIndexEntry spot) {
+    public void put(ParkingSpotIndexEntry entry) {
 
         EntityManager em = dataSource.createRelationalEntityManager();
 
         em.getTransaction().begin();
         String sql = String.format(
                 Locale.ENGLISH,
-                "INSERT INTO PARKINGSPOT (ID, ACCURACY, TIME, SPOT) VALUES (%d, %.2f, NOW(), (GEOMFROMTEXT('POINT(%f %f)', 4326)));",
-                spot.getId(),
-                spot.getAccuracy(),
-                spot.getLongitude(),
-                spot.getLatitude()
+                "REPLACE INTO PARKINGSPOT (ID, TIME, EXPIRYTIME, ACCURACY, SPOT, FUTURE)" +
+                        " VALUES (%d,  NOW(), '%s', %.2f, (GEOMFROMTEXT('POINT(%f %f)', 4326)), %d);",
+                entry.getId(),
+                dateFormat.format(entry.getExpiryTime()),
+                entry.getAccuracy(),
+                entry.getLongitude(),
+                entry.getLatitude(),
+                entry.isFuture() ? 1 : 0
         );
         Query insertQuery = em.createNativeQuery(sql);
         insertQuery.executeUpdate();

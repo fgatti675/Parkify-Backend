@@ -59,10 +59,11 @@ public class SpotsResource {
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
-    public ParkingSpot put(ParkingSpot parkingSpot) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public ParkingSpotIndexEntry put(ParkingSpotIndexEntry parkingSpotIndexEntry) {
 
-        if (parkingSpot.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
-            logger.fine("Spot received but too inaccurate : " + parkingSpot.getAccuracy() + " m.");
+        if (parkingSpotIndexEntry.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
+            logger.fine("Spot received but too inaccurate : " + parkingSpotIndexEntry.getAccuracy() + " m.");
             throw new WebApplicationException(Response
                     .status(Response.Status.BAD_REQUEST)
                     .entity("Minimum accuracy is: " + MINIMUM_SPOT_ACCURACY)
@@ -77,46 +78,47 @@ public class SpotsResource {
             // TODO: ok by now
         }
 
-        Car car = parkingSpot.getCar();
-        if (car != null) {
-            logger.fine("Car : " + car);
-            car.setUser(user);
-            parkingSpot.setCar(car);
-        }
-
-        Key<ParkingSpot> psKey = store(parkingSpot);
+        Key<ParkingSpot> psKey = store(parkingSpotIndexEntry);
 
         ParkingSpot stored = ofy().load().key(psKey).now();
         logger.fine("Stored : " + stored);
 
-        return parkingSpot;
+        return parkingSpotIndexEntry;
     }
+
 
     /**
      * Store the parking spot both in the datastore and the index
      *
-     * @param parkingSpot
+     * @param indexEntry
      * @return
      */
-    public Key<ParkingSpot> store(ParkingSpot parkingSpot) {
-
+    public Key<ParkingSpot> store(ParkingSpotIndexEntry indexEntry) {
+        /**
+         * Update time
+         */
         Calendar calendar = Calendar.getInstance();
-        parkingSpot.setTime(calendar.getTime());
+        indexEntry.setTime(calendar.getTime());
 
         /**
          * Save in datastore
          */
-        Key<ParkingSpot> key = ofy().save().entity(parkingSpot).now();
+        ParkingSpot spot = indexEntry.createSpot();
+        Key<ParkingSpot> key = ofy().save().entity(spot).now();
+        indexEntry.setId(key.getId());
+        logger.fine(spot.toString());
 
         /**
          * Put in index database
          */
-        ParkingSpotIndexEntry indexEntry = new ParkingSpotIndexEntry(parkingSpot);
-        calendar.add(Calendar.HOUR, SpotsIndex.SPOT_TIMEOUT_H);
-        indexEntry.setExpiryTime(calendar.getTime());
+        if (indexEntry.isFuture()) {
+            calendar.add(Calendar.MINUTE, SpotsIndex.FUTURE_SPOT_TIMEOUT_M);
+            indexEntry.setExpiryTime(calendar.getTime());
+        } else {
+            calendar.add(Calendar.MINUTE, SpotsIndex.SPOT_TIMEOUT_M);
+            indexEntry.setExpiryTime(calendar.getTime());
+        }
         spotsIndex.put(indexEntry);
-
-        logger.fine(parkingSpot.toString());
 
         return key;
     }

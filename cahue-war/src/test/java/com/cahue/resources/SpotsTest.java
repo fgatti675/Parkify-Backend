@@ -18,6 +18,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.unitils.reflectionassert.ReflectionAssert;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JukitoRunner.class)
 public class SpotsTest {
@@ -87,38 +89,54 @@ public class SpotsTest {
         ps1.setLatitude(10.0);
         ps1.setLongitude(10.0);
         ps1.setAccuracy(5.0F);
-        spotsResource.store(ps1);
+        ParkingSpotIndexEntry ps1index = new ParkingSpotIndexEntry(ps1);
+        ps1index.setFuture(true);
+        spotsResource.store(ps1index);
 
         ParkingSpot ps2 = new ParkingSpot();
         ps2.setCar(car);
         ps2.setLatitude(5.0);
         ps2.setLongitude(5.0);
         ps2.setAccuracy(5.0F);
-        spotsResource.store(ps2);
+        ParkingSpotIndexEntry ps2index = new ParkingSpotIndexEntry(ps2);
+        spotsResource.store(ps2index);
 
         ParkingSpot ps3 = new ParkingSpot();
         ps3.setCar(car);
         ps3.setLatitude(1000.0);
         ps3.setLongitude(1000.0);
         ps3.setAccuracy(5.0F);
-        spotsResource.store(ps3);
+        ParkingSpotIndexEntry ps3index = new ParkingSpotIndexEntry(ps3);
+        spotsResource.store(ps3index);
 
         List expectedResult = new ArrayList();
-        expectedResult.add(new ParkingSpotIndexEntry(ps1));
-        expectedResult.add(new ParkingSpotIndexEntry(ps2));
+        expectedResult.add(ps1index);
+        expectedResult.add(ps2index);
 
+        /**
+         * Query area and test
+         */
         QueryResult area = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
+        // look for the one in the future
+        for (ParkingSpotIndexEntry entry : area.getSpots()) {
+            ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", entry);
+            if(entry.getId() == ps1index.getId()) assertTrue(entry.isFuture());
+            else if(entry.getId() == ps2index.getId()) assertTrue(!entry.isFuture());
+            else if(entry.getId() == ps3index.getId()) assertTrue(!entry.isFuture());
+        }
         assertThat(area.getSpots(), is(expectedResult));
 
-
         Collection<ParkingSpot> values = ofy().load().type(ParkingSpot.class).ids(Arrays.asList(
-                ps1.getId(),
-                ps2.getId(),
-                ps3.getId()
+                ps1index.getId(),
+                ps2index.getId(),
+                ps3index.getId()
         )).values();
 
         List<ParkingSpot> actual = new ArrayList(values);
-        List<ParkingSpot> value = Arrays.asList(ps1, ps2, ps3);
+        List<ParkingSpot> value = Arrays.asList(
+                ps1index.createSpot(),
+                ps2index.createSpot(),
+                ps3index.createSpot());
         assertThat(actual, is(value));
     }
 
