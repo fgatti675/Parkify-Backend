@@ -11,8 +11,9 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.jdbc.user" value="root"/>
+            <property name="eclipselink.cache.shared.default" value="false"/>
             <!--<property name="javax.persistence.jdbc.password" value="arrabal"/>-->
-            <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
+            <!--<property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>-->
         </properties>
     </persistence-unit>
 

@@ -84,7 +84,7 @@ public class MySQLIndex implements SpotsIndex {
                         " EXPIRYTIME=VALUES(EXPIRYTIME)," +
                         " ACCURACY=VALUES(ACCURACY)," +
                         " SPOT=VALUES(SPOT)," +
-                        " FUTURE=VALUES(FUTURE)",
+                        " FUTURE=VALUES(FUTURE);",
                 entry.getId(),
                 dateFormat.format(entry.getExpiryTime()),
                 entry.getAccuracy(),
@@ -92,6 +92,7 @@ public class MySQLIndex implements SpotsIndex {
                 entry.getLatitude(),
                 entry.isFuture() ? 1 : 0
         );
+
         Query insertQuery = em.createNativeQuery(sql);
         insertQuery.executeUpdate();
         em.getTransaction().commit();

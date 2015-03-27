@@ -53,6 +53,7 @@ public class SpotsTest {
 
     @After
     public void tearDown() throws IOException {
+        spotsIndex.clear();
         testHelper.tearDown();
     }
 
@@ -143,13 +144,14 @@ public class SpotsTest {
         ps1index.setLongitude(11.0);
         ps1index.setFuture(false);
         spotsResource.store(ps1index);
-        area = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
+
+        QueryResult newArea = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
         // look for the one in the future
-        for (ParkingSpotIndexEntry entry : area.getSpots()) {
+        for (ParkingSpotIndexEntry entry : newArea.getSpots()) {
             ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", entry);
             if (entry.getId() == ps1index.getId()) {
-                assertEquals(entry.getLatitude(), 11, 1e-15);
-                assertEquals(entry.getLongitude(), 11, 1e-15);
+                assertEquals(11, entry.getLatitude(), 1e-15);
+                assertEquals(11, entry.getLongitude(), 1e-15);
                 assertTrue(!entry.isFuture());
             } else if (entry.getId() == ps2index.getId()) {
                 assertTrue(!entry.isFuture());
@@ -157,6 +159,11 @@ public class SpotsTest {
                 assertTrue(!entry.isFuture());
             }
         }
+
+        expectedResult = new ArrayList();
+        expectedResult.add(ps2index);
+        expectedResult.add(ps1index);
+        assertThat(newArea.getSpots(), is(expectedResult));
     }
 
 
