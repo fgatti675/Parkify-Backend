@@ -3,13 +3,12 @@ package com.cahue.resources;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.BusinessModule;
 import com.cahue.index.ParkingSpotIndexEntry;
+import com.cahue.index.SpotsIndex;
 import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
-import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
-import com.cahue.index.SpotsIndex;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
 import org.jukito.JukitoModule;
@@ -28,9 +27,7 @@ import java.util.List;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(JukitoRunner.class)
 public class SpotsTest {
@@ -120,9 +117,9 @@ public class SpotsTest {
         // look for the one in the future
         for (ParkingSpotIndexEntry entry : area.getSpots()) {
             ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", entry);
-            if(entry.getId() == ps1index.getId()) assertTrue(entry.isFuture());
-            else if(entry.getId() == ps2index.getId()) assertTrue(!entry.isFuture());
-            else if(entry.getId() == ps3index.getId()) assertTrue(!entry.isFuture());
+            if (entry.getId() == ps1index.getId()) assertTrue(entry.isFuture());
+            else if (entry.getId() == ps2index.getId()) assertTrue(!entry.isFuture());
+            else if (entry.getId() == ps3index.getId()) assertTrue(!entry.isFuture());
         }
         assertThat(area.getSpots(), is(expectedResult));
 
@@ -138,6 +135,28 @@ public class SpotsTest {
                 ps2index.createSpot(),
                 ps3index.createSpot());
         assertThat(actual, is(value));
+
+        /**
+         * Replace future spot with regular one
+         */
+        ps1index.setLatitude(11.0);
+        ps1index.setLongitude(11.0);
+        ps1index.setFuture(false);
+        spotsResource.store(ps1index);
+        area = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
+        // look for the one in the future
+        for (ParkingSpotIndexEntry entry : area.getSpots()) {
+            ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", entry);
+            if (entry.getId() == ps1index.getId()) {
+                assertEquals(entry.getLatitude(), 11, 1e-15);
+                assertEquals(entry.getLongitude(), 11, 1e-15);
+                assertTrue(!entry.isFuture());
+            } else if (entry.getId() == ps2index.getId()) {
+                assertTrue(!entry.isFuture());
+            } else if (entry.getId() == ps3index.getId()) {
+                assertTrue(!entry.isFuture());
+            }
+        }
     }
 
 

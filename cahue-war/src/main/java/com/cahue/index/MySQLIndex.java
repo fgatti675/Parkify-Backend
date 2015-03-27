@@ -22,7 +22,6 @@ public class MySQLIndex implements SpotsIndex {
 
     private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-    private static final int MAX_RESULTS = 200;
 
     @Inject
     MySQLDataSource dataSource;
@@ -32,9 +31,9 @@ public class MySQLIndex implements SpotsIndex {
         EntityManager em = dataSource.createRelationalEntityManager();
         String sql = String.format(
                 Locale.ENGLISH,
-                "SELECT ID, ACCURACY, TIME, X(SPOT) AS LONGITUDE, Y(SPOT) AS LATITUDE" +
-                        " FROM PARKINGSPOT" +
-                        " ORDER BY ST_DISTANCE(GEOMFROMTEXT('POINT(%f %f)', 4326), SPOT) LIMIT %d;",
+                "SELECT ID, ACCURACY, TIME, X(SPOT) AS LONGITUDE, Y(SPOT) AS LATITUDE \n" +
+                        "FROM PARKINGSPOT " +
+                        "ORDER BY ST_DISTANCE(GEOMFROMTEXT('POINT(%f %f)', 4326), SPOT) LIMIT %d;",
                 longitude,
                 latitude,
                 nearest
@@ -62,7 +61,7 @@ public class MySQLIndex implements SpotsIndex {
                 northeastLatitude,
                 MAX_RESULTS
         );
-        List resultList = em.createNativeQuery(sql, ParkingSpotIndexEntry.class).getResultList();
+        List<ParkingSpotIndexEntry> resultList = em.createNativeQuery(sql, ParkingSpotIndexEntry.class).getResultList();
 
         QueryResult result = new QueryResult();
         result.setSpots(resultList);
@@ -78,8 +77,14 @@ public class MySQLIndex implements SpotsIndex {
         em.getTransaction().begin();
         String sql = String.format(
                 Locale.ENGLISH,
-                "REPLACE INTO PARKINGSPOT (ID, TIME, EXPIRYTIME, ACCURACY, SPOT, FUTURE)" +
-                        " VALUES (%d,  NOW(), '%s', %.2f, (GEOMFROMTEXT('POINT(%f %f)', 4326)), %d);",
+                "INSERT INTO PARKINGSPOT (ID, TIME, EXPIRYTIME, ACCURACY, SPOT, FUTURE)" +
+                        " VALUES (%d,  NOW(), '%s', %.2f, (GEOMFROMTEXT('POINT(%f %f)', 4326)), %d)" +
+                        " ON DUPLICATE KEY UPDATE" +
+                        " TIME=VALUES(TIME)," +
+                        " EXPIRYTIME=VALUES(EXPIRYTIME)," +
+                        " ACCURACY=VALUES(ACCURACY)," +
+                        " SPOT=VALUES(SPOT)," +
+                        " FUTURE=VALUES(FUTURE)",
                 entry.getId(),
                 dateFormat.format(entry.getExpiryTime()),
                 entry.getAccuracy(),

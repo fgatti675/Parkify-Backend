@@ -3,6 +3,6 @@
     <cron>
         <url>/index/cleanStale</url>
         <description>Remove stale index positions</description>
-        <schedule>every 5 minutes</schedule>
+        <schedule>every 2 minutes</schedule>
     </cron>
 </cronentries>
