@@ -1,6 +1,7 @@
 package com.cahue.gcm;
 
 import com.cahue.model.Car;
+import com.cahue.model.transfer.CarTransfer;
 import com.google.android.gcm.server.Message;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;
 
@@ -25,16 +26,16 @@ public class GCMMessageFactory {
     public static final String DELETED_CAR = "DELETED_CAR";
 
 
-    public Message getCarUpdateMessage(Car car) {
+    public Message getCarUpdateMessage(CarTransfer car) {
         return new Message.Builder()
                 .collapseKey(UPDATED_CAR)
                 .addData(UPDATED_CAR, marshallCar(car))
                 .build();
     }
 
-    public String marshallCar(Car car) {
+    public String marshallCar(CarTransfer car) {
         try {
-            JAXBContext jc = JAXBContextFactory.createContext(new Class[]{Car.class}, null);
+            JAXBContext jc = JAXBContextFactory.createContext(new Class[]{CarTransfer.class}, null);
 
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

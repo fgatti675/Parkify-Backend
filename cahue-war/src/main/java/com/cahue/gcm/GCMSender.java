@@ -79,8 +79,10 @@ public class GCMSender {
 
     public void sendGCMMultiUpdate(User user, Collection<Device> devices, Message message) {
 
-        if (devices.isEmpty())
+        if (devices.isEmpty()) {
+            log.fine("No devices to send GMC. User: " + user.getId());
             return;
+        }
 
         MulticastResult multicastResult;
 

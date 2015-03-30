@@ -3,6 +3,8 @@ package com.cahue.model.transfer;
 import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
@@ -11,7 +13,6 @@ import java.util.Date;
  *
  * @author francesco
  */
-@XmlRootElement
 public class CarTransfer {
 
     private String id;

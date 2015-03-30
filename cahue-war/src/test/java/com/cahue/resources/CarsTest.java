@@ -3,6 +3,7 @@ package com.cahue.resources;
 import com.cahue.auth.UserService;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.BusinessModule;
+import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
@@ -61,6 +62,9 @@ public class CarsTest {
     @Inject
     CarsResource carsResource;
 
+    @Inject
+    GCMSender gcmSender;
+
     @Test
     public void addCarsTest() {
 
@@ -91,4 +95,6 @@ public class CarsTest {
         assertEquals(spot, saved.createSpot());
 
     }
+
+
 }

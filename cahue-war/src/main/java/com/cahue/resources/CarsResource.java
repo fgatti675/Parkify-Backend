@@ -77,10 +77,12 @@ public class CarsResource {
 
         save(car, spot, user);
 
-        List<Device> devices = userService.getUserDevicesButCurrent();
-        sender.sendGCMMultiUpdate(user, devices, messageFactory.getCarUpdateMessage(car));
+        CarTransfer result = new CarTransfer(car, spot);
 
-        return new CarTransfer(car, spot);
+        List<Device> devices = userService.getUserDevicesButCurrent();
+        sender.sendGCMMultiUpdate(user, devices, messageFactory.getCarUpdateMessage(carTransfer));
+
+        return result;
     }
 
     public void save(Car car, ParkingSpot spot, User owner) {
