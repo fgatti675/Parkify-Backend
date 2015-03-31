@@ -114,6 +114,7 @@ public class ParkingSpotIndexEntry {
                 ", latitude=" + latitude +
                 ", accuracy=" + accuracy +
                 ", time=" + time +
+                ", future=" + future +
                 '}';
     }
 

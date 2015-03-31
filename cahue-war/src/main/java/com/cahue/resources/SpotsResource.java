@@ -60,15 +60,17 @@ public class SpotsResource {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
-    public ParkingSpotIndexEntry put(ParkingSpotIndexEntry parkingSpotIndexEntry) {
+    public ParkingSpotIndexEntry put(ParkingSpotIndexEntry indexEntry) {
 
-        if (parkingSpotIndexEntry.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
-            logger.fine("Spot received but too inaccurate : " + parkingSpotIndexEntry.getAccuracy() + " m.");
+        if (indexEntry.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
+            logger.fine("Spot received but too inaccurate : " + indexEntry.getAccuracy() + " m.");
             throw new WebApplicationException(Response
                     .status(Response.Status.BAD_REQUEST)
                     .entity("Minimum accuracy is: " + MINIMUM_SPOT_ACCURACY)
                     .build());
         }
+
+        logger.fine("Index : " + indexEntry.toString());
 
         User user = null;
         try {
@@ -78,12 +80,10 @@ public class SpotsResource {
             // TODO: ok by now
         }
 
-        Key<ParkingSpot> psKey = store(parkingSpotIndexEntry);
+        Key<ParkingSpot> psKey = store(indexEntry);
+        logger.fine("Stored key : " + psKey);
 
-        ParkingSpot stored = ofy().load().key(psKey).now();
-        logger.fine("Stored : " + stored);
-
-        return parkingSpotIndexEntry;
+        return indexEntry;
     }
 
 
@@ -94,6 +94,7 @@ public class SpotsResource {
      * @return
      */
     public Key<ParkingSpot> store(ParkingSpotIndexEntry indexEntry) {
+
         /**
          * Update time
          */
@@ -106,7 +107,6 @@ public class SpotsResource {
         ParkingSpot spot = indexEntry.createSpot();
         Key<ParkingSpot> key = ofy().save().entity(spot).now();
         indexEntry.setId(key.getId());
-        logger.fine(spot.toString());
 
         /**
          * Put in index database
