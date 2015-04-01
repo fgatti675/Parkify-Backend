@@ -212,9 +212,9 @@ public class UserAuthenticationService {
 
     Pattern tokenPattern =
             Pattern.compile(".+" +
-                    "|" + APPLICATION_NAME +
-                    "|" + "\\d+" +
-                    "|" + ".+");
+                    "\\|" + APPLICATION_NAME +
+                    "\\|" + "\\d+" +
+                    "\\|" + ".+");
 
     public String generateToken() {
         String key = UUID.randomUUID().toString().toUpperCase() +
@@ -229,7 +229,8 @@ public class UserAuthenticationService {
 
     public boolean validateToken(String userToken) {
         if (userToken == null) return false;
-        return tokenPattern.matcher(userToken).matches();
+        String decrypted = jasypt.decrypt(userToken);
+        return tokenPattern.matcher(decrypted).matches();
     }
 
 }
