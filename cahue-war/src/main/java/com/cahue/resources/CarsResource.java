@@ -80,7 +80,7 @@ public class CarsResource {
         CarTransfer result = new CarTransfer(car, spot);
 
         List<Device> devices = userService.getUserDevicesButCurrent();
-        sender.sendGCMMultiUpdate(user, devices, messageFactory.getCarUpdateMessage(carTransfer));
+        sender.sendGCMMultiUpdate(user, devices, messageFactory.getCarUpdateMessage(result));
 
         return result;
     }

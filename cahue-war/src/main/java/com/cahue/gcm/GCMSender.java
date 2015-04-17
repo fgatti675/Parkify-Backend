@@ -93,6 +93,8 @@ public class GCMSender {
             devicesMap.put(device.getRegId(), device);
         }
 
+        log.info("Error posting messages");
+
         try {
             multicastResult = sender.send(message, regIds, 5);
         } catch (IOException e) {

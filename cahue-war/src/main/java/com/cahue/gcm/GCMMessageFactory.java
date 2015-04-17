@@ -10,7 +10,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URLEncoder;
 
 /**
  * @author Francesco
@@ -40,10 +42,14 @@ public class GCMMessageFactory {
             Marshaller marshaller = jc.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             marshaller.setProperty("eclipselink.media-type", "application/json");
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             Writer writer = new StringWriter();
             marshaller.marshal(car, writer);
-            return writer.toString();
+            return URLEncoder.encode(writer.toString(), "UTF-8");
         } catch (JAXBException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }

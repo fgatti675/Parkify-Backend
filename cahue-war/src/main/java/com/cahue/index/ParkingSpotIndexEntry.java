@@ -1,13 +1,17 @@
 package com.cahue.index;
 
 import com.cahue.model.ParkingSpot;
+import com.cahue.util.BooleanAdapter;
 
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Date;
 
 @XmlRootElement
-@javax.persistence.Table(name = "PARKINGSPOT")
-@javax.persistence.Entity
+@Table(name = "PARKINGSPOT")
+@Entity
 public class ParkingSpotIndexEntry {
 
     private Date time = new Date();
@@ -47,7 +51,7 @@ public class ParkingSpotIndexEntry {
         return spot;
     }
 
-    @javax.persistence.Id
+    @Id
     public Long getId() {
 		return id;
 	}
@@ -80,7 +84,7 @@ public class ParkingSpotIndexEntry {
         this.accuracy = accuracy;
     }
 
-    @javax.persistence.Temporal(value = javax.persistence.TemporalType.TIMESTAMP)
+    @Temporal(value = TemporalType.TIMESTAMP)
     public Date getTime() {
         return time;
     }
@@ -89,7 +93,8 @@ public class ParkingSpotIndexEntry {
         this.time = time;
     }
 
-    @javax.persistence.Temporal(value = javax.persistence.TemporalType.TIMESTAMP)
+    @Temporal(value = TemporalType.TIMESTAMP)
+    @XmlTransient
     public Date getExpiryTime() {
         return expiryTime;
     }
@@ -98,6 +103,7 @@ public class ParkingSpotIndexEntry {
         this.expiryTime = expiryTime;
     }
 
+    @XmlJavaTypeAdapter(value = BooleanAdapter.class)
     public boolean isFuture() {
         return future;
     }
