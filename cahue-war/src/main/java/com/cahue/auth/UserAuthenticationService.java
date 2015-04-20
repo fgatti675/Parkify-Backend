@@ -16,6 +16,7 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.objectify.Key;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 
 import java.io.IOException;
@@ -139,7 +140,7 @@ public class UserAuthenticationService {
 
                 if (person == null) {
                     logger.log(Level.SEVERE, "Google Auth token failed to be exchanged for a real Google person.");
-                    return null;
+                    throw new WebApplicationException("Google Auth token failed to be exchanged for a real Google person.");
                 }
 
                 String googleId = person.getId();
