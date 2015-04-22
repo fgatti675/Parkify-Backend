@@ -150,7 +150,6 @@ svg {
     /* background: url(../img/bg01.jpg) no-repeat center top; */
     background-color: #377187;
     /*margin-top: 20px;*/
-    padding-top: 200px;
     min-height: 100%;
     width: 100%;
 
@@ -163,6 +162,11 @@ svg {
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+}
+
+#headerwrap .left{
+    padding-top: 200px;
+
 }
 
 #headerwrap h1 {
