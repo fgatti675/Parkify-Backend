@@ -31,6 +31,7 @@ public class OfyFactory extends ObjectifyFactory
         this.register(AuthToken.class);
         this.register(User.class);
 		this.register(GoogleUser.class);
+		this.register(FacebookUser.class);
 		this.register(Car.class);
 		this.register(Device.class);
         this.register(ParkingSpot.class);

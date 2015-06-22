@@ -1,17 +1,15 @@
 package com.cahue.config.jersey;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.servlet.ServletContext;
-
-
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
 import freemarker.template.Configuration;
+
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TemplateObjectFactory extends Configuration {
 

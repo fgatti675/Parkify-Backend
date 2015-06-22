@@ -1,16 +1,10 @@
 package com.cahue.gcm;
 
-import com.cahue.model.Car;
 import com.cahue.model.Device;
-import com.cahue.model.GoogleUser;
 import com.cahue.model.User;
 import com.google.android.gcm.server.*;
-import com.googlecode.objectify.Key;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;

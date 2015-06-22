@@ -1,5 +1,6 @@
 package com.cahue.model;
 
+import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
@@ -17,13 +18,13 @@ import java.io.Serializable;
  */
 @Cache
 @Entity
-public class GoogleUser implements Serializable {
+public class FacebookUser implements Serializable {
 
-    public GoogleUser() {
+    public FacebookUser() {
     }
 
     @Id
-    private String googleId;
+    private String facebookId;
 
     private Ref<User> user;
 
@@ -38,12 +39,12 @@ public class GoogleUser implements Serializable {
         this.email = email;
     }
 
-    public String getGoogleId() {
-        return googleId;
+    public String getFacebookId() {
+        return facebookId;
     }
 
-    public void setGoogleId(String googleId) {
-        this.googleId = googleId;
+    public void setFacebookId(String facebookId) {
+        this.facebookId = facebookId;
     }
 
     @XmlTransient
@@ -57,10 +58,14 @@ public class GoogleUser implements Serializable {
 
     @Override
     public String toString() {
-        return "GoogleUser{" +
+        return "FacebookUser{" +
                 "email=" + email +
-                ", googleId='" + googleId + '\'' +
+                ", facebookId='" + facebookId + '\'' +
                 '}';
+    }
+
+    public static Key<FacebookUser> createGoogleUserKey(String googleId) {
+        return Key.create(FacebookUser.class, googleId);
     }
 
 }

@@ -9,7 +9,7 @@
     <artifactId>cahue-war</artifactId>
 
     <properties>
-        <appengine.app.version>17-war</appengine.app.version>
+        <appengine.app.version>18-war</appengine.app.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>2.17</jersey.version>
         <guice.version>4.0-beta5</guice.version>
@@ -160,7 +160,6 @@
             <version>v1-rev204-1.19.1</version>
         </dependency>
 
-
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-servlet</artifactId>
@@ -177,6 +176,12 @@
             <version>1.19.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.restfb</groupId>
+            <artifactId>restfb</artifactId>
+            <version>1.11.0</version>
+            <scope>compile</scope>
+        </dependency>
 
         <dependency>
             <groupId>cartodb-java-client</groupId>

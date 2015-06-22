@@ -1,21 +1,13 @@
 package com.cahue.auth;
 
-import com.cahue.auth.UserAuthenticationService;
-import com.cahue.auth.UserService;
 import com.cahue.model.User;
 import com.google.inject.Provider;
 
-import java.io.IOException;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @Singleton
 public final class AuthenticationFilter implements Filter
@@ -43,7 +35,7 @@ public final class AuthenticationFilter implements Filter
         String token = req.getHeader(UserAuthenticationService.AUTH_HEADER);
         String deviceId = req.getHeader(DEVICE_HEADER);
 
-        if (authService.validateToken(token)) {
+        if (token != null && authService.validateToken(token)) {
 
             User user = authService.retrieveUser(token);
             UserService userService = userServiceProvider.get();

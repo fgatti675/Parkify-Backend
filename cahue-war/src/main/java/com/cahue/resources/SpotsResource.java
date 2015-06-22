@@ -1,13 +1,12 @@
 package com.cahue.resources;
 
 import com.cahue.auth.AuthenticationException;
+import com.cahue.auth.UserService;
 import com.cahue.index.ParkingSpotIndexEntry;
-import com.cahue.model.Car;
+import com.cahue.index.SpotsIndex;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.QueryResult;
-import com.cahue.index.SpotsIndex;
-import com.cahue.auth.UserService;
 import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
@@ -75,7 +74,7 @@ public class SpotsResource {
         User user = null;
         try {
             user = userService.getCurrentUser();
-            logger.fine(user.getGoogleUser().toString());
+            logger.fine(user.toString());
         } catch (AuthenticationException e) {
             // TODO: ok by now
         }

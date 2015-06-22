@@ -7,7 +7,6 @@ import com.cahue.model.Car;
 import com.cahue.model.transfer.CarTransfer;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
-import org.eclipse.persistence.jaxb.JAXBContextFactory;
 import org.jukito.JukitoModule;
 import org.jukito.JukitoRunner;
 import org.junit.After;
@@ -15,12 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.logging.Logger;
 
 @RunWith(JukitoRunner.class)

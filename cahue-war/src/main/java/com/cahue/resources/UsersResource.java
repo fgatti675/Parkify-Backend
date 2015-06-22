@@ -32,7 +32,8 @@ public class UsersResource {
 
     @POST
     @Path("/createGoogle")
-    public RegistrationResult createGoogleUser(RegistrationRequestBean registration) {
+    @Deprecated
+    public RegistrationResult registerGoogle(RegistrationRequestBean registration) {
 
         if (registration == null)
             throw new WebApplicationException(
@@ -40,7 +41,97 @@ public class UsersResource {
                             .entity("The registration request is not correct.")
                             .build());
 
-        RegistrationResult result = register(registration);
+        RegistrationResult result = createGoogleUser(registration.getGoogleAuthToken(), registration.getGoogleAuthToken());
+
+        return result;
+    }
+
+    /**
+     * Register a new user from a GoogleAuthToken
+     *
+     * @param googleAuthToken
+     * @param deviceRegId
+     * @return
+     */
+    @POST
+    @Path("/google")
+    @Consumes("application/x-www-form-urlencoded")
+    public RegistrationResult createGoogleUser(@FormParam("googleAuthToken") String googleAuthToken,
+                                               @FormParam("deviceRegId") String deviceRegId) {
+
+        if (googleAuthToken == null)
+            throw new WebApplicationException(
+                    Response.status(Response.Status.BAD_REQUEST)
+                            .entity("googleAuthToken parameter missing")
+                            .build());
+
+        if (deviceRegId == null)
+            throw new WebApplicationException(
+                    Response.status(Response.Status.BAD_REQUEST)
+                            .entity("deviceRegId parameter missing")
+                            .build());
+
+        // create or retrieve an existing user
+        User user = userAuthenticationService.retrieveGoogleUser(googleAuthToken);
+
+        // register the device
+        registerDevice(deviceRegId, user);
+
+        return getRegistrationResult(user);
+    }
+
+    /**
+     * Register a new user from a FacebookAuthToken
+     *
+     * @param facebookAuthToken
+     * @param deviceRegId
+     * @return
+     */
+    @POST
+    @Path("/facebook")
+    @Consumes("application/x-www-form-urlencoded")
+    public RegistrationResult createFacebookUser(@FormParam("facebookAuthToken") String facebookAuthToken,
+                                                 @FormParam("deviceRegId") String deviceRegId) {
+
+        if (facebookAuthToken == null)
+            throw new WebApplicationException(
+                    Response.status(Response.Status.BAD_REQUEST)
+                            .entity("googleAuthToken parameter missing")
+                            .build());
+
+        if (deviceRegId == null)
+            throw new WebApplicationException(
+                    Response.status(Response.Status.BAD_REQUEST)
+                            .entity("deviceRegId parameter missing")
+                            .build());
+
+        // create or retrieve an existing user
+        User user = userAuthenticationService.retrieveFacebookUser(facebookAuthToken);
+
+        // register the device
+        registerDevice(deviceRegId, user);
+
+        return getRegistrationResult(user);
+    }
+
+    private RegistrationResult getRegistrationResult(User user) {
+        RegistrationResult result = new RegistrationResult();
+        result.setUser(user);
+
+        // generate a new auth token for the user
+        String authToken = createAuthToken(user);
+
+        // store the token as a transient property in the user so it can be returned to the client
+        result.setAuthToken(authToken);
+        result.setRefreshToken(user.getRefreshToken());
+
+        // set cars
+        List<Car> cars = ofy().load().type(Car.class).ancestor(user).list();
+        List<CarTransfer> carTransfers = new ArrayList<>();
+        for (Car car : cars) carTransfers.add(new CarTransfer(car));
+        result.setCars(carTransfers);
+
+        logger.info("Registered result: " + result.getUser());
 
         return result;
     }
@@ -65,42 +156,6 @@ public class UsersResource {
 
         return createAuthToken(user);
     }
-
-
-    /**
-     * Register a new user from a {@link com.cahue.model.transfer.RegistrationRequestBean}
-     *
-     * @param registration
-     * @return
-     */
-    public RegistrationResult register(RegistrationRequestBean registration) {
-
-        RegistrationResult result = new RegistrationResult();
-
-        // create or retrieve an existing Google user
-        User user = userAuthenticationService.retrieveGoogleUser(registration.getGoogleAuthToken());
-        result.setUser(user);
-
-        // register the device
-        registerDevice(registration.getDeviceRegId(), user);
-
-        // generate a new auth token for the user
-        String authToken = createAuthToken(user);
-
-        // store the token as a transient property in the user so it can be returned to the client
-        result.setAuthToken(authToken);
-        result.setRefreshToken(user.getRefreshToken());
-
-        // set cars
-        List<Car> cars = ofy().load().type(Car.class).ancestor(user).list();
-        List<CarTransfer> carTransfers = new ArrayList<>();
-        for(Car car: cars) carTransfers.add(new CarTransfer(car));
-        result.setCars(carTransfers);
-        logger.info("Registered result: " + result.getUser());
-
-        return result;
-    }
-
 
     /**
      * Create and store an auth token for a user

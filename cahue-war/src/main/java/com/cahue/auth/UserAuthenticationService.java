@@ -1,6 +1,7 @@
 package com.cahue.auth;
 
 import com.cahue.model.AuthToken;
+import com.cahue.model.FacebookUser;
 import com.cahue.model.GoogleUser;
 import com.cahue.model.User;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
@@ -13,15 +14,17 @@ import com.google.api.services.plus.Plus;
 import com.google.api.services.plus.model.Person;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
-import com.googlecode.objectify.Key;
+import com.googlecode.objectify.cmd.Query;
+import com.restfb.DefaultFacebookClient;
+import com.restfb.FacebookClient;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -84,6 +87,7 @@ public class UserAuthenticationService {
          */
         else {
             AuthToken authToken = ofy().load().type(AuthToken.class).id(authTokenValue).now();
+            if(authToken == null) return null;
             return authToken.getUser();
         }
     }
@@ -130,36 +134,49 @@ public class UserAuthenticationService {
         try {
 
             /**
-             * If not found by google access token, retrieve the user from Google and search by GoogleID
+             * Retrieve the user from Google and search by GoogleID
+             */
+            GoogleCredential credential = new GoogleCredential().setAccessToken(googleAccessToken);
+            Userinfoplus userInfoPlus = null;
+            try {
+                Oauth2 userInfoService = new Oauth2.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+                        .setApplicationName(APPLICATION_NAME)
+                        .build();
+
+                userInfoPlus = userInfoService.userinfo().get().execute();
+            } catch (GoogleJsonResponseException e) {
+                e.printStackTrace();
+                logger.log(Level.SEVERE, "Google Auth token failed to be exchanged for a real Google person.");
+                throw new WebApplicationException("Google Auth token failed to be exchanged for a real Google person.");
+            }
+
+            /**
+             * Look for a Google User with the same email
              */
             if (user == null) {
+                String email = userInfoPlus.getEmail();
+                user = findUserByFacebookEmail(email);
+            }
 
-                GoogleCredential credential = new GoogleCredential().setAccessToken(googleAccessToken);
+            String googleId = userInfoPlus.getId();
 
-                Userinfoplus person = getUserInfoPlus(credential);
-
-                if (person == null) {
-                    logger.log(Level.SEVERE, "Google Auth token failed to be exchanged for a real Google person.");
-                    throw new WebApplicationException("Google Auth token failed to be exchanged for a real Google person.");
-                }
-
-                String googleId = person.getId();
-
-                /**
-                 * Try to retrieve the user via the google id
-                 */
-                Key<GoogleUser> key = GoogleUser.createGoogleUserKey(googleId);
-                GoogleUser googleUser = ofy().load().key(key).now();
+            /**
+             * Try to retrieve the user via the google id
+             */
+            if (user == null) {
+                GoogleUser googleUser = ofy().load().type(GoogleUser.class).id(googleId).now();
                 if (googleUser != null)
                     user = googleUser.getUser();
-
-                /**
-                 * If it's still null we create it
-                 */
-                if (user == null)
-                    user = createUserFromGoogleAccount(person);
-
             }
+
+            /**
+             * If it's still null we create it
+             */
+            if (user == null) {
+                user = User.create(generateToken());
+                createGoogleUser(user, userInfoPlus);
+            }
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -169,10 +186,72 @@ public class UserAuthenticationService {
 
     }
 
-    public User createUserFromGoogleAccount(Userinfoplus person) {
+    /**
+     * Retrieve a user from an Google access token.
+     *
+     * @param facebookAccessToken
+     * @return
+     */
+    public User retrieveFacebookUser(final String facebookAccessToken) {
 
-        User user = new User();
-        user.setRefreshToken(generateToken());
+        User user = null;
+
+        // Init Facebook client
+        FacebookClient facebookClient = new DefaultFacebookClient(facebookAccessToken);
+
+        com.restfb.types.User facebookResultUser = facebookClient.fetchObject("me", com.restfb.types.User.class);
+        if (facebookResultUser == null) {
+            logger.log(Level.SEVERE, "Facebook Auth token failed to be exchanged for a real Facebook person.");
+            throw new WebApplicationException("Facebook Auth token failed to be exchanged for a real Facebook person.");
+        }
+
+        /**
+         * Try to retrieve the user by the facebook ID
+         */
+        String facebookId = facebookResultUser.getId();
+        FacebookUser facebookUser = ofy().load().type(FacebookUser.class).id(facebookId).now();
+        if (facebookUser != null)
+            user = facebookUser.getUser();
+
+        /**
+         * Look for a Google User with the same email
+         */
+        if (user == null) {
+            String email = facebookResultUser.getEmail();
+            user = findUserByGoogleEmail(email);
+        }
+
+        if (user == null) {
+            user = User.create(generateToken());
+        }
+
+        if (user.getFacebookUser() == null) {
+            createFacebookUser(user, facebookResultUser);
+        }
+
+        return user;
+
+    }
+
+    private FacebookUser createFacebookUser(User user, com.restfb.types.User facebookResultUser) {
+
+        FacebookUser facebookUser = new FacebookUser();
+        facebookUser.setFacebookId(facebookResultUser.getId());
+        facebookUser.setEmail(facebookResultUser.getEmail());
+
+        user.setFacebookUser(facebookUser);
+        ofy().save().entity(user).now();
+
+        facebookUser.setUser(user);
+        ofy().save().entity(facebookUser).now();
+
+        logger.fine("Created new facebookUser: " + facebookUser);
+
+        return facebookUser;
+    }
+
+
+    private GoogleUser createGoogleUser(User user, Userinfoplus person) {
 
         GoogleUser googleUser = new GoogleUser();
         googleUser.setGoogleId(person.getId());
@@ -186,20 +265,39 @@ public class UserAuthenticationService {
 
         logger.fine("Created new googleUser: " + googleUser);
 
-        return user;
+        return googleUser;
     }
 
-    private Userinfoplus getUserInfoPlus(GoogleCredential credential) throws IOException {
-        try {
-            Oauth2 userInfoService = new Oauth2.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
-                    .setApplicationName(APPLICATION_NAME)
-                    .build();
+    private User findUserByGoogleEmail(String email) {
+        Query<GoogleUser> q = ofy().load().type(GoogleUser.class);
+        q = q.filter("email", email);
+        List<GoogleUser> googleUserList = q.list();
 
-            return userInfoService.userinfo().get().execute();
-        } catch (GoogleJsonResponseException e) {
-            e.printStackTrace();
+        if (googleUserList.isEmpty()) {
             return null;
         }
+
+        if (googleUserList.size() > 1) {
+            logger.warning("More than one GoogleUser with email : " + email);
+        }
+
+        return googleUserList.get(0).getUser();
+    }
+
+    private User findUserByFacebookEmail(String email) {
+        Query<FacebookUser> q = ofy().load().type(FacebookUser.class);
+        q = q.filter("email", email);
+        List<FacebookUser> facebookUserList = q.list();
+
+        if (facebookUserList.isEmpty()) {
+            return null;
+        }
+
+        if (facebookUserList.size() > 1) {
+            logger.warning("More than one FacebookUser with email : " + email);
+        }
+
+        return facebookUserList.get(0).getUser();
     }
 
     @Deprecated

@@ -2,7 +2,6 @@ package com.cahue.resources;
 
 import com.cahue.auth.UserService;
 import com.cahue.model.User;
-import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.HttpTransport;
@@ -15,10 +14,8 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.inject.Inject;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cache.AsyncCacheFilter;
-import org.jukito.JukitoRunner;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 
 import java.io.Closeable;
 import java.io.File;
@@ -74,11 +71,9 @@ public class TestHelper {
     }
 
     public RegistrationResult registerUser() {
-        RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
-        registrationRequestBean.setDeviceRegId("Test device");
-        registrationRequestBean.setGoogleAuthToken(getGoogleAuthToken());
 
-        RegistrationResult result = usersResource.register(registrationRequestBean);
+        RegistrationResult result = usersResource.createGoogleUser(getGoogleAuthToken(), "Test device");
+
         User user = result.getUser();
         userService.setCurrentUser(user);
 

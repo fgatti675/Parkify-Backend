@@ -8,7 +8,6 @@ import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.CarTransfer;
-import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
@@ -25,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 

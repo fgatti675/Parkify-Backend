@@ -5,7 +5,6 @@ import com.cahue.model.transfer.QueryResult;
 import com.google.appengine.api.search.*;
 
 import javax.inject.Singleton;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**

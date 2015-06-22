@@ -1,9 +1,6 @@
 package com.cahue.index;
 
-import com.cahue.index.ParkingSpotIndexEntry;
-import com.cahue.index.SpotsIndex;
 import com.cahue.model.transfer.QueryResult;
-import com.cahue.model.ParkingSpot;
 import com.cartodb.CartoDBClientIF;
 import com.cartodb.CartoDBException;
 import com.cartodb.impl.ApiKeyCartoDBClient;

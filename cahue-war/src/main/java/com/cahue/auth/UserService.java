@@ -1,6 +1,8 @@
 package com.cahue.auth;
 
-import com.cahue.model.*;
+import com.cahue.model.Car;
+import com.cahue.model.Device;
+import com.cahue.model.User;
 import com.google.inject.servlet.RequestScoped;
 
 import java.util.Iterator;

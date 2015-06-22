@@ -1,6 +1,5 @@
 package com.cahue.gcm;
 
-import com.cahue.model.Car;
 import com.cahue.model.transfer.CarTransfer;
 import com.google.android.gcm.server.Message;
 import org.eclipse.persistence.jaxb.JAXBContextFactory;

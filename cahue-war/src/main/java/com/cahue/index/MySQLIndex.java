@@ -1,7 +1,7 @@
 package com.cahue.index;
 
-import com.cahue.model.transfer.QueryResult;
 import com.cahue.model.ParkingSpot;
+import com.cahue.model.transfer.QueryResult;
 import com.cahue.persistence.MySQLDataSource;
 
 import javax.inject.Inject;
@@ -9,7 +9,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 

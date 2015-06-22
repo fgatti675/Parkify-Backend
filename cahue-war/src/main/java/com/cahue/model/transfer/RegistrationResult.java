@@ -1,7 +1,5 @@
 package com.cahue.model.transfer;
 
-import com.cahue.model.Car;
-import com.cahue.model.GoogleUser;
 import com.cahue.model.User;
 
 import java.util.List;

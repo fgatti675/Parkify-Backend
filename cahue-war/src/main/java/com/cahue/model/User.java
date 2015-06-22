@@ -7,6 +7,7 @@ import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Load;
 
+import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlTransient;
 import java.util.Date;
 
@@ -17,11 +18,23 @@ import java.util.Date;
 @Entity
 public class User {
 
+    public static User create(String refreshToken) {
+        User user = new User();
+        user.setRefreshToken(refreshToken);
+        return user;
+    }
+
+    @Inject
+    private User(){}
+
     @Id
     private Long id;
 
     @Load
     private Ref<GoogleUser> googleUser;
+
+    @Load
+    private Ref<FacebookUser> facebookUser;
 
     private Date creationDate = new Date();
 
@@ -53,11 +66,19 @@ public class User {
     }
 
     public GoogleUser getGoogleUser() {
-        return googleUser.get();
+        return googleUser == null ? null : googleUser.get();
     }
 
     public void setGoogleUser(GoogleUser googleUser) {
         this.googleUser = Ref.create(googleUser);
+    }
+
+    public FacebookUser getFacebookUser() {
+        return facebookUser == null ? null : facebookUser.get();
+    }
+
+    public void setFacebookUser(FacebookUser facebookUser) {
+        this.facebookUser = Ref.create(facebookUser);
     }
 
     public Key<User> createKey() {

@@ -3,19 +3,14 @@ package com.cahue.resources;
 import com.cahue.auth.UserService;
 import com.cahue.config.TestModule;
 import com.cahue.config.guice.BusinessModule;
-import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
 import com.cahue.model.User;
 import com.cahue.model.transfer.CarTransfer;
-import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
-import com.google.inject.servlet.ServletModule;
 import com.google.inject.util.Modules;
-import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.jukito.JukitoModule;
@@ -25,8 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
@@ -55,8 +48,6 @@ public class CarsJerseyTest extends JerseyTest {
 
     @Override
     protected Application configure() {
-
-        // TODO: Not working
         Injector inj = Guice.createInjector(Modules.override(new BusinessModule()).with(new TestModule()));
         ResourceConfig resourceConfig = new ResourceConfig(CarsResource.class);
         inj.injectMembers(resourceConfig);
@@ -82,17 +73,10 @@ public class CarsJerseyTest extends JerseyTest {
     @Inject
     UserService userService;
 
-    @Inject
-    GCMSender gcmSender;
-
     @Test
     public void addCarsTest() {
 
-        RegistrationRequestBean registrationRequestBean = new RegistrationRequestBean();
-        registrationRequestBean.setDeviceRegId("Test device");
-        registrationRequestBean.setGoogleAuthToken(testHelper.getGoogleAuthToken());
-
-        RegistrationResult regResult = usersResource.register(registrationRequestBean);
+        RegistrationResult regResult = usersResource.createGoogleUser(testHelper.getGoogleAuthToken(), "Test device");
         User user = regResult.getUser();
         userService.setCurrentUser(user);
 
@@ -106,16 +90,26 @@ public class CarsJerseyTest extends JerseyTest {
 
         Entity<CarTransfer> carsEntity = Entity.entity(new CarTransfer(car), MediaType.APPLICATION_JSON);
 
-        Response response = target("cars")
+        /**
+         * Do post
+         */
+        target("cars")
                 .request()
                 .header("Authorization", regResult.getAuthToken())
                 .post(carsEntity); //Here we send POST request
-        Object entity = response.getEntity();
 
-        logger.log(Level.INFO, "Response : " + response.getStatus());
+        /**
+         * Check they are there
+         */
+        List<CarTransfer> cars = target("cars")
+                .request()
+                .header("Authorization", regResult.getAuthToken())
+                .get(List.class);
+
+        logger.log(Level.INFO, "Response : " + cars);
 
         List<Car> userCars = userService.retrieveUserCars();
-        assertEquals(userCars.iterator().next(), car);
+        assertEquals(cars.get(0), car);
 
     }
 }

@@ -1,9 +1,9 @@
 package com.cahue.config;
 
-import com.cahue.resources.TestHelper;
 import com.cahue.persistence.MySQLDataSource;
 import com.cahue.resources.SpotsResource;
-import com.google.inject.*;
+import com.cahue.resources.TestHelper;
+import com.google.inject.AbstractModule;
 import com.google.inject.servlet.RequestScoped;
 import org.jukito.TestScope;
 

@@ -1,9 +1,9 @@
 package com.cahue.util;
 
 
+import com.cahue.index.MySQLIndex;
 import com.cahue.index.ParkingSpotIndexEntry;
 import com.cahue.model.ParkingSpot;
-import com.cahue.index.MySQLIndex;
 
 import javax.inject.Inject;
 import java.util.Date;
