@@ -151,7 +151,7 @@ public class UserAuthenticationService {
             }
 
             /**
-             * Look for a Google User with the same email
+             * Look for a Facebook User with the same email
              */
             if (user == null) {
                 String email = userInfoPlus.getEmail();
@@ -174,6 +174,9 @@ public class UserAuthenticationService {
              */
             if (user == null) {
                 user = User.create(generateToken());
+            }
+
+            if (user.getGoogleUser() == null) {
                 createGoogleUser(user, userInfoPlus);
             }
 
