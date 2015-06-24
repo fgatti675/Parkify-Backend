@@ -1,4 +1,4 @@
-package com.cahue.remote;
+package com.cahue.util.remote;
 
 import com.cahue.model.GoogleUser;
 import com.cahue.persistence.OfyService;
@@ -10,6 +10,7 @@ import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.cmd.Query;
+import com.googlecode.objectify.util.Closeable;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -41,7 +42,7 @@ public class RemoteApiInsideAppEngineExample {
         // once during construction and then store the credentials for reuse.
         this.options = new RemoteApiOptions()
 //                .useServiceAccountCredential(EMAIL_ADDRESS, privateKey)
-                .credentials("empanadamental@gmail.com", "almudena54")
+                .credentials("empanadamental@gmail.com", "")
                 .server("glossy-radio.appspot.com", 443);
 
 
@@ -53,11 +54,16 @@ public class RemoteApiInsideAppEngineExample {
 //                    new BusinessModule()
 //            );
 
-            ObjectifyService.begin();
+
+            Closeable session = ObjectifyService.begin();
+
+            ObjectifyService.register(GoogleUser.class);
 //            ObjectifyService.setFactory(new OfyFactory(injector));
             Query<GoogleUser> q = OfyService.ofy().load().type(GoogleUser.class);
             List<GoogleUser> users = q.list();
             OfyService.ofy().save().entities(users).now();
+
+            session.close();
         } finally {
             installer.uninstall();
         }
