@@ -1,15 +1,20 @@
 package com.cahue.remote;
 
+import com.cahue.model.GoogleUser;
+import com.cahue.persistence.OfyService;
 import com.google.api.client.util.SecurityUtils;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
+import com.googlecode.objectify.ObjectifyService;
+import com.googlecode.objectify.cmd.Query;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
+import java.util.List;
 
 /**
  * Created by Francesco on 23/06/2015.
@@ -35,17 +40,24 @@ public class RemoteApiInsideAppEngineExample {
         // Authenticating with username and password is slow, so we'll do it
         // once during construction and then store the credentials for reuse.
         this.options = new RemoteApiOptions()
-                .useServiceAccountCredential(EMAIL_ADDRESS, privateKey)
-//                .credentials("empanadamental@gmail.com", "")
+//                .useServiceAccountCredential(EMAIL_ADDRESS, privateKey)
+                .credentials("empanadamental@gmail.com", "almudena54")
                 .server("glossy-radio.appspot.com", 443);
 
 
         RemoteApiInstaller installer = new RemoteApiInstaller();
         installer.install(options);
         try {
-            DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-            System.out.println("Key of new entity is " +
-                    ds.put(new Entity("Hello Remote API!")));
+
+//            Injector injector = Guice.createInjector(
+//                    new BusinessModule()
+//            );
+
+            ObjectifyService.begin();
+//            ObjectifyService.setFactory(new OfyFactory(injector));
+            Query<GoogleUser> q = OfyService.ofy().load().type(GoogleUser.class);
+            List<GoogleUser> users = q.list();
+            OfyService.ofy().save().entities(users).now();
         } finally {
             installer.uninstall();
         }
