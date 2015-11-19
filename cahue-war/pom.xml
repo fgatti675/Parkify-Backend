@@ -9,7 +9,7 @@
     <artifactId>cahue-war</artifactId>
 
     <properties>
-        <appengine.app.version>18-war</appengine.app.version>
+        <appengine.app.version>19-war</appengine.app.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>2.17</jersey.version>
         <guice.version>4.0-beta5</guice.version>

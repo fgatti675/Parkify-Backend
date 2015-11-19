@@ -127,8 +127,8 @@ public class UsersResource {
     @Path("/facebook")
     @Consumes("application/x-www-form-urlencoded")
     @Deprecated
-    public RegistrationResult createFacebookUser(@QueryParam("facebookAuthToken") String facebookAuthToken,
-                                                 @QueryParam("deviceRegId") String deviceRegId) {
+    public RegistrationResult createFacebookUser(@FormParam("facebookAuthToken") String facebookAuthToken,
+                                                 @FormParam("deviceRegId") String deviceRegId) {
         return registerFacebookUser(facebookAuthToken, deviceRegId);
     }
 
