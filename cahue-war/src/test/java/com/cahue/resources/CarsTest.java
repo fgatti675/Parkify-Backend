@@ -32,19 +32,14 @@ import static org.junit.Assert.assertThat;
 public class CarsTest {
 
     Logger logger = Logger.getLogger(getClass().getName());
-
-    /**
-     * Overrides the common bindings from TestBase with the
-     * module that has test-specific bindings for Foo.
-     */
-    public static class Module extends JukitoModule {
-        protected void configureTest() {
-            install(Modules.override(new BusinessModule()).with(new TestModule()));
-        }
-    }
-
     @Inject
     TestHelper testHelper;
+    @Inject
+    UserService userService;
+    @Inject
+    CarsResource carsResource;
+    @Inject
+    GCMSender gcmSender;
 
     @Before
     public void before() {
@@ -55,15 +50,6 @@ public class CarsTest {
     public void after() throws IOException {
         testHelper.tearDown();
     }
-
-    @Inject
-    UserService userService;
-
-    @Inject
-    CarsResource carsResource;
-
-    @Inject
-    GCMSender gcmSender;
 
     @Test
     public void addCarsTest() {
@@ -94,6 +80,16 @@ public class CarsTest {
         assertEquals(car, saved.createCar());
         assertEquals(spot, saved.createSpot());
 
+    }
+
+    /**
+     * Overrides the common bindings from TestBase with the
+     * module that has test-specific bindings for Foo.
+     */
+    public static class Module extends JukitoModule {
+        protected void configureTest() {
+            install(Modules.override(new BusinessModule()).with(new TestModule()));
+        }
     }
 
 

@@ -39,6 +39,7 @@ public class ParkingSpotIndexEntry {
 
     /**
      * Get the equivalent parking spot
+     *
      * @return
      */
     public ParkingSpot createSpot() {
@@ -53,12 +54,12 @@ public class ParkingSpotIndexEntry {
 
     @Id
     public Long getId() {
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Double getLongitude() {
         return longitude;

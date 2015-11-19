@@ -32,18 +32,16 @@ import static org.junit.Assert.*;
 @RunWith(JukitoRunner.class)
 public class SpotsTest {
 
-    /**
-     * Overrides the common bindings from TestBase with the
-     * module that has test-specific bindings for Foo.
-     */
-    public static class Module extends JukitoModule {
-        protected void configureTest() {
-            install(Modules.override(new BusinessModule()).with(new TestModule()));
-        }
-    }
-
     @Inject
     TestHelper testHelper;
+    @Inject
+    UsersResource usersResource;
+    @Inject
+    SpotsIndex spotsIndex;
+    @Inject
+    SpotsResource spotsResource;
+    @Inject
+    CarsResource carsResource;
 
     @Before
     public void setUp() {
@@ -56,18 +54,6 @@ public class SpotsTest {
         spotsIndex.clear();
         testHelper.tearDown();
     }
-
-    @Inject
-    UsersResource usersResource;
-
-    @Inject
-    SpotsIndex spotsIndex;
-
-    @Inject
-    SpotsResource spotsResource;
-
-    @Inject
-    CarsResource carsResource;
 
     @Test
     public void test() {
@@ -164,6 +150,16 @@ public class SpotsTest {
         expectedResult.add(ps2index);
         expectedResult.add(ps1index);
         assertThat(newArea.getSpots(), is(expectedResult));
+    }
+
+    /**
+     * Overrides the common bindings from TestBase with the
+     * module that has test-specific bindings for Foo.
+     */
+    public static class Module extends JukitoModule {
+        protected void configureTest() {
+            install(Modules.override(new BusinessModule()).with(new TestModule()));
+        }
     }
 
 

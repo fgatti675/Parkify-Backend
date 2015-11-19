@@ -10,12 +10,11 @@ import com.googlecode.objectify.impl.LoaderImpl;
  *
  * @author Jeff Schnitzer
  */
-public class OfyLoader extends LoaderImpl<OfyLoader>
-{
-	/** */
-	public OfyLoader(Ofy base) {
-		super(base);
-	}
+public class OfyLoader extends LoaderImpl<OfyLoader> {
+    /** */
+    public OfyLoader(Ofy base) {
+        super(base);
+    }
 
 //	/**
 //	 * Gets the Person associated with the email, or null if there is no association.
@@ -37,7 +36,6 @@ public class OfyLoader extends LoaderImpl<OfyLoader>
 //	public EmailLookup email(String email) {
 //		return ofy().load().type(EmailLookup.class).id(EmailLookup.normalize(email)).now();
 //	}
-
 
 
 }

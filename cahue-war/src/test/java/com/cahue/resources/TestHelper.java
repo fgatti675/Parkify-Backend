@@ -32,20 +32,15 @@ import static org.junit.Assert.assertEquals;
 public class TestHelper {
 
     public static final String EMAIL_ADDRESS = "582791978228-kl51c8scvc1ombariffo8bsnf25qf7st@developer.gserviceaccount.com";
-
-    JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    HttpTransport httpTransport = new NetHttpTransport();
-
     private static final List<String> SCOPES = Arrays.asList(
             "email",
             "profile");
-
-    Closeable session;
-
     private final LocalServiceTestHelper helper = new LocalServiceTestHelper(
             new LocalDatastoreServiceTestConfig(),
             new LocalMemcacheServiceTestConfig());
-
+    JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    HttpTransport httpTransport = new NetHttpTransport();
+    Closeable session;
     @Inject
     UsersResource usersResource;
 

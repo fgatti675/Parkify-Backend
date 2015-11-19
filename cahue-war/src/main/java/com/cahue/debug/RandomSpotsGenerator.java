@@ -10,7 +10,7 @@ import java.util.Random;
 public class RandomSpotsGenerator {
 
     private static final String TEST_TABLE_ID = "1Pa5hqK1KxKwgZmbgBFJ5opcbRGHELFsCL6CyE8bf";
-    private static final ParkingSpot CENTER = new ParkingSpot(){{
+    private static final ParkingSpot CENTER = new ParkingSpot() {{
         setLatitude(40.435165);
         setLongitude(-3.69684243);
         setAccuracy(0F);

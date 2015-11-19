@@ -20,7 +20,7 @@ public class JerseyConfiguration extends ResourceConfig {
     @Inject
     public JerseyConfiguration(ServiceLocator serviceLocator, ServletContext servletContext) {
 
-    	log.info("Creating JerseyConfiguration");
+        log.info("Creating JerseyConfiguration");
         packages("com.cahue.resources");
 
         property("jersey.config.server.mvc.factory.freemarker", TemplateObjectFactory.class);

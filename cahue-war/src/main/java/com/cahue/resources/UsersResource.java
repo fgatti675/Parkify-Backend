@@ -5,11 +5,11 @@ import com.cahue.model.Car;
 import com.cahue.model.Device;
 import com.cahue.model.User;
 import com.cahue.model.transfer.CarTransfer;
-import com.cahue.model.transfer.RegistrationRequestBean;
 import com.cahue.model.transfer.RegistrationResult;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,22 +30,6 @@ public class UsersResource {
 
     Logger logger = Logger.getLogger(getClass().getName());
 
-    @POST
-    @Path("/createGoogle")
-    @Deprecated
-    public RegistrationResult registerGoogle(RegistrationRequestBean registration) {
-
-        if (registration == null)
-            throw new WebApplicationException(
-                    Response.status(Response.Status.BAD_REQUEST)
-                            .entity("The registration request is not correct.")
-                            .build());
-
-        RegistrationResult result = createGoogleUser(registration.getGoogleAuthToken(), registration.getGoogleAuthToken());
-
-        return result;
-    }
-
     /**
      * Register a new user from a GoogleAuthToken
      *
@@ -54,10 +38,10 @@ public class UsersResource {
      * @return
      */
     @POST
-    @Path("/google")
-    @Consumes("application/x-www-form-urlencoded")
-    public RegistrationResult createGoogleUser(@FormParam("googleAuthToken") String googleAuthToken,
-                                               @FormParam("deviceRegId") String deviceRegId) {
+    @Path("/registerGoogle")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public RegistrationResult registerGoogle(@QueryParam("googleAuthToken") String googleAuthToken,
+                                             @QueryParam("deviceRegId") String deviceRegId) {
 
         if (googleAuthToken == null)
             throw new WebApplicationException(
@@ -81,6 +65,24 @@ public class UsersResource {
     }
 
     /**
+     * Register a new user from a GoogleAuthToken
+     *
+     * @param googleAuthToken
+     * @param deviceRegId
+     * @return
+     */
+    @POST
+    @Path("/google")
+    @Consumes("application/x-www-form-urlencoded")
+    @Deprecated
+    public RegistrationResult createGoogleUser(@FormParam("googleAuthToken") String googleAuthToken,
+                                               @FormParam("deviceRegId") String deviceRegId) {
+
+        return registerGoogle(googleAuthToken, deviceRegId);
+
+    }
+
+    /**
      * Register a new user from a FacebookAuthToken
      *
      * @param facebookAuthToken
@@ -88,10 +90,10 @@ public class UsersResource {
      * @return
      */
     @POST
-    @Path("/facebook")
-    @Consumes("application/x-www-form-urlencoded")
-    public RegistrationResult createFacebookUser(@FormParam("facebookAuthToken") String facebookAuthToken,
-                                                 @FormParam("deviceRegId") String deviceRegId) {
+    @Path("/registerFacebook")
+    @Produces({MediaType.APPLICATION_JSON + ";charset=utf-8"})
+    public RegistrationResult registerFacebookUser(@QueryParam("facebookAuthToken") String facebookAuthToken,
+                                                   @QueryParam("deviceRegId") String deviceRegId) {
 
         if (facebookAuthToken == null)
             throw new WebApplicationException(
@@ -112,6 +114,22 @@ public class UsersResource {
         registerDevice(deviceRegId, user);
 
         return getRegistrationResult(user);
+    }
+
+    /**
+     * Register a new user from a FacebookAuthToken
+     *
+     * @param facebookAuthToken
+     * @param deviceRegId
+     * @return
+     */
+    @POST
+    @Path("/facebook")
+    @Consumes("application/x-www-form-urlencoded")
+    @Deprecated
+    public RegistrationResult createFacebookUser(@QueryParam("facebookAuthToken") String facebookAuthToken,
+                                                 @QueryParam("deviceRegId") String deviceRegId) {
+        return registerFacebookUser(facebookAuthToken, deviceRegId);
     }
 
     private RegistrationResult getRegistrationResult(User user) {

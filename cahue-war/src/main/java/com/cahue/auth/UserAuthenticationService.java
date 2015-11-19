@@ -37,22 +37,21 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
  */
 public class UserAuthenticationService {
 
-    private static final String APPLICATION_NAME = "iweco";
-    private static final int API_VERSION = 1;
-
-    private static final String SECRET = "ABph75AciNZOw0dlgD3E_JK3";
-
     public static final String AUTH_HEADER = "Authorization";
     public static final String GOOGLE_AUTH_HEADER = "GoogleAuth";
-
+    public static final String AUTH_TOKENS_MEMCACHE = "AUTH_TOKENS_MEMCACHE";
+    private static final String APPLICATION_NAME = "iweco";
+    private static final int API_VERSION = 1;
+    private static final String SECRET = "ABph75AciNZOw0dlgD3E_JK3";
     private static final NetHttpTransport HTTP_TRANSPORT = new NetHttpTransport();
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-
-    public static final String AUTH_TOKENS_MEMCACHE = "AUTH_TOKENS_MEMCACHE";
-
-    private StandardPBEStringEncryptor jasypt;
-
     Logger logger = Logger.getLogger(getClass().getName());
+    Pattern tokenPattern =
+            Pattern.compile(".+" +
+                    "\\|" + APPLICATION_NAME +
+                    "\\|" + "\\d+" +
+                    "\\|" + ".+");
+    private StandardPBEStringEncryptor jasypt;
 
     public UserAuthenticationService() {
         jasypt = new StandardPBEStringEncryptor();
@@ -71,7 +70,6 @@ public class UserAuthenticationService {
         cache.put(authTokenString, user.getId());
     }
 
-
     public User retrieveUser(final String authTokenValue) {
 
         /**
@@ -87,7 +85,7 @@ public class UserAuthenticationService {
          */
         else {
             AuthToken authToken = ofy().load().type(AuthToken.class).id(authTokenValue).now();
-            if(authToken == null) return null;
+            if (authToken == null) return null;
             return authToken.getUser();
         }
     }
@@ -115,7 +113,6 @@ public class UserAuthenticationService {
 
         return user;
     }
-
 
     private MemcacheService getAuthTokensMemcacheService() {
         return MemcacheServiceFactory.getMemcacheService(AUTH_TOKENS_MEMCACHE);
@@ -253,7 +250,6 @@ public class UserAuthenticationService {
         return facebookUser;
     }
 
-
     private GoogleUser createGoogleUser(User user, Userinfoplus person) {
 
         GoogleUser googleUser = new GoogleUser();
@@ -311,12 +307,6 @@ public class UserAuthenticationService {
 
         return plus.people().get("me").execute();
     }
-
-    Pattern tokenPattern =
-            Pattern.compile(".+" +
-                    "\\|" + APPLICATION_NAME +
-                    "\\|" + "\\d+" +
-                    "\\|" + ".+");
 
     public String generateToken() {
         String key = UUID.randomUUID().toString().toUpperCase() +

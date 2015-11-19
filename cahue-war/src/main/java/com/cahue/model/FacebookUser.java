@@ -20,16 +20,18 @@ import java.io.Serializable;
 @Entity
 public class FacebookUser implements Serializable {
 
+    @Id
+    private String facebookId;
+    private Ref<User> user;
+    @Index
+    private String email;
+
     public FacebookUser() {
     }
 
-    @Id
-    private String facebookId;
-
-    private Ref<User> user;
-
-    @Index
-    private String email;
+    public static Key<FacebookUser> createGoogleUserKey(String googleId) {
+        return Key.create(FacebookUser.class, googleId);
+    }
 
     public String getEmail() {
         return email;
@@ -62,10 +64,6 @@ public class FacebookUser implements Serializable {
                 "email=" + email +
                 ", facebookId='" + facebookId + '\'' +
                 '}';
-    }
-
-    public static Key<FacebookUser> createGoogleUserKey(String googleId) {
-        return Key.create(FacebookUser.class, googleId);
     }
 
 }

@@ -23,13 +23,8 @@ import java.util.List;
 public class RemoteApiInsideAppEngineExample {
 
     public static final String EMAIL_ADDRESS = "582791978228-kl51c8scvc1ombariffo8bsnf25qf7st@developer.gserviceaccount.com";
-
-    public static void main(String[] args) throws IOException, GeneralSecurityException {
-        new RemoteApiInsideAppEngineExample();
-    }
-
-
     private final RemoteApiOptions options;
+
 
     public RemoteApiInsideAppEngineExample()
             throws IOException, GeneralSecurityException {
@@ -38,11 +33,8 @@ public class RemoteApiInsideAppEngineExample {
                 this.getClass().getClassLoader().getResourceAsStream("Cahue-4d17cda7873b.p12"), "notasecret", "privatekey", "notasecret");
 
 
-        // Authenticating with username and password is slow, so we'll do it
-        // once during construction and then store the credentials for reuse.
         this.options = new RemoteApiOptions()
-//                .useServiceAccountCredential(EMAIL_ADDRESS, privateKey)
-                .credentials("empanadamental@gmail.com", "")
+                .useServiceAccountCredential(EMAIL_ADDRESS, privateKey)
                 .server("glossy-radio.appspot.com", 443);
 
 
@@ -61,13 +53,19 @@ public class RemoteApiInsideAppEngineExample {
 //            ObjectifyService.setFactory(new OfyFactory(injector));
             Query<GoogleUser> q = OfyService.ofy().load().type(GoogleUser.class);
             List<GoogleUser> users = q.list();
-            OfyService.ofy().save().entities(users).now();
+            for (GoogleUser user : users)
+                System.out.println(user.getEmail());
+//            OfyService.ofy().save().entities(users).now();
 
             session.close();
         } finally {
             installer.uninstall();
         }
 
+    }
+
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
+        new RemoteApiInsideAppEngineExample();
     }
 
     void putInRemoteDatastore(Entity entity) throws IOException {

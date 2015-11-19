@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -35,16 +34,12 @@ import static org.junit.Assert.assertEquals;
 public class CarsJerseyTest extends JerseyTest {
 
     Logger logger = Logger.getLogger(getClass().getName());
-
-    /**
-     * Overrides the common bindings from TestBase with the
-     * module that has test-specific bindings for Foo.
-     */
-    public static class Module extends JukitoModule {
-        protected void configureTest() {
-            install(Modules.override(new BusinessModule()).with(new TestModule()));
-        }
-    }
+    @Inject
+    TestHelper testHelper;
+    @Inject
+    UsersResource usersResource;
+    @Inject
+    UserService userService;
 
     @Override
     protected Application configure() {
@@ -53,9 +48,6 @@ public class CarsJerseyTest extends JerseyTest {
         inj.injectMembers(resourceConfig);
         return resourceConfig;
     }
-
-    @Inject
-    TestHelper testHelper;
 
     @Before
     public void before() {
@@ -66,12 +58,6 @@ public class CarsJerseyTest extends JerseyTest {
     public void after() throws IOException {
         testHelper.tearDown();
     }
-
-    @Inject
-    UsersResource usersResource;
-
-    @Inject
-    UserService userService;
 
     @Test
     public void addCarsTest() {
@@ -111,5 +97,15 @@ public class CarsJerseyTest extends JerseyTest {
         List<Car> userCars = userService.retrieveUserCars();
         assertEquals(cars.get(0), car);
 
+    }
+
+    /**
+     * Overrides the common bindings from TestBase with the
+     * module that has test-specific bindings for Foo.
+     */
+    public static class Module extends JukitoModule {
+        protected void configureTest() {
+            install(Modules.override(new BusinessModule()).with(new TestModule()));
+        }
     }
 }

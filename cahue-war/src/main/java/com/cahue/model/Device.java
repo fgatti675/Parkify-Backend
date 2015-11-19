@@ -19,20 +19,20 @@ import javax.xml.bind.annotation.XmlTransient;
 @Entity
 public class Device {
 
+    @Id
+    private String regId;
+    @Parent
+    private Ref<User> user;
+
+    public Device() {
+    }
+
     public static Device createDevice(String regId, User user) {
         Device device = new Device();
         device.user = Ref.create(user);
         device.regId = regId;
         return device;
     }
-
-    public Device(){}
-
-    @Id
-    private String regId;
-
-    @Parent
-    private Ref<User> user;
 
     public String getRegId() {
         return regId;

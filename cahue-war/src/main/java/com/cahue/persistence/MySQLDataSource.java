@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by Francesco on 07/09/2014.
  */
 @Singleton
-public class MySQLDataSource{
+public class MySQLDataSource {
 
     private EntityManagerFactory mysqlFactory;
 
@@ -33,7 +33,6 @@ public class MySQLDataSource{
     public EntityManager createRelationalEntityManager() {
         return mysqlFactory.createEntityManager();
     }
-
 
 
 }

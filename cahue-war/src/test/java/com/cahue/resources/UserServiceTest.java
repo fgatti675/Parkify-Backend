@@ -35,28 +35,14 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JukitoRunner.class)
 public class UserServiceTest {
 
-    /**
-     * Overrides the common bindings from TestBase with the
-     * module that has test-specific bindings for Foo.
-     */
-    public static class Module extends JukitoModule {
-        protected void configureTest() {
-            install(Modules.override(new BusinessModule()).with(new TestModule()));
-        }
-    }
-
     @Inject
     UserAuthenticationService authService;
-
     @Inject
     CarsResource carsResource;
-
     @Inject
     UsersResource usersResource;
-
     @Inject
     UserService userService;
-
     @Inject
     TestHelper testHelper;
 
@@ -105,5 +91,15 @@ public class UserServiceTest {
         result = testHelper.registerUser();
         assertThat(Arrays.asList(new CarTransfer(car)), is(result.getCars()));
 
+    }
+
+    /**
+     * Overrides the common bindings from TestBase with the
+     * module that has test-specific bindings for Foo.
+     */
+    public static class Module extends JukitoModule {
+        protected void configureTest() {
+            install(Modules.override(new BusinessModule()).with(new TestModule()));
+        }
     }
 }

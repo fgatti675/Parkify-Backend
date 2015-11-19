@@ -19,16 +19,14 @@ import java.io.Serializable;
 @Entity
 public class GoogleUser implements Serializable {
 
-    public GoogleUser() {
-    }
-
     @Id
     private String googleId;
-
     private Ref<User> user;
-
     @Index
     private String email;
+
+    public GoogleUser() {
+    }
 
     public String getEmail() {
         return email;

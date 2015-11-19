@@ -10,8 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Singleton
-public final class AuthenticationFilter implements Filter
-{
+public final class AuthenticationFilter implements Filter {
     public static final String DEVICE_HEADER = "Device";
 
     @Inject
@@ -30,7 +29,7 @@ public final class AuthenticationFilter implements Filter
     public void doFilter(ServletRequest request, ServletResponse response,
                          FilterChain chain) throws IOException, ServletException {
 
-        HttpServletRequest req = (HttpServletRequest)request;
+        HttpServletRequest req = (HttpServletRequest) request;
 
         String token = req.getHeader(UserAuthenticationService.AUTH_HEADER);
         String deviceId = req.getHeader(DEVICE_HEADER);

@@ -19,11 +19,9 @@ import java.util.Locale;
  */
 public class MySQLIndex implements SpotsIndex {
 
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-
-
     @Inject
     MySQLDataSource dataSource;
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     @Override
     public QueryResult queryNearest(Double latitude, Double longitude, int nearest) {
@@ -109,7 +107,7 @@ public class MySQLIndex implements SpotsIndex {
         return deleted;
     }
 
-    public void clear(){
+    public void clear() {
         EntityManager em = dataSource.createRelationalEntityManager();
         em.getTransaction().begin();
         int deleted = em.createQuery("DELETE FROM ParkingSpotIndexEntry p").executeUpdate();

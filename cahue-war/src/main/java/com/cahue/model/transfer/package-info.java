@@ -1,7 +1,6 @@
 @XmlJavaTypeAdapters({
-        @XmlJavaTypeAdapter(value=DateAdapter.class, type=Date.class)
-})
-package com.cahue.model.transfer;
+        @XmlJavaTypeAdapter(value = DateAdapter.class, type = Date.class)
+}) package com.cahue.model.transfer;
 
 import com.cahue.model.adapter.DateAdapter;
 

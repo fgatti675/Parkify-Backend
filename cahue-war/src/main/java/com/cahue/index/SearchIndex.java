@@ -13,7 +13,7 @@ import java.util.*;
  * @author francesco
  */
 @Singleton
-public class SearchIndex implements SpotsIndex{
+public class SearchIndex implements SpotsIndex {
 
     private final static String SPOTS_INDEX = "spots";
 

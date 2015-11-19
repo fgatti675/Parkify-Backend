@@ -21,20 +21,10 @@ import java.util.logging.Logger;
 public class DevicesTest {
 
     Logger logger = Logger.getLogger(getClass().getName());
-
-    /**
-     * Overrides the common bindings from TestBase with the
-     * module that has test-specific bindings for Foo.
-     */
-    public static class Module extends JukitoModule {
-        protected void configureTest() {
-            install(Modules.override(new BusinessModule()).with(new TestModule()));
-        }
-    }
-
-
     @Inject
     TestHelper testHelper;
+    @Inject
+    GCMMessageFactory messageFactory;
 
     @Before
     public void before() {
@@ -46,10 +36,6 @@ public class DevicesTest {
         testHelper.tearDown();
     }
 
-    @Inject
-    GCMMessageFactory messageFactory;
-
-
     @Test
     public void marshall() {
 
@@ -60,5 +46,15 @@ public class DevicesTest {
 
         logger.info(messageFactory.marshallCar(new CarTransfer(car)));
 
+    }
+
+    /**
+     * Overrides the common bindings from TestBase with the
+     * module that has test-specific bindings for Foo.
+     */
+    public static class Module extends JukitoModule {
+        protected void configureTest() {
+            install(Modules.override(new BusinessModule()).with(new TestModule()));
+        }
     }
 }

@@ -10,16 +10,17 @@ import com.googlecode.objectify.impl.ObjectifyImpl;
  *
  * @author Jeff Schnitzer
  */
-public class Ofy extends ObjectifyImpl<Ofy>
-{
-	/** */
-	public Ofy(OfyFactory base) {
-		super(base);
-	}
+public class Ofy extends ObjectifyImpl<Ofy> {
+    /** */
+    public Ofy(OfyFactory base) {
+        super(base);
+    }
 
-	/** More wrappers, fun */
-	@Override
-	public OfyLoader load() {
-		return new OfyLoader(this);
-	}
+    /**
+     * More wrappers, fun
+     */
+    @Override
+    public OfyLoader load() {
+        return new OfyLoader(this);
+    }
 }

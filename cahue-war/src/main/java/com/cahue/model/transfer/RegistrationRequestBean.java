@@ -7,6 +7,7 @@ package com.cahue.model.transfer;
 public class RegistrationRequestBean {
 
     private String googleAuthToken;
+    private String deviceRegId;
 
     public String getGoogleAuthToken() {
         return googleAuthToken;
@@ -15,8 +16,6 @@ public class RegistrationRequestBean {
     public void setGoogleAuthToken(String googleAuthToken) {
         this.googleAuthToken = googleAuthToken;
     }
-
-    private String deviceRegId;
 
     public String getDeviceRegId() {
         return deviceRegId;

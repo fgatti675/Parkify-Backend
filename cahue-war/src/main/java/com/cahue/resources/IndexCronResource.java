@@ -19,13 +19,11 @@ import java.util.logging.Logger;
 public class IndexCronResource {
 
 
-    Logger logger = Logger.getLogger(getClass().getName());
-
     /**
      * Last timeout time. Every entry in the cartoDBPersistence before this time should have been previously removed.
      */
     private static Date lastTimeout;
-
+    Logger logger = Logger.getLogger(getClass().getName());
     @Inject
     @Named(SpotsIndex.MySQL)
     SpotsIndex spotsIndex;

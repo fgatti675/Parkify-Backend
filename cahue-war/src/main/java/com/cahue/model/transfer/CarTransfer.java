@@ -54,6 +54,7 @@ public class CarTransfer {
             time = spot.getTime();
         }
     }
+
     public Car createCar() {
         Car car = new Car();
         car.setId(id);

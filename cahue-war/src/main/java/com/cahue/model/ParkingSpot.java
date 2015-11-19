@@ -30,12 +30,12 @@ public class ParkingSpot {
     }
 
     public Long getId() {
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Double getLongitude() {
         return longitude;
@@ -71,7 +71,7 @@ public class ParkingSpot {
 
     @XmlTransient
     public Car getCar() {
-        if(car == null) return null;
+        if (car == null) return null;
         return car.get();
     }
 

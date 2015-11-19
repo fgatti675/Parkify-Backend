@@ -11,18 +11,18 @@ import java.util.Map;
 
 @Path("/Hey")
 public class HeyResource {
-	
 
-	@GET
-	@Produces(MediaType.TEXT_HTML)
-	@Path("/template")
-	@Template(name="/foo.ftl")
-	public Map<String, Object> template() {
-		Map<String, Object> map = new HashMap<>();
-		map.put("foo", "Akshay");
-		map.put("bar", "Yo Yo Whatsup?");
-		return map;
-	}
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/template")
+    @Template(name = "/foo.ftl")
+    public Map<String, Object> template() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("foo", "Akshay");
+        map.put("bar", "Yo Yo Whatsup?");
+        return map;
+    }
 
 
 }

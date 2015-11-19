@@ -18,27 +18,24 @@ import java.util.Date;
 @Entity
 public class User {
 
+    @Id
+    private Long id;
+    @Load
+    private Ref<GoogleUser> googleUser;
+    @Load
+    private Ref<FacebookUser> facebookUser;
+    private Date creationDate = new Date();
+    private String refreshToken;
+
+    @Inject
+    private User() {
+    }
+
     public static User create(String refreshToken) {
         User user = new User();
         user.setRefreshToken(refreshToken);
         return user;
     }
-
-    @Inject
-    private User(){}
-
-    @Id
-    private Long id;
-
-    @Load
-    private Ref<GoogleUser> googleUser;
-
-    @Load
-    private Ref<FacebookUser> facebookUser;
-
-    private Date creationDate = new Date();
-
-    private String refreshToken;
 
     public Long getId() {
         return id;
