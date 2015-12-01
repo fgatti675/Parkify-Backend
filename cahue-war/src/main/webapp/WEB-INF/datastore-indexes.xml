@@ -7,4 +7,10 @@
     <!--<datastore-index kind="ParkingSpot" ancestor="false">-->
     <!--<property name="date" direction="desc" />-->
     <!--</datastore-index>-->
+
+    <!--<datastore-index kind="GasStation">-->
+        <!--<property name="brand" />-->
+        <!--<property name="location" mode="geospatial" />-->
+    <!--</datastore-index>-->
+
 </datastore-indexes>
