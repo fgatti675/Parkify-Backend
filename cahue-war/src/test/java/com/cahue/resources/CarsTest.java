@@ -77,8 +77,8 @@ public class CarsTest {
 
         CarTransfer saved = carsResource.save(new CarTransfer(car, spot));
         ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", saved);
-        assertEquals(car, saved.createCar());
-        assertEquals(spot, saved.createSpot());
+        assertEquals(car, saved.createOfyCar());
+        assertEquals(spot, saved.getSpot().createOfySpot());
 
     }
 

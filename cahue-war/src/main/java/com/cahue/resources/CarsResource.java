@@ -8,6 +8,7 @@ import com.cahue.model.Device;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
 import com.cahue.model.transfer.CarTransfer;
+import com.cahue.model.transfer.ParkingSpotTransfer;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -68,8 +69,9 @@ public class CarsResource {
 
         User user = userService.getCurrentUser();
 
-        Car car = carTransfer.createCar();
-        ParkingSpot spot = carTransfer.createSpot();
+        Car car = carTransfer.createOfyCar();
+        ParkingSpotTransfer spotTransfer = carTransfer.getSpot();
+        ParkingSpot spot = spotTransfer != null ? spotTransfer.createOfySpot() : null;
 
         logger.info("Received car: " + car);
 
