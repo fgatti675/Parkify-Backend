@@ -4,13 +4,14 @@
     <!--<datastore-index kind="User" ancestor="false">-->
     <!--<property name="googleId" direction="asc" />-->
     <!--</datastore-index>-->
-    <!--<datastore-index kind="ParkingSpot" ancestor="false">-->
-    <!--<property name="date" direction="desc" />-->
+
+    <!--<datastore-index kind="ParkingSpotIndexEntry" ancestor="false">-->
+        <!--<property name="expiryTime" direction="desc"/>-->
     <!--</datastore-index>-->
 
-    <!--<datastore-index kind="GasStation">-->
-        <!--<property name="brand" />-->
-        <!--<property name="location" mode="geospatial" />-->
+    <!--<datastore-index kind="FreeParkingSpot" >-->
+        <!--&lt;!&ndash;<property name="expiryTime"/>&ndash;&gt;-->
+        <!--<property name="location" mode="geospatial"/>-->
     <!--</datastore-index>-->
 
 </datastore-indexes>

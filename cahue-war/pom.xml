@@ -9,7 +9,7 @@
     <artifactId>cahue-war</artifactId>
 
     <properties>
-        <appengine.app.version>20-war</appengine.app.version>
+        <appengine.app.version>v3</appengine.app.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>2.17</jersey.version>
         <guice.version>4.0-beta5</guice.version>
@@ -54,13 +54,11 @@
             <version>${appengine.target.version}</version>
         </dependency>
 
-
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-remote-api</artifactId>
             <version>${appengine.target.version}</version>
         </dependency>
-
 
         <dependency>
             <groupId>com.google.inject</groupId>

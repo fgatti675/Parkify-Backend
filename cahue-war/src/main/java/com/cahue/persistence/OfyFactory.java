@@ -36,6 +36,7 @@ public class OfyFactory extends ObjectifyFactory {
         this.register(Car.class);
         this.register(Device.class);
         this.register(ParkingSpot.class);
+        this.register(FreeParkingSpot.class);
 
         long millis = System.currentTimeMillis() - time;
     }

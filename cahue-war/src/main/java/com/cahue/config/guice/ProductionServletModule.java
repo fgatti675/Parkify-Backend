@@ -13,7 +13,7 @@ public class ProductionServletModule extends ServletModule {
     protected void configureServlets() {
 
         filter("/*").through(ObjectifyFilter.class);
-        filter("/*").through(AuthenticationFilter.class);
+        filter("^((?!/remote_api).)*$").through(AuthenticationFilter.class); // all but remote_api
 
         bind(RemoteApiServlet.class).in(Singleton.class);
         serve("/remote_api").with(RemoteApiServlet.class);

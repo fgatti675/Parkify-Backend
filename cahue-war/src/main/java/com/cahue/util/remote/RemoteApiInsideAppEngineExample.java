@@ -22,39 +22,30 @@ import java.util.List;
  */
 public class RemoteApiInsideAppEngineExample {
 
-    public static final String EMAIL_ADDRESS = "582791978228-kl51c8scvc1ombariffo8bsnf25qf7st@developer.gserviceaccount.com";
-    private final RemoteApiOptions options;
-
 
     public RemoteApiInsideAppEngineExample()
             throws IOException, GeneralSecurityException {
 
-        PrivateKey privateKey = SecurityUtils.loadPrivateKeyFromKeyStore(SecurityUtils.getPkcs12KeyStore(),
-                this.getClass().getClassLoader().getResourceAsStream("Cahue-4d17cda7873b.p12"), "notasecret", "privatekey", "notasecret");
-
-
-        this.options = new RemoteApiOptions()
-                .useServiceAccountCredential(EMAIL_ADDRESS, privateKey)
-                .server("glossy-radio.appspot.com", 443);
-
+        RemoteApiOptions options = new RemoteApiOptions()
+                .server("glossy-radio.appspot.com", 443)
+                .useApplicationDefaultCredential();
 
         RemoteApiInstaller installer = new RemoteApiInstaller();
         installer.install(options);
+
         try {
-
-//            Injector injector = Guice.createInjector(
-//                    new BusinessModule()
-//            );
-
 
             Closeable session = ObjectifyService.begin();
 
             ObjectifyService.register(GoogleUser.class);
 //            ObjectifyService.setFactory(new OfyFactory(injector));
-            Query<GoogleUser> q = OfyService.ofy().load().type(GoogleUser.class);
-            List<GoogleUser> users = q.list();
-            for (GoogleUser user : users)
-                System.out.println(user.getEmail());
+            int count= OfyService.ofy().load().type(GoogleUser.class).count();
+            System.out.println(count);
+
+//            Query<GoogleUser> q = OfyService.ofy().load().type(GoogleUser.class).limit(100);
+//            List<GoogleUser> users = q.list();
+//            for (GoogleUser user : users)
+//                System.out.println(user.getEmail());
 //            OfyService.ofy().save().entities(users).now();
 
             session.close();
@@ -66,16 +57,5 @@ public class RemoteApiInsideAppEngineExample {
 
     public static void main(String[] args) throws IOException, GeneralSecurityException {
         new RemoteApiInsideAppEngineExample();
-    }
-
-    void putInRemoteDatastore(Entity entity) throws IOException {
-        RemoteApiInstaller installer = new RemoteApiInstaller();
-        installer.install(options);
-        try {
-            DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-            System.out.println("Key of new entity is " + ds.put(entity));
-        } finally {
-            installer.uninstall();
-        }
     }
 }

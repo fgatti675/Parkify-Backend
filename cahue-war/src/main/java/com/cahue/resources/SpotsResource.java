@@ -4,8 +4,10 @@ import com.cahue.auth.AuthenticationException;
 import com.cahue.auth.UserService;
 import com.cahue.index.ParkingSpotIndexEntry;
 import com.cahue.index.SpotsIndex;
+import com.cahue.model.FreeParkingSpot;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
+import com.cahue.model.transfer.ParkingSpotTransfer;
 import com.cahue.model.transfer.QueryResult;
 import com.googlecode.objectify.Key;
 
@@ -28,7 +30,7 @@ public class SpotsResource {
     /**
      * Accuracy threshold for storing parking spots, in meters
      */
-    private final static int MINIMUM_SPOT_ACCURACY = 25;
+    private final static int MINIMUM_SPOT_ACCURACY = 30;
 
     Logger logger = Logger.getLogger(getClass().getName());
 
@@ -59,7 +61,7 @@ public class SpotsResource {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces(MediaType.APPLICATION_JSON)
-    public ParkingSpotIndexEntry put(ParkingSpotIndexEntry indexEntry) {
+    public ParkingSpotTransfer put(ParkingSpotTransfer indexEntry) {
 
         if (indexEntry.getAccuracy() > MINIMUM_SPOT_ACCURACY) {
             logger.fine("Spot received but too inaccurate : " + indexEntry.getAccuracy() + " m.");
@@ -79,7 +81,7 @@ public class SpotsResource {
             // TODO: ok by now
         }
 
-        Key<ParkingSpot> psKey = store(indexEntry);
+        Key<FreeParkingSpot> psKey = store(indexEntry);
         logger.fine("Stored key : " + psKey);
 
         return indexEntry;
@@ -89,34 +91,42 @@ public class SpotsResource {
     /**
      * Store the parking spot both in the datastore and the index
      *
-     * @param indexEntry
+     * @param spotTransfer
      * @return
      */
-    public Key<ParkingSpot> store(ParkingSpotIndexEntry indexEntry) {
+    public Key<FreeParkingSpot> store(ParkingSpotTransfer spotTransfer) {
 
         /**
          * Update time
          */
         Calendar calendar = Calendar.getInstance();
-        indexEntry.setTime(calendar.getTime());
+        spotTransfer.setTime(calendar.getTime());
 
         /**
          * Save in datastore
          */
-        ParkingSpot spot = indexEntry.createSpot();
-        Key<ParkingSpot> key = ofy().save().entity(spot).now();
-        indexEntry.setId(key.getId());
+        FreeParkingSpot spot = spotTransfer.createSpot();
+        Key<FreeParkingSpot> key = ofy().save().entity(spot).now();
+        spotTransfer.setId(key.getId());
 
         /**
          * Put in index database
          */
-        if (indexEntry.isFuture()) {
+        ParkingSpotIndexEntry indexEntry = new ParkingSpotIndexEntry();
+        indexEntry.setAccuracy(spotTransfer.getAccuracy());
+        indexEntry.setExpiryTime(spotTransfer.getExpiryTime());
+        indexEntry.setFuture(spotTransfer.isFuture());
+        indexEntry.setId(spotTransfer.getId());
+        indexEntry.setLatitude(spotTransfer.getLatitude());
+        indexEntry.setLongitude(spotTransfer.getLongitude());
+        if (spotTransfer.isFuture()) {
             calendar.add(Calendar.MINUTE, SpotsIndex.FUTURE_SPOT_TIMEOUT_M);
             indexEntry.setExpiryTime(calendar.getTime());
         } else {
             calendar.add(Calendar.MINUTE, SpotsIndex.SPOT_TIMEOUT_M);
             indexEntry.setExpiryTime(calendar.getTime());
         }
+
         spotsIndex.put(indexEntry);
 
         return key;
