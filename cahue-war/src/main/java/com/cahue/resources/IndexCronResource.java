@@ -20,10 +20,12 @@ public class IndexCronResource {
 
 
     /**
-     * Last timeout time. Every entry in the cartoDBPersistence before this time should have been previously removed.
+     * Last timeout time. Every entry in the spots index before this time should have been previously removed.
      */
     private static Date lastTimeout;
+
     Logger logger = Logger.getLogger(getClass().getName());
+
     @Inject
     @Named(SpotsIndex.MySQL)
     SpotsIndex spotsIndex;

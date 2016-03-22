@@ -9,7 +9,7 @@
     <artifactId>cahue-war</artifactId>
 
     <properties>
-        <appengine.app.version>20-war</appengine.app.version>
+        <appengine.app.version>v3</appengine.app.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>2.17</jersey.version>
         <guice.version>4.0-beta5</guice.version>
@@ -300,8 +300,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>

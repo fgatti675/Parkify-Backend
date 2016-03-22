@@ -9,13 +9,13 @@ import com.cahue.model.transfer.QueryResult;
  */
 public interface SpotsIndex {
 
-    public static final int FUTURE_SPOT_TIMEOUT_M = 3; // 3 minutes
-    public static final int SPOT_TIMEOUT_M = 20; // 20 minutes
+    int FUTURE_SPOT_TIMEOUT_M = 3; // 3 minutes
+    int SPOT_TIMEOUT_M = 20; // 20 minutes
 
-    public static final int MAX_RESULTS = 100;
+    int MAX_RESULTS = 100;
 
-    public final static String CartoDB = "CartoDB";
-    public final static String MySQL = "MySQL";
+    String CartoDB = "CartoDB";
+    String MySQL = "MySQL";
 
     QueryResult queryNearest(Double latitude, Double longitude, int nearest);
 

@@ -4,6 +4,7 @@ import com.cahue.auth.UserAuthenticationService;
 import com.cahue.auth.UserService;
 import com.cahue.gcm.GCMMessageFactory;
 import com.cahue.gcm.GCMSender;
+import com.cahue.index.AppEngineSpotsIndex;
 import com.cahue.index.MySQLIndex;
 import com.cahue.index.SpotsIndex;
 import com.cahue.persistence.MySQLDataSource;
@@ -23,6 +24,7 @@ public class BusinessModule extends AbstractModule {
 
         bind(MySQLDataSource.class);
         bind(SpotsIndex.class).to(MySQLIndex.class);
+        bind(AppEngineSpotsIndex.class);
 
         bind(CarsResource.class);
 
