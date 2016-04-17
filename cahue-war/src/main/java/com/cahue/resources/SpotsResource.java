@@ -121,10 +121,10 @@ public class SpotsResource {
         indexEntry.setLongitude(spotTransfer.getLongitude());
         if (spotTransfer.isFuture()) {
             calendar.add(Calendar.MINUTE, SpotsIndex.FUTURE_SPOT_TIMEOUT_M);
-            indexEntry.setExpiryTime(calendar.getTime());
+            spotTransfer.setExpiryTime(calendar.getTime());
         } else {
             calendar.add(Calendar.MINUTE, SpotsIndex.SPOT_TIMEOUT_M);
-            indexEntry.setExpiryTime(calendar.getTime());
+            spotTransfer.setExpiryTime(calendar.getTime());
         }
 
         spotsIndex.put(indexEntry);
