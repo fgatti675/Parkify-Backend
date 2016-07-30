@@ -2,6 +2,9 @@ package com.cahue.util.remote;
 
 import com.cahue.model.GoogleUser;
 import com.cahue.config.persistence.OfyService;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.tools.remoteapi.RemoteApiInstaller;
 import com.google.appengine.tools.remoteapi.RemoteApiOptions;
 import com.googlecode.objectify.ObjectifyService;
@@ -44,14 +47,4 @@ public class RemoteApiInsideAppEngineExample {
         }
     }
 
-    void putInRemoteDatastore(Entity entity) throws IOException {
-        RemoteApiInstaller installer = new RemoteApiInstaller();
-        installer.install(options);
-        try {
-            DatastoreService ds = DatastoreServiceFactory.getDatastoreService();
-            System.out.println("Key of new entity is " + ds.put(entity));
-        } finally {
-            installer.uninstall();
-        }
-    }
 }

@@ -38,10 +38,15 @@ public class CarsResource {
 //    @Inject
 //    UserService userService;
 
+    @Inject
+    UserAuthenticationService userAuthenticationService;
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public List<CarTransfer> retrieve() {
-        List<Car> cars = userService.retrieveUserCars();
+    public List<CarTransfer> retrieve (@HeaderParam("Authorization") String authToken) {
+
+        User user = userAuthenticationService.retrieveUser(authToken);
+        List<Car> cars = ofy().load().type(Car.class).ancestor(user).list();
         List<CarTransfer> transfers = new ArrayList<>();
         for (Car car : cars) transfers.add(new CarTransfer(car));
         return transfers;
@@ -52,7 +57,7 @@ public class CarsResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response delete(@PathParam(value = "carId") String carId, @HeaderParam("Authorization") String authToken, @HeaderParam("Device") String deviceId) {
 
-        User user = userService.getCurrentUser();
+        User user = userAuthenticationService.retrieveUser(authToken);
 
         ofy().delete().type(Car.class).parent(user).id(carId).now();
 
@@ -67,7 +72,11 @@ public class CarsResource {
     @Consumes({MediaType.APPLICATION_JSON})
     public CarTransfer save(CarTransfer carTransfer, @HeaderParam("Authorization") String authToken, @HeaderParam("Device") String deviceId) {
 
-        User user = userService.getCurrentUser();
+
+        logger.fine("Token: " + authToken);
+        User user = userAuthenticationService.retrieveUser(authToken);
+        logger.fine("User: " + user);
+
 
         Car car = carTransfer.createCar();
         ParkingSpot spot = carTransfer.createSpot();
