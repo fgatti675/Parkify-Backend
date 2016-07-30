@@ -1,6 +1,7 @@
 package com.cahue.config;
 
-import com.cahue.persistence.MySQLDataSource;
+import com.cahue.auth.UserAuthenticationService;
+import com.cahue.config.persistence.MySQLDataSource;
 import com.cahue.resources.SpotsResource;
 import com.cahue.resources.TestHelper;
 import com.google.inject.AbstractModule;
@@ -18,6 +19,7 @@ public class TestModule extends AbstractModule {
 
         bind(TestHelper.class);
         bind(SpotsResource.class);
+        bind(UserAuthenticationService.class);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.cahue.persistence;
+package com.cahue.config.persistence;
 
 import com.google.appengine.api.utils.SystemProperty;
 

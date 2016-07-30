@@ -64,7 +64,7 @@ public class CarsTest {
         car.setBtAddress("Test BT address");
         car.setColor(-468682546);
 
-        carsResource.save(new CarTransfer(car));
+        carsResource.save(new CarTransfer(car), null, null);
         assertThat(userService.retrieveUserCars(), is(Arrays.asList(car)));
 
         ParkingSpot spot = new ParkingSpot();
@@ -75,7 +75,7 @@ public class CarsTest {
         spot.setAccuracy(10F);
         spot.setCar(car);
 
-        CarTransfer saved = carsResource.save(new CarTransfer(car, spot));
+        CarTransfer saved = carsResource.save(new CarTransfer(car, spot), null, null);
         ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", saved);
         assertEquals(car, saved.createCar());
         assertEquals(spot, saved.createSpot());

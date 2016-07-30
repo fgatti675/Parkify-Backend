@@ -6,9 +6,11 @@ import com.cahue.gcm.GCMMessageFactory;
 import com.cahue.gcm.GCMSender;
 import com.cahue.index.MySQLIndex;
 import com.cahue.index.SpotsIndex;
-import com.cahue.persistence.MySQLDataSource;
-import com.cahue.persistence.OfyService;
+import com.cahue.config.persistence.MySQLDataSource;
+import com.cahue.config.persistence.OfyService;
+import com.cahue.places.PlacesManager;
 import com.cahue.resources.CarsResource;
+import com.cahue.resources.PlacesResource;
 import com.google.inject.AbstractModule;
 import com.googlecode.objectify.ObjectifyFilter;
 
@@ -23,6 +25,8 @@ public class BusinessModule extends AbstractModule {
 
         bind(MySQLDataSource.class);
         bind(SpotsIndex.class).to(MySQLIndex.class);
+
+        bind(PlacesManager.class);
 
         bind(CarsResource.class);
 

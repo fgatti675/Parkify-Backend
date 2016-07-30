@@ -1,7 +1,7 @@
 /*
  */
 
-package com.cahue.persistence;
+package com.cahue.config.persistence;
 
 import com.googlecode.objectify.impl.ObjectifyImpl;
 

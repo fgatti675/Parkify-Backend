@@ -28,7 +28,7 @@ public class SpotsResource {
     /**
      * Accuracy threshold for storing parking spots, in meters
      */
-    private final static int MINIMUM_SPOT_ACCURACY = 25;
+    private final static int MINIMUM_SPOT_ACCURACY = 35;
 
     Logger logger = Logger.getLogger(getClass().getName());
 

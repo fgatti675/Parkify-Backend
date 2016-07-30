@@ -17,14 +17,9 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
 @Singleton
 public class GCMSender {
 
-    /**
-     * Google Api key for accessing data not associated with an account
-     */
-    public static final String GOOGLE_API_KEY = "AIzaSyDbQbpQJDM0HoNDEstvLZI2y4HD0Pw4GzM";
-
     private static final Logger log = Logger.getLogger(GCMSender.class.getName());
 
-    private Sender sender = new Sender(GOOGLE_API_KEY);
+    private Sender sender = new Sender(com.cahue.config.Constants.GOOGLE_API_KEY);
 
     /**
      * Unregisters a device.

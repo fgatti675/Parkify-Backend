@@ -2,7 +2,7 @@ package com.cahue.index;
 
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.transfer.QueryResult;
-import com.cahue.persistence.MySQLDataSource;
+import com.cahue.config.persistence.MySQLDataSource;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;

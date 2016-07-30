@@ -1,6 +1,6 @@
 package com.cahue.resources;
 
-import com.cahue.auth.UserService;
+import com.cahue.auth.UserAuthenticationService;
 import com.cahue.gcm.GCMMessageFactory;
 import com.cahue.gcm.GCMSender;
 import com.cahue.model.Car;
@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -34,8 +35,8 @@ public class CarsResource {
     @Inject
     GCMMessageFactory messageFactory;
 
-    @Inject
-    UserService userService;
+//    @Inject
+//    UserService userService;
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
@@ -49,13 +50,13 @@ public class CarsResource {
     @DELETE
     @Path("/{carId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response delete(@PathParam(value = "carId") String carId) {
+    public Response delete(@PathParam(value = "carId") String carId, @HeaderParam("Authorization") String authToken, @HeaderParam("Device") String deviceId) {
 
         User user = userService.getCurrentUser();
 
         ofy().delete().type(Car.class).parent(user).id(carId).now();
 
-        List<Device> devices = userService.getUserDevicesButCurrent();
+        List<Device> devices = getUserDevicesButCurrent(user, deviceId);
         sender.sendGCMMultiUpdate(user, devices, messageFactory.getCarDeletedMessage(carId));
 
         return Response.ok().entity(carId).build();
@@ -64,7 +65,7 @@ public class CarsResource {
     @POST
     @Produces({MediaType.APPLICATION_JSON})
     @Consumes({MediaType.APPLICATION_JSON})
-    public CarTransfer save(CarTransfer carTransfer) {
+    public CarTransfer save(CarTransfer carTransfer, @HeaderParam("Authorization") String authToken, @HeaderParam("Device") String deviceId) {
 
         User user = userService.getCurrentUser();
 
@@ -79,7 +80,7 @@ public class CarsResource {
 
         CarTransfer result = new CarTransfer(car, spot);
 
-        List<Device> devices = userService.getUserDevicesButCurrent();
+        List<Device> devices = getUserDevicesButCurrent(user, deviceId);
         sender.sendGCMMultiUpdate(user, devices, messageFactory.getCarUpdateMessage(result));
 
         return result;
@@ -96,6 +97,25 @@ public class CarsResource {
         car.setSpot(spot);
         ofy().save().entity(car).now();
     }
+
+
+    /**
+     * Gets all registered devices, except the one starting this request
+     * @param user
+     * @param deviceId
+     */
+    public List<Device> getUserDevicesButCurrent(User user, String deviceId) {
+        List<Device> list = ofy().load().type(Device.class).ancestor(user).list();;
+        if (deviceId != null) {
+            Iterator<Device> iterator = list.iterator();
+            while (iterator.hasNext()) {
+                if (iterator.next().getRegId().equals(deviceId)) iterator.remove();
+            }
+        }
+        return list;
+    }
+
+
 
 
 }

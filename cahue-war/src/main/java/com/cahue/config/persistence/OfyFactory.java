@@ -1,7 +1,7 @@
 /*
  */
 
-package com.cahue.persistence;
+package com.cahue.config.persistence;
 
 import com.cahue.model.*;
 import com.google.inject.Injector;

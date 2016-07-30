@@ -1,6 +1,6 @@
 package com.cahue.config;
 
-import com.cahue.persistence.MySQLDataSource;
+import com.cahue.config.persistence.MySQLDataSource;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
