@@ -125,7 +125,7 @@
 //    private QueryResult retrieve(String sql) {
 //
 //        List<ParkingSpotIndexEntry> spots = new ArrayList<>();
-//        QueryResult result = new QueryResult();
+//        SpotsQueryResult result = new SpotsQueryResult();
 //
 //        String sqlString = sql;
 //

@@ -20,30 +20,38 @@ public class PlacesManager {
 
     public static final JsonParser PARSER = new JsonParser();
 
-    public List<Place> getPlaces(Double latitude, Double longitude, int radius) {
+    public PlacesResult getPlaces(Double latitude, Double longitude, int radius) {
+
+        PlacesResult result = new PlacesResult();
 
         String response = ClientBuilder.newClient().target("https://maps.googleapis.com/maps/api/place/nearbysearch/json")
                 .queryParam("location", String.format("%f,%f", latitude, longitude))
                 .queryParam("radius", radius)
                 .queryParam("types", "parking")
+                .queryParam("name", "parking")
+                .queryParam("rankby", "prominence")
                 .queryParam("key", Constants.GOOGLE_API_KEY)
                 .request(MediaType.APPLICATION_JSON)
                 .get(String.class);
 
-        JsonObject result = PARSER.parse(response).getAsJsonObject();
-        List<Place> places = getPlacesFromJson(result);
+        JsonElement jsonResponse = PARSER.parse(response);
+        List<Place> places = getPlacesFromJson(jsonResponse.getAsJsonObject());
+        result.setPlaces(places);
 
-        return places;
+        result.setMoreResults(jsonResponse.getAsJsonObject().has("next_page_token"));
+
+        return result;
     }
 
     private List<Place> getPlacesFromJson(JsonObject jsonRoot) {
+
         List<Place> places = new ArrayList<>();
         for (JsonElement jsonElement : jsonRoot.getAsJsonArray("results")) {
             JsonObject jsonPlace = jsonElement.getAsJsonObject();
             Place place = new Place();
             place.setId(jsonPlace.get("place_id").getAsString());
             JsonObject location = jsonPlace.getAsJsonObject("geometry").getAsJsonObject("location");
-            place.setLatitide(location.get("lat").getAsDouble());
+            place.setLatitude(location.get("lat").getAsDouble());
             place.setLongitude(location.get("lng").getAsDouble());
             place.setName(jsonPlace.get("name").getAsString());
             place.setAddress(jsonPlace.get("vicinity").getAsString());

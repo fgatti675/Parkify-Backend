@@ -1,7 +1,5 @@
 package com.cahue.model;
 
-import javax.xml.bind.annotation.XmlAttribute;
-
 /**
  * Created by f.gatti.gomez on 31/05/16.
  */
@@ -9,7 +7,7 @@ public class Place {
 
     private String id;
 
-    private Double latitide;
+    private Double latitude;
 
     private Double longitude;
 
@@ -25,12 +23,12 @@ public class Place {
         this.id = id;
     }
 
-    public Double getLatitide() {
-        return latitide;
+    public Double getLatitude() {
+        return latitude;
     }
 
-    public void setLatitide(Double latitide) {
-        this.latitide = latitide;
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
     }
 
     public Double getLongitude() {
@@ -60,7 +58,7 @@ public class Place {
     @Override
     public String toString() {
         return "Place{" +
-                "latitide=" + latitide +
+                "latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +

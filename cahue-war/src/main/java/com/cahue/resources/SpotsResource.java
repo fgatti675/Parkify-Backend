@@ -6,7 +6,7 @@ import com.cahue.index.ParkingSpotIndexEntry;
 import com.cahue.index.SpotsIndex;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
-import com.cahue.model.transfer.QueryResult;
+import com.cahue.model.transfer.SpotsQueryResult;
 import com.googlecode.objectify.Key;
 
 import javax.inject.Inject;
@@ -40,7 +40,7 @@ public class SpotsResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public QueryResult getArea(
+    public SpotsQueryResult getArea(
             @QueryParam("swLat") Double southwestLatitude,
             @QueryParam("swLong") Double southwestLongitude,
             @QueryParam("neLat") Double northeastLatitude,
@@ -126,7 +126,7 @@ public class SpotsResource {
     @Path("/nearest")
     @Produces(MediaType.APPLICATION_JSON)
     @Deprecated
-    public QueryResult getNearest(
+    public SpotsQueryResult getNearest(
             @QueryParam("lat") Double latitude,
             @QueryParam("long") Double longitude,
             @QueryParam("count") Integer count) {
@@ -141,7 +141,7 @@ public class SpotsResource {
     @Path("/area")
     @Produces(MediaType.APPLICATION_JSON)
     @Deprecated
-    public QueryResult getAreaLegacy(
+    public SpotsQueryResult getAreaLegacy(
             @QueryParam("swLat") Double southwestLatitude,
             @QueryParam("swLong") Double southwestLongitude,
             @QueryParam("neLat") Double northeastLatitude,

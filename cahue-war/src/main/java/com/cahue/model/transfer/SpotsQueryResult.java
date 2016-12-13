@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by Francesco on 11/12/2014.
  */
-public class QueryResult {
+public class SpotsQueryResult {
 
     /**
      * Was there an error retrieving data

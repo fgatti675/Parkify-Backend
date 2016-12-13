@@ -1,7 +1,7 @@
 package com.cahue.index;
 
 import com.cahue.model.ParkingSpot;
-import com.cahue.model.transfer.QueryResult;
+import com.cahue.model.transfer.SpotsQueryResult;
 import com.cahue.config.persistence.MySQLDataSource;
 
 import javax.inject.Inject;
@@ -24,7 +24,7 @@ public class MySQLIndex implements SpotsIndex {
     private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     @Override
-    public QueryResult queryNearest(Double latitude, Double longitude, int nearest) {
+    public SpotsQueryResult queryNearest(Double latitude, Double longitude, int nearest) {
         EntityManager em = dataSource.createRelationalEntityManager();
         String sql = String.format(
                 Locale.ENGLISH,
@@ -37,13 +37,13 @@ public class MySQLIndex implements SpotsIndex {
         );
         List resultList = em.createNativeQuery(sql, ParkingSpot.class).getResultList();
 
-        QueryResult result = new QueryResult();
+        SpotsQueryResult result = new SpotsQueryResult();
         result.setSpots(resultList);
         return result;
     }
 
     @Override
-    public QueryResult queryArea(Double southwestLatitude, Double southwestLongitude, Double northeastLatitude, Double northeastLongitude) {
+    public SpotsQueryResult queryArea(Double southwestLatitude, Double southwestLongitude, Double northeastLatitude, Double northeastLongitude) {
 
         EntityManager em = dataSource.createRelationalEntityManager();
         String sql = String.format(
@@ -60,7 +60,7 @@ public class MySQLIndex implements SpotsIndex {
         );
         List<ParkingSpotIndexEntry> resultList = em.createNativeQuery(sql, ParkingSpotIndexEntry.class).getResultList();
 
-        QueryResult result = new QueryResult();
+        SpotsQueryResult result = new SpotsQueryResult();
         result.setSpots(resultList);
         result.setMoreResults(resultList.size() == MAX_RESULTS);
         return result;

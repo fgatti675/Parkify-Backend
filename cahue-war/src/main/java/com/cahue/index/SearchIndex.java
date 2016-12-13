@@ -1,7 +1,7 @@
 package com.cahue.index;
 
 
-import com.cahue.model.transfer.QueryResult;
+import com.cahue.model.transfer.SpotsQueryResult;
 import com.google.appengine.api.search.*;
 
 import javax.inject.Singleton;
@@ -55,9 +55,9 @@ public class SearchIndex implements SpotsIndex {
     }
 
     @Override
-    public QueryResult queryNearest(Double latitude, Double longitude, int nearest) {
+    public SpotsQueryResult queryNearest(Double latitude, Double longitude, int nearest) {
 
-        QueryResult result = new QueryResult();
+        SpotsQueryResult result = new SpotsQueryResult();
 
         /**
          * Query index first
@@ -87,7 +87,7 @@ public class SearchIndex implements SpotsIndex {
     }
 
     @Override
-    public QueryResult queryArea(Double southwestLatitude, Double southwestLongitude, Double northeastLatitude, Double northeastLongitude) {
+    public SpotsQueryResult queryArea(Double southwestLatitude, Double southwestLongitude, Double northeastLatitude, Double northeastLongitude) {
         return null;
     }
 

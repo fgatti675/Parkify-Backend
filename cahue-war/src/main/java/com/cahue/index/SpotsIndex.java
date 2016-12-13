@@ -1,6 +1,6 @@
 package com.cahue.index;
 
-import com.cahue.model.transfer.QueryResult;
+import com.cahue.model.transfer.SpotsQueryResult;
 
 /**
  * Date: 16.12.14
@@ -17,9 +17,9 @@ public interface SpotsIndex {
     public final static String CartoDB = "CartoDB";
     public final static String MySQL = "MySQL";
 
-    QueryResult queryNearest(Double latitude, Double longitude, int nearest);
+    SpotsQueryResult queryNearest(Double latitude, Double longitude, int nearest);
 
-    QueryResult queryArea(
+    SpotsQueryResult queryArea(
             Double southwestLatitude,
             Double southwestLongitude,
             Double northeastLatitude,

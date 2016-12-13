@@ -2,7 +2,6 @@ package com.cahue.model.transfer;
 
 import com.cahue.model.Place;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -15,7 +14,7 @@ public class PlaceTransfer {
     }
 
     public PlaceTransfer(Place place) {
-        this.latitide = place.getLatitide();
+        this.latitude = place.getLatitude();
         this.longitude = place.getLongitude();
         this.name = place.getName();
         this.address = place.getAddress();
@@ -24,7 +23,7 @@ public class PlaceTransfer {
 
     private String id;
 
-    private Double latitide;
+    private Double latitude;
 
     private Double longitude;
 
@@ -40,12 +39,12 @@ public class PlaceTransfer {
         this.id = id;
     }
 
-    public Double getLatitide() {
-        return latitide;
+    public Double getLatitude() {
+        return latitude;
     }
 
-    public void setLatitide(Double latitide) {
-        this.latitide = latitide;
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
     }
 
     public Double getLongitude() {
@@ -75,7 +74,7 @@ public class PlaceTransfer {
     @Override
     public String toString() {
         return "Place{" +
-                "latitide=" + latitide +
+                "latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +

@@ -7,7 +7,7 @@ import com.cahue.index.SpotsIndex;
 import com.cahue.model.Car;
 import com.cahue.model.ParkingSpot;
 import com.cahue.model.User;
-import com.cahue.model.transfer.QueryResult;
+import com.cahue.model.transfer.SpotsQueryResult;
 import com.cahue.model.transfer.RegistrationResult;
 import com.google.inject.Inject;
 import com.google.inject.util.Modules;
@@ -100,7 +100,7 @@ public class SpotsTest {
         /**
          * Query area and test
          */
-        QueryResult area = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
+        SpotsQueryResult area = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
         // look for the one in the future
         for (ParkingSpotIndexEntry entry : area.getSpots()) {
             ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", entry);
@@ -131,7 +131,7 @@ public class SpotsTest {
         ps1index.setFuture(false);
         spotsResource.store(ps1index);
 
-        QueryResult newArea = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
+        SpotsQueryResult newArea = spotsResource.getArea(-100.0, -100.0, 100.0, 100.0);
         // look for the one in the future
         for (ParkingSpotIndexEntry entry : newArea.getSpots()) {
             ReflectionAssert.assertPropertiesNotNull("Null values in the car transfer", entry);

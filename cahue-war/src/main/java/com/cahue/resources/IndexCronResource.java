@@ -18,12 +18,8 @@ import java.util.logging.Logger;
 @Path("/index")
 public class IndexCronResource {
 
-
-    /**
-     * Last timeout time. Every entry in the cartoDBPersistence before this time should have been previously removed.
-     */
-    private static Date lastTimeout;
     Logger logger = Logger.getLogger(getClass().getName());
+
     @Inject
     @Named(SpotsIndex.MySQL)
     SpotsIndex spotsIndex;
@@ -31,6 +27,16 @@ public class IndexCronResource {
     @GET
     @Path("/cleanStale")
     public synchronized Response cleanIndex() {
+
+        int deletedCount = spotsIndex.expireStale();
+        logger.fine(String.format("Deleted %d entries from spots index", deletedCount));
+
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/checkCar2Go")
+    public synchronized Response checkCar2Go() {
 
         int deletedCount = spotsIndex.expireStale();
         logger.fine(String.format("Deleted %d entries from spots index", deletedCount));
