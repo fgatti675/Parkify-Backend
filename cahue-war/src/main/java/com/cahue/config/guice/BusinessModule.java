@@ -2,6 +2,7 @@ package com.cahue.config.guice;
 
 import com.cahue.auth.UserAuthenticationService;
 import com.cahue.auth.UserService;
+import com.cahue.car2go.Car2GoManager;
 import com.cahue.gcm.GCMMessageFactory;
 import com.cahue.gcm.GCMSender;
 import com.cahue.index.MySQLIndex;
@@ -27,6 +28,7 @@ public class BusinessModule extends AbstractModule {
         bind(SpotsIndex.class).to(MySQLIndex.class);
 
         bind(PlacesManager.class);
+        bind(Car2GoManager.class);
 
         bind(CarsResource.class);
 

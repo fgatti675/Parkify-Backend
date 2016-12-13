@@ -7,8 +7,9 @@
     </cron>
 
     <cron>
-        <url>/index/requestCar2Go</url>
+        <url>/index/checkCar2Go</url>
         <description>check for any updates in Car2Go</description>
         <schedule>every 1 minutes</schedule>
     </cron>
+
 </cronentries>

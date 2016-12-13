@@ -10,7 +10,7 @@ import com.cahue.model.transfer.SpotsQueryResult;
 public interface SpotsIndex {
 
     public static final int FUTURE_SPOT_TIMEOUT_M = 3; // 3 minutes
-    public static final int SPOT_TIMEOUT_M = 20; // 20 minutes
+    public static final int SPOT_TIMEOUT_M = 15; // 15 minutes
 
     public static final int MAX_RESULTS = 100;
 
