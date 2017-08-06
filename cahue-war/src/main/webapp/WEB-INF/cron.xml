@@ -6,10 +6,10 @@
         <schedule>every 2 minutes</schedule>
     </cron>
 
-    <cron>
-        <url>/index/checkCar2Go</url>
-        <description>check for any updates in Car2Go</description>
-        <schedule>every 1 minutes</schedule>
-    </cron>
+    <!--<cron>-->
+        <!--<url>/index/checkCar2Go</url>-->
+        <!--<description>check for any updates in Car2Go</description>-->
+        <!--<schedule>every 2 minutes</schedule>-->
+    <!--</cron>-->
 
 </cronentries>

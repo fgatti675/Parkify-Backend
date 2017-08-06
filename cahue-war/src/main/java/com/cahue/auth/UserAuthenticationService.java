@@ -17,6 +17,7 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.googlecode.objectify.cmd.Query;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
+import com.restfb.Parameter;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
 import javax.ws.rs.WebApplicationException;
@@ -31,6 +32,7 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
+import static com.restfb.Version.VERSION_2_9;
 
 /**
  * Created by Francesco on 13/02/2015.
@@ -197,21 +199,26 @@ public class UserAuthenticationService {
         User user = null;
 
         // Init Facebook client
-        FacebookClient facebookClient = new DefaultFacebookClient(facebookAccessToken);
+        FacebookClient facebookClient = new DefaultFacebookClient(facebookAccessToken,  VERSION_2_9);
 
-        com.restfb.types.User facebookResultUser = facebookClient.fetchObject("me", com.restfb.types.User.class);
+        com.restfb.types.User facebookResultUser = facebookClient.fetchObject("me", com.restfb.types.User.class, Parameter.with("fields", "id,name,email"));
         if (facebookResultUser == null) {
             logger.log(Level.SEVERE, "Facebook Auth token failed to be exchanged for a real Facebook person.");
             throw new WebApplicationException("Facebook Auth token failed to be exchanged for a real Facebook person.");
         }
+
+        logger.log(Level.INFO, "Facebook User login email: " + facebookResultUser.getEmail());
+
 
         /**
          * Try to retrieve the user by the facebook ID
          */
         String facebookId = facebookResultUser.getId();
         FacebookUser facebookUser = ofy().load().type(FacebookUser.class).id(facebookId).now();
-        if (facebookUser != null)
+        if (facebookUser != null) {
             user = facebookUser.getUser();
+            user.getFacebookUser().setEmail(facebookResultUser.getEmail());
+        }
 
         /**
          * Look for a Google User with the same email

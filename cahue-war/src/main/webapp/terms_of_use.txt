@@ -1,0 +1,14 @@
+Parkify terms of use:
+
+- We don't do anything with your personal data. We only use login to allow synchronization between devices
+
+- We will not sell your personal data in the future.
+
+- Your location is not tracked.
+
+
+Terms of use of services Parkify depends on:
+
+- Facebook: https://developers.facebook.com/policy/
+- Google: https://www.google.com/policies/terms/
+- Google Analytics: https://www.google.com/analytics/terms/us.html

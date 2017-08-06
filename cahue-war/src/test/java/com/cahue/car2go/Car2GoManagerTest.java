@@ -17,9 +17,29 @@ public class Car2GoManagerTest {
     }
 
     @Test
+    public void locationsTest() {
+        Car2GoManager manager = new Car2GoManager();
+        Set<Car2GoLocation> locations = manager.getLocations();
+        System.out.println(locations);
+    }
+
+    @Test
+    public void moveAllLocationsTest() {
+        Car2GoManager manager = new Car2GoManager();
+        for (Car2GoLocation location : manager.getLocations()) {
+            Set<Car2GoVehicle> vehicles = manager.getMovedVehicles(location.getLocationName());
+        }
+        for (Car2GoLocation location : manager.getLocations()) {
+            System.out.println(location.getLocationName());
+            Set<Car2GoVehicle> vehicles = manager.getMovedVehicles(location.getLocationName());
+            System.out.println(vehicles.size());
+        }
+    }
+
+    @Test
     public void movedVehiclesTest() {
         Car2GoManager manager = new Car2GoManager();
-        for(int i = 0; i<10; i++){
+        for (int i = 0; i < 10; i++) {
 
             Set<Car2GoVehicle> vehicles = manager.getMovedVehicles("München");
             System.out.println(vehicles);

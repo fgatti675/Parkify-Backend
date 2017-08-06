@@ -9,7 +9,7 @@
     <artifactId>cahue-war</artifactId>
 
     <properties>
-        <appengine.app.version>v7</appengine.app.version>
+        <appengine.app.version>v15</appengine.app.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>2.17</jersey.version>
         <guice.version>4.0-beta5</guice.version>
@@ -179,9 +179,9 @@
         <dependency>
             <groupId>com.restfb</groupId>
             <artifactId>restfb</artifactId>
-            <version>1.11.0</version>
-            <scope>compile</scope>
+            <version>2.0.0-rc.3</version>
         </dependency>
+
 
         <!--<dependency>-->
         <!--<groupId>cartodb-sva-client</groupId>-->

@@ -13,14 +13,26 @@ public class Car2GoManager {
 
     public Map<String, Set<Car2GoVehicle>> currentVehiclesMap = new HashMap<>();
 
+    public Set<Car2GoLocation> getLocations() {
+
+        Car2GoLocationResult response = ClientBuilder.newClient().target("https://www.car2go.com/api/v2.1/locations")
+                .queryParam("oauth_consumer_key", "car2gowebsite")
+                .queryParam("format", "json")
+                .request(MediaType.APPLICATION_JSON)
+                .get(Car2GoLocationResult.class);
+
+        return response.getLocation();
+
+    }
+
     public Set<Car2GoVehicle> getVehicles(String location) {
 
-        Car2GoResult response = ClientBuilder.newClient().target("https://www.car2go.com/api/v2.1/vehicles")
+        Car2GoVehicleResult response = ClientBuilder.newClient().target("https://www.car2go.com/api/v2.1/vehicles")
                 .queryParam("loc", location)
                 .queryParam("oauth_consumer_key", "car2gowebsite")
                 .queryParam("format", "json")
                 .request(MediaType.APPLICATION_JSON)
-                .get(Car2GoResult.class);
+                .get(Car2GoVehicleResult.class);
 
         return response.getPlacemarks();
 
@@ -39,9 +51,9 @@ public class Car2GoManager {
         currentVehicles.addAll(getVehicles(location));
 //        System.out.println("curr "  + currentVehicles);
         Set<Car2GoVehicle> previousVehicles = currentVehiclesMap.get(location);
-        if(previousVehicles !=null){
+        if (previousVehicles != null) {
             for (Car2GoVehicle prevVehicle : previousVehicles) {
-                if(!currentVehicles.contains(prevVehicle)){
+                if (!currentVehicles.contains(prevVehicle)) {
                     movedCars.add(prevVehicle);
                 }
             }
@@ -53,4 +65,29 @@ public class Car2GoManager {
         return movedCars;
     }
 
+    public static class Car2GoVehicleResult {
+
+        private Set<Car2GoVehicle> placemarks;
+
+        public Set<Car2GoVehicle> getPlacemarks() {
+            return placemarks;
+        }
+
+        public void setPlacemarks(Set<Car2GoVehicle> placemarks) {
+            this.placemarks = placemarks;
+        }
+    }
+
+    public static class Car2GoLocationResult {
+
+        private Set<Car2GoLocation> location;
+
+        public Set<Car2GoLocation> getLocation() {
+            return location;
+        }
+
+        public void setLocation(Set<Car2GoLocation> location) {
+            this.location = location;
+        }
+    }
 }
